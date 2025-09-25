@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../patient-core/core/app_export.dart';
-import '../../../../patient-widgets/widgets/custom_icon_widget.dart';
+import '../../../patient-core/core/app_export.dart';
+import '../../../patient-widgets/widgets/custom_icon_widget.dart';
 
 /// Empty state widget displayed when no imagery results are available
 class ImageryEmptyState extends StatelessWidget {

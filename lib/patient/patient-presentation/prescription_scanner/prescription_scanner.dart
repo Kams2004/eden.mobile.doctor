@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../patient-core/core/app_export.dart';
+import '../../patient-core/core/app_export.dart';
 import './widgets/capture_button_widget.dart';
 import './widgets/flash_toggle_widget.dart';
 import './widgets/gallery_access_widget.dart';

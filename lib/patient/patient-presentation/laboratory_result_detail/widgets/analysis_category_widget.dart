@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../patient-core/core/app_export.dart';
-import '../../../../patient-widgets/widgets/custom_icon_widget.dart';
+import '../../../patient-core/core/app_export.dart';
+import '../../../patient-widgets/widgets/custom_icon_widget.dart';
 
 class AnalysisCategoryWidget extends StatefulWidget {
   final String categoryName;

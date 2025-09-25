@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../patient-core/core/app_export.dart';
+import '../../patient-core/core/app_export.dart';
 import './widgets/action_buttons_widget.dart';
 import './widgets/analysis_category_widget.dart';
 import './widgets/reference_values_widget.dart';

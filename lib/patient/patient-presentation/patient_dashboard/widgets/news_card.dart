@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../patient-widgets/widgets/custom_icon_widget.dart';
-import '../../../../patient-widgets/widgets/custom_image_widget.dart';
+import '../../../patient-widgets/widgets/custom_icon_widget.dart';
+import '../../../patient-widgets/widgets/custom_image_widget.dart';
 
 
 

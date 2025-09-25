@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 
-import '../../../patient-widgets/widgets/custom_bottom_bar.dart';
+import '../../patient-widgets/widgets/custom_bottom_bar.dart';
 import './widgets/imagery_empty_state.dart';
 import './widgets/imagery_filter_bottom_sheet.dart';
 import './widgets/imagery_filter_chips.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../patient-core/core/app_export.dart';
+import '../../../patient-core/core/app_export.dart';
 
 /// Search header widget with search functionality and filter options
 class ImagerySearchHeader extends StatefulWidget {

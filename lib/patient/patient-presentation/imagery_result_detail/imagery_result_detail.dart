@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 
-import '../../../patient-theme/theme/app_theme.dart';
-import '../../../patient-widgets/widgets/custom_icon_widget.dart';
-import '../../../patient-widgets/widgets/custom_image_widget.dart';
+import '../../patient-theme/theme/app_theme.dart';
+import '../../patient-widgets/widgets/custom_icon_widget.dart';
+import '../../patient-widgets/widgets/custom_image_widget.dart';
 import './widgets/action_buttons_widget.dart';
 import './widgets/image_gallery_widget.dart';
 import './widgets/medical_image_viewer_widget.dart';

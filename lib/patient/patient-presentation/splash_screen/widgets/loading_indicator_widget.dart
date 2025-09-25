@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../patient-core/core/app_export.dart';
-import '../../../../patient-theme/theme/app_theme.dart';
+import '../../../patient-core/core/app_export.dart';
+import '../../../patient-theme/theme/app_theme.dart';
 
 /// Loading indicator widget with medical-themed styling
 class LoadingIndicatorWidget extends StatefulWidget {

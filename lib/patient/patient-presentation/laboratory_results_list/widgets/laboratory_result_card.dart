@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../patient-core/core/app_export.dart';
+import '../../../patient-core/core/app_export.dart';
 
 class LaboratoryResultCard extends StatelessWidget {
   final Map<String, dynamic> result;

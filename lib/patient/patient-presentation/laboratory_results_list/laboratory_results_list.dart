@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../patient-core/core/app_export.dart';
-import '../../../../patient-widgets/widgets/custom_icon_widget.dart';
+import '../../patient-core/core/app_export.dart';
+import '../../patient-widgets/widgets/custom_icon_widget.dart';
 import './widgets/category_section_header.dart';
 import './widgets/empty_state_widget.dart';
 import './widgets/filter_bottom_sheet.dart';

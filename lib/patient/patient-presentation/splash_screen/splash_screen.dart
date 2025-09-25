@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../patient-core/core/app_export.dart';
-import '../../../patient-theme/theme/app_theme.dart';
-import '../../../patient-widgets/widgets/custom_icon_widget.dart';
+import '../../patient-core/core/app_export.dart';
+import '../../patient-theme/theme/app_theme.dart';
+import '../../patient-widgets/widgets/custom_icon_widget.dart';
 import './widgets/loading_indicator_widget.dart';
 import './widgets/medical_background_widget.dart';
 import './widgets/medical_logo_widget.dart';

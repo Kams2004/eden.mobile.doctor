@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../patient-core/core/app_export.dart';
+import '../../../patient-core/core/app_export.dart';
 
 /// Medical logo widget with fade-in animation for PDMD Patient Portal
 class MedicalLogoWidget extends StatefulWidget {
