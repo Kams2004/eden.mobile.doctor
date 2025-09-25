@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../patient/patient-presentation/patient_dashboard/patient_dashboard.dart';
 import '../presentation/commission_analytics/commission_analytics.dart';
 import '../presentation/splash_screen/splash_screen.dart';
 import '../presentation/role_selection_screen/role_selection_screen.dart';
@@ -16,6 +17,7 @@ class AppRoutes {
   static const String login = '/login-screen';
   static const String dashboard = '/dashboard';
   static const String patientList = '/patient-list';
+  static const String patientDashboard = '/patient-dashboard';
 
   static Map<String, WidgetBuilder> routes = {
     initial: (context) => const SplashScreen(),
@@ -25,6 +27,7 @@ class AppRoutes {
     login: (context) => const LoginScreen(),
     dashboard: (context) => const Dashboard(),
     patientList: (context) => const PatientList(),
+    patientDashboard: (context) => const PatientDashboard(),
     // TODO: Add your other routes here
   };
 }

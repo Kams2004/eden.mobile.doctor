@@ -50,7 +50,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   _buildRoleButton(
                     context,
                     'Médecin',
-                        () => Navigator.pushReplacementNamed(
+                    () => Navigator.pushReplacementNamed(
                       context,
                       '/login-screen',
                       arguments: {'role': 'doctor'},
@@ -60,10 +60,9 @@ class RoleSelectionScreen extends StatelessWidget {
                   _buildRoleButton(
                     context,
                     'Patient',
-                        () => Navigator.pushReplacementNamed(
+                    () => Navigator.pushReplacementNamed(
                       context,
-                      '/login-screen',
-                      arguments: {'role': 'patient'},
+                      '/patient-dashboard', // <-- Navigate directly to PatientDashboard
                     ),
                   ),
                 ],
@@ -76,10 +75,10 @@ class RoleSelectionScreen extends StatelessWidget {
   }
 
   Widget _buildRoleButton(
-      BuildContext context,
-      String title,
-      VoidCallback onPressed,
-      ) {
+    BuildContext context,
+    String title,
+    VoidCallback onPressed,
+  ) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
