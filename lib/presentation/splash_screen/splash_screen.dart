@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
+import 'package:lottie/lottie.dart'; 
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -240,7 +242,7 @@ class _SplashScreenState extends State<SplashScreen>
       children: [
         // Logo Image (No background, no box)
         Image.asset(
-          'assets/images/pdmdlogo.jpeg',
+          'assets/images/pdmd.png',
           width: 25.w,
           height: 25.w,
           fit: BoxFit.contain,
@@ -271,33 +273,30 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Widget _buildLoadingIndicator() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Custom Loading Indicator
-        SizedBox(
-          width: 8.w,
-          height: 8.w,
-          child: CircularProgressIndicator(
-            strokeWidth: 3,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Colors.white.withValues(alpha: 0.8),
-            ),
-            backgroundColor: Colors.white.withValues(alpha: 0.2),
-          ),
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      // Lottie Loading Animation with more control
+      Lottie.asset(
+        'assets/lotties/splash.json',
+        width: 35.w,
+        height: 35.w,
+        fit: BoxFit.contain,
+        repeat: true, // Loop the animation
+        animate: true, // Start animation automatically
+      ),
+      SizedBox(height: 2.h),
+      // Loading Text
+      Text(
+        'Initialisation sécurisée...',
+        style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
+          color: Colors.white.withValues(alpha: 0.8),
+          fontWeight: FontWeight.w400,
         ),
-        SizedBox(height: 2.h),
-        // Loading Text
-        Text(
-          'Initialisation sécurisée...',
-          style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
-            color: Colors.white.withValues(alpha: 0.8),
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   Widget _buildFooterSection() {
     return Column(

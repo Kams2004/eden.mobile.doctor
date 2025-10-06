@@ -250,13 +250,13 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         child: const MedicalLogoWidget(),
                       ),
                     ),
-                    SizedBox(height: 6.h),
+                    SizedBox(height: 2.h),
                     // Security Notice
                     FadeTransition(
                       opacity: _fadeAnimation,
                       child: const SecurityNoticeWidget(),
                     ),
-                    SizedBox(height: 5.h),
+                    SizedBox(height: 2.h),
                     // Login Form
                     FadeTransition(
                       opacity: _fadeAnimation,
@@ -269,14 +269,14 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                       ),
                     ),
                     // Biometric Authentication
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: BiometricAuthWidget(
-                        onBiometricAuth: _handleBiometricAuth,
-                        isAvailable: _biometricAvailable,
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
+                    // FadeTransition(
+                    //   opacity: _fadeAnimation,
+                    //   child: BiometricAuthWidget(
+                    //     onBiometricAuth: _handleBiometricAuth,
+                    //     isAvailable: _biometricAvailable,
+                    //   ),
+                    // ),
+                     SizedBox(height: 4.h),
                     // Footer
                     FadeTransition(
                       opacity: _fadeAnimation,
@@ -292,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                           ),
                           SizedBox(height: 1.h),
                           Text(
-                            'Sécurisé • Confidentiel • Conforme HIPAA',
+                            'Sécurisé • Confidentiel • Conforme',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: AppTheme.textSecondaryLight
                                   .withValues(alpha: 0.6),

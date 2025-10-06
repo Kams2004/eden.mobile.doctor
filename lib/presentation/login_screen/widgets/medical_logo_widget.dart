@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart'; // Correct import
 import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
 
@@ -10,35 +11,23 @@ class MedicalLogoWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Logo Image (No background, just the image)
-        Image.asset(
-          'assets/images/pdmdlogo.jpeg',
-          width: 25.w,
-          height: 25.w,
+        Lottie.asset( 
+          'assets/lotties/login.json',
+          width: 50.w,
+          height: 50.w,
           fit: BoxFit.contain,
         ),
-        SizedBox(height: 3.h),
-        // App Name (Updated to "EDEN")
-        Text(
-          'EDEN',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            color: AppTheme.lightTheme.colorScheme.primary,
-            fontWeight: FontWeight.w700,
-            fontSize: 24.sp,
-            letterSpacing: -0.5,
-          ),
-        ),
-        SizedBox(height: 1.h),
-        // Subtitle
-        Text(
-          'Au service de vrotre santer',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: AppTheme.textSecondaryLight,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w400,
-          ),
-          textAlign: TextAlign.center,
-        ),
+      
+        // SizedBox(height: 1.h),
+        // Text(
+        //   'Au service de votre santé', 
+        //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        //     color: AppTheme.textSecondaryLight,
+        //     fontSize: 14.sp,
+        //     fontWeight: FontWeight.w400,
+        //   ),
+        //   textAlign: TextAlign.center,
+        // ),
       ],
     );
   }

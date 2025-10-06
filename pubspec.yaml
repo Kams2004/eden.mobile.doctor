@@ -28,6 +28,7 @@ dependencies:
   image_picker: ^1.2.0
   permission_handler: ^12.0.1
   image: ^4.5.4
+  lottie: 3.3.1
 
   universal_html: ^2.2.4
 dev_dependencies:
@@ -40,9 +41,14 @@ flutter:
   assets:
     - assets/
     - assets/images/
-    - assets/images/pdmdlogo.jpeg
+    - assets/images/pdmd.png
     - assets/images/img.png
     - assets/images/61804.jpg
+    - assets/lotties/login.json
+    - assets/lotties/splash.json
+    - assets/lotties/roles.json
+
+
   # CRITICAL ASSET MANAGEMENT RULES:
   # - DO NOT ADD NEW ASSET DIRECTORIES (assets/svg/, assets/icons/, etc.)
   # - ONLY USE EXISTING AND ITEMS AVAILABLE IN THE DIRECTORIES LISTED ABOVE (assets/, assets/images/)

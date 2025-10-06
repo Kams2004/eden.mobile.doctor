@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
+import  'package:eden_medical/presentation/dashboard/dashboard.dart';
 
 class LoginFormWidget extends StatefulWidget {
   final Function(String username, String password) onLogin;
@@ -72,70 +73,164 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
+    return 
+    Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Username Field
-          TextFormField(
-            controller: _usernameController,
-            keyboardType: TextInputType.text,
-            textInputAction: TextInputAction.next,
-            enabled: !widget.isLoading,
-            decoration: InputDecoration(
-              labelText: 'Nom d\'utilisateur',
-              hintText: 'Votre nom d\'utilisateur',
-              prefixIcon: Padding(
-                padding: EdgeInsets.all(3.w),
-                child: CustomIconWidget(
-                  iconName: 'person',
-                  color: AppTheme.lightTheme.colorScheme.primary,
-                  size: 6.w,
-                ),
-              ),
-            ),
-            validator: _validateUsername,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-          ),
-          SizedBox(height: 3.h),
-          // Password Field
-          TextFormField(
-            controller: _passwordController,
-            obscureText: _obscurePassword,
-            textInputAction: TextInputAction.done,
-            enabled: !widget.isLoading,
-            decoration: InputDecoration(
-              labelText: 'Mot de passe',
-              hintText: 'Saisissez votre mot de passe',
-              prefixIcon: Padding(
-                padding: EdgeInsets.all(3.w),
-                child: CustomIconWidget(
-                  iconName: 'lock',
-                  color: AppTheme.lightTheme.colorScheme.primary,
-                  size: 6.w,
-                ),
-              ),
-              suffixIcon: IconButton(
-                onPressed: widget.isLoading
-                    ? null
-                    : () {
-                  setState(() {
-                    _obscurePassword = !_obscurePassword;
-                  });
-                },
-                icon: CustomIconWidget(
-                  iconName: _obscurePassword ? 'visibility' : 'visibility_off',
-                  color: AppTheme.textSecondaryLight,
-                  size: 6.w,
-                ),
-              ),
-            ),
-            validator: _validatePassword,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            onFieldSubmitted: (_) => _isFormValid ? _handleLogin() : null,
-          ),
-          SizedBox(height: 2.h),
+TextFormField(
+  controller: _usernameController,
+  keyboardType: TextInputType.text,
+  textInputAction: TextInputAction.next,
+  enabled: !widget.isLoading,
+  decoration: InputDecoration(
+    labelText: 'Nom d\'utilisateur',
+    // hintText: 'Votre nom d\'utilisateur',
+    labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+      fontFamily: 'Lexend',
+      letterSpacing: 0.0,
+      color: Colors.black,
+    ),
+    hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+      fontFamily: 'Lexend',
+      letterSpacing: 0.0,
+      color: Colors.black,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: Color(0x00000000),
+        width: 1.0,
+      ),
+      borderRadius: BorderRadius.circular(9),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: Color(0x00000000),
+        width: 1.0,
+      ),
+      borderRadius: BorderRadius.circular(9),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: Color(0x00000000),
+        width: 1.0,
+      ),
+      borderRadius: BorderRadius.circular(9),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: Color(0x00000000),
+        width: 1.0,
+      ),
+      borderRadius: BorderRadius.circular(9),
+    ),
+    filled: true,
+    fillColor: Colors.black12,
+    contentPadding: EdgeInsetsDirectional.fromSTEB(20, 16, 20, 16),
+    prefixIcon: Padding(
+      padding: EdgeInsets.all(3.w),
+      child: CustomIconWidget(
+        iconName: 'person',
+        color: AppTheme.lightTheme.colorScheme.primary,
+        size: 6.w,
+      ),
+    ),
+  ),
+  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+    fontFamily: 'Lexend',
+    letterSpacing: 0.0,
+    color: Colors.black,
+  ),
+  validator: _validateUsername,
+  autovalidateMode: AutovalidateMode.onUserInteraction,
+),
+SizedBox(height: 2.h),
+
+// Password Field
+TextFormField(
+  controller: _passwordController,
+  obscureText: _obscurePassword,
+  textInputAction: TextInputAction.done,
+  enabled: !widget.isLoading,
+  decoration: InputDecoration(
+    labelText: 'Mot de passe',
+    // hintText: 'Saisissez votre mot de passe',
+    labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+      fontFamily: 'Lexend',
+      letterSpacing: 0.0,
+      color: Colors.black,
+    ),
+    hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+      fontFamily: 'Lexend',
+      letterSpacing: 0.0,
+      color: Colors.black,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: Color(0x00000000),
+        width: 1.0,
+      ),
+      borderRadius: BorderRadius.circular(9),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: Color(0x00000000),
+        width: 1.0,
+      ),
+      borderRadius: BorderRadius.circular(9),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: Color(0x00000000),
+        width: 1.0,
+      ),
+      borderRadius: BorderRadius.circular(9),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: Color(0x00000000),
+        width: 1.0,
+      ),
+      borderRadius: BorderRadius.circular(9),
+    ),
+    filled: true,
+    fillColor: Colors.black12,
+    contentPadding: EdgeInsetsDirectional.fromSTEB(20, 16, 20, 16),
+    prefixIcon: Padding(
+      padding: EdgeInsets.all(3.w),
+      child: CustomIconWidget(
+        iconName: 'lock',
+        color: AppTheme.lightTheme.colorScheme.primary,
+        size: 6.w,
+      ),
+    ),
+    suffixIcon: IconButton(
+      onPressed: widget.isLoading
+          ? null
+          : () {
+        setState(() {
+          _obscurePassword = !_obscurePassword;
+        });
+      },
+      icon: CustomIconWidget(
+        iconName: _obscurePassword ? 'visibility' : 'visibility_off',
+        color: AppTheme.textSecondaryLight,
+        size: 6.w,
+      ),
+    ),
+  ),
+  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+    fontFamily: 'Lexend',
+    letterSpacing: 0.0,
+    color: Colors.black,
+  ),
+  validator: _validatePassword,
+  autovalidateMode: AutovalidateMode.onUserInteraction,
+  onFieldSubmitted: (_) => _isFormValid ? _handleLogin() : null,
+),
+          
           // Forgot Password Link
           Align(
             alignment: Alignment.centerRight,
@@ -160,41 +255,64 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
               ),
             ),
           ),
-          SizedBox(height: 4.h),
+          SizedBox(height: 0.5.h),
           // Login Button
           SizedBox(
             height: 7.h,
-            child: ElevatedButton(
-              onPressed:
-              (_isFormValid && !widget.isLoading) ? _handleLogin : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _isFormValid
-                    ? AppTheme.lightTheme.colorScheme.primary
-                    : AppTheme.textSecondaryLight.withValues(alpha: 0.3),
-                foregroundColor: Colors.white,
-                elevation: _isFormValid ? 2 : 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(3.w),
-                ),
-              ),
-              child: widget.isLoading
-                  ? SizedBox(
-                height: 5.w,
-                width: 5.w,
-                child: const CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-                  : Text(
-                'Se connecter',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16.sp,
-                ),
-              ),
-            ),
+            child:
+            ElevatedButton(
+  onPressed: () {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => Dashboard()),
+    );
+  },  style: ElevatedButton.styleFrom(
+    backgroundColor: AppTheme.textSecondaryLight.withValues(alpha: 0.3),
+    foregroundColor: Colors.white,
+    elevation: 0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(3.w),
+    ),
+  ),
+  child: Text(
+    'Se connecter',
+    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+      color: Colors.white,
+      fontWeight: FontWeight.w600,
+      fontSize: 16.sp,
+    ),
+  ),
+),
+            //  ElevatedButton(
+            //   onPressed:null,
+            //   // (_isFormValid && !widget.isLoading) ? _handleLogin : null,
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: _isFormValid
+            //         ? AppTheme.lightTheme.colorScheme.primary
+            //         : AppTheme.textSecondaryLight.withValues(alpha: 0.3),
+            //     foregroundColor: Colors.white,
+            //     elevation: _isFormValid ? 2 : 0,
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(3.w),
+            //     ),
+            //   ),
+            //   child: widget.isLoading
+            //       ? SizedBox(
+            //     height: 5.w,
+            //     width: 5.w,
+            //     child: const CircularProgressIndicator(
+            //       strokeWidth: 2,
+            //       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            //     ),
+            //   )
+            //       : Text(
+            //     'Se connecter',
+            //     style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            //       color: Colors.white,
+            //       fontWeight: FontWeight.w600,
+            //       fontSize: 16.sp,
+            //     ),
+            //   ),
+            // ),
           ),
         ],
       ),

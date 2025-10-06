@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
+import 'package:lottie/lottie.dart'; 
 
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
@@ -16,10 +17,10 @@ class RoleSelectionScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Logo
-              Image.asset(
-                'assets/images/img.png',
+              Lottie.asset(
+                'assets/lotties/roles.json',
                 width: 100.w,
-                height: 50.w,
+                height: 75.w,
                 fit: BoxFit.contain,
               ),
               SizedBox(height: 2.h),
@@ -85,7 +86,7 @@ class RoleSelectionScreen extends StatelessWidget {
         backgroundColor: AppTheme.primaryLight,
         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(4),
         ),
         elevation: 2,
       ),

@@ -23,7 +23,7 @@ class SecurityNoticeWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomIconWidget(
-            iconName: 'security',
+            iconName: 'welcome',
             color: AppTheme.lightTheme.colorScheme.primary,
             size: 5.w,
           ),
@@ -33,7 +33,7 @@ class SecurityNoticeWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sécurité médicale',
+                  'Bienvenue !',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         color: AppTheme.lightTheme.colorScheme.primary,
                         fontWeight: FontWeight.w600,
@@ -42,13 +42,14 @@ class SecurityNoticeWidget extends StatelessWidget {
                 ),
                 SizedBox(height: 0.5.h),
                 Text(
-                  'Vos données sont protégées selon les normes HIPAA. Connexion sécurisée avec chiffrement de bout en bout.',
+                  'Nous sommes ravis de vous revoir. Accédez à votre espace médical sécurisé pour gérer votre santé en toute tranquillité.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppTheme.lightTheme.colorScheme.primary,
                         fontSize: 12.sp,
                         height: 1.4,
                       ),
                 ),
+                
               ],
             ),
           ),
