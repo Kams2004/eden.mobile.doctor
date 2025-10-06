@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
-import  'package:eden_medical/presentation/dashboard/dashboard.dart';
+import '../../../services/auth_service.dart';
+import '../../../model/login_model.dart';
+import 'package:eden_medical/presentation/dashboard/dashboard.dart';
 
 class LoginFormWidget extends StatefulWidget {
   final Function(String username, String password) onLogin;
@@ -21,8 +23,10 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authService = AuthService();
   bool _obscurePassword = true;
   bool _isFormValid = false;
+  bool _rememberMe = false;
 
   @override
   void initState() {
@@ -65,9 +69,40 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     return null;
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
-      widget.onLogin(_usernameController.text.trim(), _passwordController.text);
+      try {
+        final request = LoginRequest(
+          username: _usernameController.text.trim(),
+          password: _passwordController.text,
+          rememberMe: _rememberMe,
+        );
+        
+        final response = await _authService.login(request);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Connexion réussie ! Bienvenue ${response.data.firstName}'),
+              backgroundColor: AppTheme.successLight,
+            ),
+          );
+          
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const Dashboard()),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erreur de connexion: ${e.toString()}'),
+              backgroundColor: AppTheme.errorLight,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -260,28 +295,36 @@ TextFormField(
           SizedBox(
             height: 7.h,
             child:
-            ElevatedButton(
-  onPressed: () {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => Dashboard()),
-    );
-  },  style: ElevatedButton.styleFrom(
-    backgroundColor: AppTheme.textSecondaryLight.withValues(alpha: 0.3),
-    foregroundColor: Colors.white,
-    elevation: 0,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(3.w),
-    ),
-  ),
-  child: Text(
-    'Se connecter',
-    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-      color: Colors.white,
-      fontWeight: FontWeight.w600,
-      fontSize: 16.sp,
-    ),
-  ),
-),
+ElevatedButton(
+              onPressed: (_isFormValid && !widget.isLoading) ? _handleLogin : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _isFormValid
+                    ? AppTheme.lightTheme.colorScheme.primary
+                    : AppTheme.textSecondaryLight.withValues(alpha: 0.3),
+                foregroundColor: Colors.white,
+                elevation: _isFormValid ? 2 : 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(3.w),
+                ),
+              ),
+              child: widget.isLoading
+                  ? SizedBox(
+                height: 5.w,
+                width: 5.w,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+                  : Text(
+                'Se connecter',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16.sp,
+                ),
+              ),
+            ),
             //  ElevatedButton(
             //   onPressed:null,
             //   // (_isFormValid && !widget.isLoading) ? _handleLogin : null,

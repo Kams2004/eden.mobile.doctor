@@ -53,8 +53,7 @@ class RoleSelectionScreen extends StatelessWidget {
                     'Médecin',
                     () => Navigator.pushReplacementNamed(
                       context,
-                      '/login-screen',
-                      arguments: {'role': 'doctor'},
+                      '/sendmail-screen',
                     ),
                   ),
                   // Patient Button
