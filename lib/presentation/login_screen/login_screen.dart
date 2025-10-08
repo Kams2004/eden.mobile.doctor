@@ -285,18 +285,18 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                           Text(
                             'EDEN Medical v1.0.0',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textSecondaryLight
+                              color: const Color.fromARGB(255, 17, 18, 20)
                                   .withValues(alpha: 0.7),
-                              fontSize: 11.sp,
+                              fontSize: 12.sp,
                             ),
                           ),
                           SizedBox(height: 1.h),
                           Text(
                             'Sécurisé • Confidentiel • Conforme',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textSecondaryLight
+                              color: const Color.fromARGB(255, 8, 9, 10)
                                   .withValues(alpha: 0.6),
-                              fontSize: 10.sp,
+                              fontSize: 12.sp,
                             ),
                           ),
                         ],

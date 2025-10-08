@@ -24,16 +24,22 @@ class PatientCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String patientName =
-        (patient['name'] as String?) ?? 'Patient Inconnu';
-    final String examinationDate =
-        (patient['examinationDate'] as String?) ?? '';
+    final String patientName = (patient['name'] as String?) ?? 'Patient Inconnu';
+    final String examinationDate = (patient['examinationDate'] as String?) ?? '';
     final bool isPaid = (patient['isPaid'] as bool?) ?? false;
-    final String examinationType =
-        (patient['examinationType'] as String?) ?? '';
+    final String examinationType = (patient['examinationType'] as String?) ?? '';
+    final double commissionAmount = (patient['commissionAmount'] as double?) ?? 0.0;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+      margin: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.5.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(
+          color: AppTheme.lightTheme.colorScheme.outline.withOpacity(0.2),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Slidable(
         key: ValueKey(patient['id']),
         startActionPane: ActionPane(
@@ -45,7 +51,7 @@ class PatientCardWidget extends StatelessWidget {
               foregroundColor: Colors.white,
               icon: Icons.euro,
               label: 'Commission',
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
             SlidableAction(
               onPressed: (_) => onCallPatient?.call(),
@@ -53,15 +59,7 @@ class PatientCardWidget extends StatelessWidget {
               foregroundColor: Colors.white,
               icon: Icons.phone,
               label: 'Appeler',
-              borderRadius: BorderRadius.circular(12),
-            ),
-            SlidableAction(
-              onPressed: (_) => onExportReport?.call(),
-              backgroundColor: AppTheme.accentLight,
-              foregroundColor: Colors.white,
-              icon: Icons.file_download,
-              label: 'Export',
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
           ],
         ),
@@ -74,94 +72,80 @@ class PatientCardWidget extends StatelessWidget {
               foregroundColor: Colors.white,
               icon: Icons.archive,
               label: 'Archiver',
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
           ],
         ),
-        child: Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: EdgeInsets.all(4.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.h),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          patientName,
-                          style: AppTheme.lightTheme.textTheme.titleMedium
-                              ?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                      Text(
+                        patientName,
+                        style: AppTheme.lightTheme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
+                      SizedBox(height: 0.5.h),
+                      Row(
+                        children: [
+                          CustomIconWidget(
+                            iconName: 'calendar_today',
+                            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+                            size: 14,
+                          ),
+                          SizedBox(width: 1.w),
+                          Text(
+                            examinationDate,
+                            style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
+                              color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
                       Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 2.w, vertical: 0.5.h),
+                        padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.3.h),
                         decoration: BoxDecoration(
-                          color: isPaid
-                              ? AppTheme.successLight.withValues(alpha: 0.1)
-                              : AppTheme.warningLight.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(16),
+                          color: AppTheme.lightTheme.colorScheme.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          isPaid ? 'Payé' : 'En attente',
-                          style: AppTheme.lightTheme.textTheme.labelSmall
-                              ?.copyWith(
-                            color: isPaid
-                                ? AppTheme.successLight
-                                : AppTheme.warningLight,
+                          examinationType,
+                          style: AppTheme.lightTheme.textTheme.labelSmall?.copyWith(
+                            color: AppTheme.lightTheme.colorScheme.primary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 1.h),
-                  Row(
-                    children: [
-                      CustomIconWidget(
-                        iconName: 'calendar_today',
-                        color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-                        size: 16,
-                      ),
-                      SizedBox(width: 2.w),
+                      SizedBox(height: 0.5.h),
                       Text(
-                        examinationDate,
-                        style: AppTheme.lightTheme.textTheme.bodySmall,
-                      ),
-                      Spacer(),
-                      if (examinationType.isNotEmpty) ...[
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 3.w, vertical: 1.h), // Increased padding
-                          decoration: BoxDecoration(
-                            color: AppTheme
-                                .lightTheme.colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            examinationType,
-                            style: AppTheme.lightTheme.textTheme.bodyMedium // Changed to bodyMedium
-                                ?.copyWith(
-                              color: AppTheme.lightTheme.colorScheme.primary,
-                              fontWeight: FontWeight.w600, // Increased font weight
-                            ),
-                          ),
+                        '${commissionAmount.toStringAsFixed(0)} FCFA',
+                        style: AppTheme.lightTheme.textTheme.titleSmall?.copyWith(
+                          color: AppTheme.lightTheme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
+                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

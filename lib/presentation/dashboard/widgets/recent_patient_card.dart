@@ -19,11 +19,9 @@ class RecentPatientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String patientName = patient['name'] ?? 'Patient Inconnu';
-    final String examinationDate = patient['examinationDate'] ?? '';
-    final double commissionAmount =
-        (patient['commissionAmount'] as num?)?.toDouble() ?? 0.0;
-    final String paymentStatus = patient['paymentStatus'] ?? 'pending';
+    final String patientName = patient['patientName'] ?? patient['name'] ?? 'Patient Inconnu';
+    final String examinationDate = patient['date'] ?? patient['examinationDate'] ?? '';
+    final String examType = patient['examType'] ?? '';
     final String patientId = patient['id']?.toString() ?? '';
 
     return Dismissible(
@@ -97,33 +95,26 @@ class RecentPatientCard extends StatelessWidget {
           padding: EdgeInsets.all(4.w),
           decoration: BoxDecoration(
             color: AppTheme.lightTheme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(1),
             border: Border.all(
               color: AppTheme.lightTheme.colorScheme.outline
                   .withValues(alpha: 0.2),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: Row(
             children: [
               Container(
-                width: 12.w,
-                height: 12.w,
+                width: 10.w,
+                height: 10.w,
                 decoration: BoxDecoration(
                   color: AppTheme.lightTheme.colorScheme.primary
                       .withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Center(
                   child: Text(
                     patientName.isNotEmpty ? patientName[0].toUpperCase() : 'P',
-                    style: AppTheme.lightTheme.textTheme.titleLarge?.copyWith(
+                    style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
                       color: AppTheme.lightTheme.colorScheme.primary,
                       fontWeight: FontWeight.w700,
                     ),
@@ -138,7 +129,7 @@ class RecentPatientCard extends StatelessWidget {
                     Text(
                       patientName,
                       style:
-                          AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
+                          AppTheme.lightTheme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppTheme.lightTheme.colorScheme.onSurface,
                       ),
@@ -146,7 +137,7 @@ class RecentPatientCard extends StatelessWidget {
                     ),
                     SizedBox(height: 0.5.h),
                     Text(
-                      'Examen: $examinationDate',
+                      _formatDate(examinationDate),
                       style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
                         color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
                       ),
@@ -158,20 +149,23 @@ class RecentPatientCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.5.h),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(paymentStatus).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      _getStatusText(paymentStatus),
-                      style: AppTheme.lightTheme.textTheme.labelSmall?.copyWith(
-                        color: _getStatusColor(paymentStatus),
-                        fontWeight: FontWeight.w600,
-                      ),
+                  Text(
+                    _formatTime(examinationDate),
+                    style: AppTheme.lightTheme.textTheme.titleSmall?.copyWith(
+                      color: AppTheme.lightTheme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+if (examType.isNotEmpty) ...[
+  SizedBox(height: 0.5.h),
+  Text(
+    examType,
+    style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
+      color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+      fontSize: 9.sp,
+    ),
+  ),
+],
                 ],
               ),
 
@@ -182,32 +176,34 @@ class RecentPatientCard extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'paid':
-      case 'payé':
-        return AppTheme.successLight;
-      case 'pending':
-      case 'en attente':
-        return AppTheme.warningLight;
-      case 'overdue':
-      case 'en retard':
-        return AppTheme.errorLight;
-      default:
-        return AppTheme.lightTheme.colorScheme.onSurfaceVariant;
+  String _formatDate(String dateStr) {
+    if (dateStr.isEmpty) return '';
+    try {
+      // Handle different date formats
+      if (dateStr.contains('/')) {
+        return dateStr; // Already formatted like "28/08/2025"
+      }
+      // Handle other formats if needed
+      return dateStr;
+    } catch (e) {
+      return dateStr;
     }
   }
 
-  String _getStatusText(String status) {
-    switch (status.toLowerCase()) {
-      case 'paid':
-        return 'Payé';
-      case 'pending':
-        return 'En attente';
-      case 'overdue':
-        return 'En retard';
-      default:
-        return 'Inconnu';
+  String _formatTime(String dateStr) {
+    if (dateStr.isEmpty) return '';
+    try {
+      // Extract time if available, otherwise show a default time
+      if (dateStr.contains(' ')) {
+        final parts = dateStr.split(' ');
+        if (parts.length > 1) {
+          return parts[1]; // Return time part
+        }
+      }
+      // Default time for examination
+      return '09:00';
+    } catch (e) {
+      return '09:00';
     }
   }
 }

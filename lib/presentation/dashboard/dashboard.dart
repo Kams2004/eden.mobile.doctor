@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../core/app_export.dart';
+import '../../services/auth_service.dart';
+import '../../services/storage_service.dart';
+import '../../model/request_model.dart';
 import './widgets/activity_statistics_grid.dart';
 import './widgets/commission_summary_card.dart';
 import './widgets/notification_header.dart';
 import './widgets/recent_patient_card.dart';
-import './widgets/news_carousel.dart'; // Add this import
+import './widgets/news_carousel.dart';
+import '../../presentation/request_page/request_page.dart';
+import '../../presentation/notification_page/notification_page.dart';
+import '../../presentation/results_page/results_page.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -18,6 +24,15 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   bool _isRefreshing = false;
   DateTime _lastSyncTime = DateTime.now();
+  List<Map<String, dynamic>> _recentPatients = [];
+  bool _isLoadingPatients = true;
+  Map<String, int> _statistics = {
+    'todayPatients': 0,
+    'todayExams': 0,
+    'totalPatients': 0,
+    'totalExams': 0,
+  };
+  bool _isLoadingStats = true;
 
   // Mock data for dashboard
   final Map<String, dynamic> _dashboardData = {
@@ -27,14 +42,7 @@ class _DashboardState extends State<Dashboard> {
       "pendingPayments": 1320.50,
       "currency": "fcfa"
     },
-    "statistics": {
-      "patientCount": 127,
-      "examinationCount": 89,
-      "recentTransfers": 23,
-      "pendingRequests": 5
-    },
     "notifications": {"count": 3},
-    // Add news/actualités data with comprehensive demo content
     "newsItems": [
       {
         "id": 1,
@@ -42,87 +50,482 @@ class _DashboardState extends State<Dashboard> {
         "category": "campagne",
         "description": "Rejoignez notre campagne de sensibilisation au cancer du sein. Dépistage gratuit pour toutes les femmes de 40 à 70 ans.",
         "imageUrl": "https://www.ccdourdannais.com/wp-content/uploads/2021/09/Octobre-Rose.png",
-        "fullContent": "Durant tout le mois d'octobre, participez à notre grande campagne de sensibilisation au cancer du sein 'OCTOBRE ROSE 2025'. Nous offrons des consultations gratuites et des mammographies de dépistage pour toutes les femmes âgées de 40 à 70 ans.\n\nCette initiative vise à encourager le dépistage précoce qui peut sauver des vies. Le cancer du sein touche 1 femme sur 8 au cours de sa vie, mais détecté tôt, il se guérit dans 9 cas sur 10.\n\nNos services offerts :\n• Consultations gratuites avec nos spécialistes\n• Mammographies de dépistage\n• Échographies mammaires\n• Accompagnement psychologique\n• Information et conseils préventifs\n\nN'hésitez pas à prendre rendez-vous dès maintenant dans l'un de nos centres partenaires. Ensemble, luttons contre le cancer du sein!"
+        "fullContent": "Durant tout le mois d'octobre, participez à notre grande campagne de sensibilisation au cancer du sein 'OCTOBRE ROSE 2025'. Nous offrons des consultations gratuites et des mammographies de dépistage pour toutes les femmes âgées de 40 à 70 ans.\\n\\nCette initiative vise à encourager le dépistage précoce qui peut sauver des vies. Le cancer du sein touche 1 femme sur 8 au cours de sa vie, mais détecté tôt, il se guérit dans 9 cas sur 10.\\n\\nNos services offerts :\\n• Consultations gratuites avec nos spécialistes\\n• Mammographies de dépistage\\n• Échographies mammaires\\n• Accompagnement psychologique\\n• Information et conseils préventifs\\n\\nN'hésitez pas à prendre rendez-vous dès maintenant dans l'un de nos centres partenaires. Ensemble, luttons contre le cancer du sein!"
       },
-      {
-        "id": 2,
-        "title": "Scanner 3D Nouvelle Génération",
-        "category": "information",
-        "description": "Installation de notre nouveau scanner CT 3D haute définition. Examens plus rapides et plus précis pour tous nos patients.",
-        "imageUrl": "https://pdmdsante.com/wp-content/uploads/2025/06/Im.jpg",
-        "fullContent": "Nous sommes fiers d'annoncer l'installation de notre nouveau scanner CT 3D de dernière génération dans notre centre d'imagerie médicale.\n\nAvantages de cette nouvelle technologie :\n• Temps d'examen réduit de 50%\n• Qualité d'image exceptionnelle en 3D\n• Dose de radiation diminuée de 30%\n• Confort amélioré pour les patients\n• Diagnostics plus précis et rapides\n\nCette acquisition s'inscrit dans notre démarche d'amélioration continue de la qualité des soins. Elle nous permet de réaliser des examens encore plus performants pour le diagnostic de pathologies thoraciques, abdominales et orthopédiques.\n\nPrise de rendez-vous disponible dès le 15 septembre 2025."
-      },
-      {
-        "id": 3,
-        "title": "Journée Mondiale du Diabète",
-        "category": "santé",
-        "description": "Le 14 novembre, participez à notre journée de dépistage gratuit du diabète. Tests glycémiques et conseils nutritionnels.",
-        "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFS0kblGykEMjM0MZHSVi4LqT0aP1QPYBhGalP0r28TqIUNTQpOLnnR_t3S-BghWs8oTg&usqp=CAU",
-        "fullContent": "À l'occasion de la Journée Mondiale du Diabète le 14 novembre 2025, notre centre organise une grande journée de sensibilisation et de dépistage gratuit.\n\nLe diabète en chiffres :\n• 422 millions de personnes touchées dans le monde\n• 1 personne sur 11 est diabétique\n• 50% des diabétiques ignorent leur maladie\n\nProgramme de la journée (9h-17h) :\n• Dépistage gratuit de la glycémie\n• Consultations avec nos endocrinologues\n• Ateliers nutrition et cuisine équilibrée\n• Tests de l'hémoglobine glyquée (HbA1c)\n• Conseils pour l'activité physique adaptée\n• Remise de guides pratiques\n\nCette journée s'adresse à tous, particulièrement aux personnes à risque (surpoids, antécédents familiaux, sédentarité). Venez nombreux, c'est gratuit et sans rendez-vous!"
-      },
-      {
-        "id": 4,
-        "title": "URGENT: Rappel Vaccin Méningite",
-        "category": "urgent",
-        "description": "Suite à plusieurs cas de méningite dans la région, vaccination recommandée pour les 11-24 ans. Stocks disponibles.",
-        "imageUrl": "https://pdmdsante.com/wp-content/uploads/2025/06/pediatrie.avif",
-        "fullContent": "ALERTE SANITAIRE - VACCINATION MÉNINGITE\n\nSuite à l'identification de plusieurs cas de méningite à méningocoque dans notre région, les autorités sanitaires recommandent une vaccination préventive pour les populations à risque.\n\nPopulations concernées :\n• Jeunes de 11 à 24 ans\n• Personnel de santé\n• Étudiants en internat\n• Militaires\n• Voyageurs en zone d'endémie\n\nSymptômes à surveiller :\n• Fièvre élevée soudaine\n• Maux de tête intenses\n• Raideur de la nuque\n• Éruption cutanée\n• Vomissements\n\nEn cas de symptômes, consultez immédiatement aux urgences.\n\nNotre centre dispose de stocks suffisants de vaccins. Vaccination possible sans rendez-vous du lundi au vendredi de 8h à 18h, et le samedi de 9h à 16h.\n\nTarif : 45 FCFA (remboursé par l'assurance maladie)"
-      },
-      {
-        "id": 5,
-        "title": "Congrès International Cardiologie",
-        "category": "événement",
-        "description": "Notre centre accueille le 15e Congrès Africain de Cardiologie du 20 au 22 octobre. Inscriptions ouvertes.",
-        "imageUrl": "https://www.horizons.dz/wp-content/uploads/2024/11/Annaba-louverture-du-Congres-International-de-Cardiologie-avec-la-participation-de-300-specialistes.jpg",
-        "fullContent": "15e CONGRÈS AFRICAIN DE CARDIOLOGIE\nYaoundé - 20, 21 et 22 Octobre 2025\n\nNotre centre d'excellence cardiologique a l'honneur d'accueillir ce prestigieux événement médical qui réuniera plus de 500 spécialistes africains and internationaux.\n\nThèmes principaux :\n• Innovations en chirurgie cardiaque\n• Prévention des maladies cardiovasculaires\n• Télémédecine et cardiologie\n• Cardiologie interventionnelle\n• Hypertension artérielle en Afrique\n• Formation et recherche\n\nIntervenants de renom :\n• Pr. Sarah Mbeki (Université du Cap)\n• Dr. James Wilson (Harvard Medical School)\n• Pr. Ahmed Hassan (Université du Caire)\n• Dr. Marie Dupont (CHU de Lyon)\n\nInformations pratiques :\n• Lieu : Palais des Congrès de Yaoundé\n• Frais d'inscription : 150€ (médecins), 75€ (étudiants)\n• Crédits de formation continue validés\n• Traduction simultanée français/anglais\n\nInscriptions sur : www.congres-cardiologie-afrique.org"
-      }
-
     ],
-    "recentPatients": [
-      {
-        "id": 1,
-        "name": "Marie Lefevre",
-        "examinationDate": "28/08/2025",
-        "commissionAmount": 125.50,
-        "paymentStatus": "paid"
-      },
-      {
-        "id": 2,
-        "name": "Jean-Pierre Moreau",
-        "examinationDate": "27/08/2025",
-        "commissionAmount": 98.75,
-        "paymentStatus": "pending"
-      },
-      {
-        "id": 3,
-        "name": "Sophie Bernard",
-        "examinationDate": "26/08/2025",
-        "commissionAmount": 156.25,
-        "paymentStatus": "paid"
-      },
-      {
-        "id": 4,
-        "name": "Pierre Rousseau",
-        "examinationDate": "25/08/2025",
-        "commissionAmount": 87.50,
-        "paymentStatus": "overdue"
-      },
-      {
-        "id": 5,
-        "name": "Catherine Blanc",
-        "examinationDate": "24/08/2025",
-        "commissionAmount": 142.00,
-        "paymentStatus": "pending"
-      },
-      {
-        "id": 6,
-        "name": "Michel Garnier",
-        "examinationDate": "23/08/2025",
-        "commissionAmount": 113.75,
-        "paymentStatus": "paid"
-      }
-    ]
   };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecentPatients();
+    _loadStatistics();
+  }
+
+  Future<void> _loadRecentPatients() async {
+    try {
+      setState(() {
+        _isLoadingPatients = true;
+      });
+      
+      final accessToken = StorageService.accessToken;
+      final doctorId = StorageService.doctorId;
+      
+      if (accessToken != null && doctorId != null) {
+        final authService = AuthService();
+        final response = await authService.getDoctorPatients(doctorId, accessToken);
+        
+        if (response.dataPatients.isNotEmpty) {
+          final uniquePatients = <Map<String, dynamic>>[];
+          final seenNames = <String>{};
+          
+          final sortedPatients = response.dataPatients.toList();
+          sortedPatients.sort((a, b) => b.date.compareTo(a.date));
+          
+          for (final patient in sortedPatients) {
+            if (!seenNames.contains(patient.patientName) && uniquePatients.length < 6) {
+              seenNames.add(patient.patientName);
+              uniquePatients.add({
+                'patientName': patient.patientName,
+                'date': patient.date,
+                'examType': patient.examType,
+                'amount': patient.amount,
+              });
+            }
+          }
+          
+          setState(() {
+            _recentPatients = uniquePatients;
+            _isLoadingPatients = false;
+          });
+        } else {
+          setState(() {
+            _recentPatients = [];
+            _isLoadingPatients = false;
+          });
+        }
+      } else {
+        setState(() {
+          _recentPatients = [];
+          _isLoadingPatients = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading recent patients: $e');
+      setState(() {
+        _recentPatients = [];
+        _isLoadingPatients = false;
+      });
+    }
+  }
+
+  Future<void> _loadStatistics() async {
+    try {
+      setState(() {
+        _isLoadingStats = true;
+      });
+      
+      final accessToken = StorageService.accessToken;
+      final doctorId = StorageService.doctorId;
+      
+      if (accessToken != null && doctorId != null) {
+        final authService = AuthService();
+        final response = await authService.getDoctorPatients(doctorId, accessToken);
+        
+        if (response.dataPatients.isNotEmpty) {
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          
+          final currentMonth21 = DateTime(now.year, now.month, 21);
+          final previousMonth21 = DateTime(now.year, now.month - 1, 21);
+          
+          final DateTime periodStart;
+          final DateTime periodEnd;
+          
+          if (now.day >= 21) {
+            periodStart = currentMonth21;
+            periodEnd = DateTime(now.year, now.month + 1, 21);
+          } else {
+            periodStart = previousMonth21;
+            periodEnd = currentMonth21;
+          }
+          
+          int todayPatients = 0;
+          int todayExams = 0;
+          int totalPatients = 0;
+          int totalExams = 0;
+          
+          final Set<String> uniquePatientsToday = {};
+          final Set<String> uniquePatientsTotal = {};
+          
+          for (final patient in response.dataPatients) {
+            try {
+              DateTime examDate;
+              if (patient.date.contains('/')) {
+                final parts = patient.date.split(' ')[0].split('/');
+                examDate = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+              } else {
+                examDate = DateTime.parse(patient.date);
+              }
+              
+              if (examDate.year == today.year && examDate.month == today.month && examDate.day == today.day) {
+                uniquePatientsToday.add(patient.patientName);
+                todayExams++;
+              }
+              
+              if (examDate.isAfter(periodStart.subtract(Duration(days: 1))) && examDate.isBefore(periodEnd)) {
+                uniquePatientsTotal.add(patient.patientName);
+                totalExams++;
+              }
+            } catch (e) {
+              print('Error parsing date: ${patient.date}, Error: $e');
+            }
+          }
+          
+          todayPatients = uniquePatientsToday.length;
+          totalPatients = uniquePatientsTotal.length;
+          
+          setState(() {
+            _statistics = {
+              'todayPatients': todayPatients,
+              'todayExams': todayExams,
+              'totalPatients': totalPatients,
+              'totalExams': totalExams,
+            };
+            _isLoadingStats = false;
+          });
+        } else {
+          setState(() {
+            _statistics = {
+              'todayPatients': 0,
+              'todayExams': 0,
+              'totalPatients': 0,
+              'totalExams': 0,
+            };
+            _isLoadingStats = false;
+          });
+        }
+      } else {
+        setState(() {
+          _statistics = {
+            'todayPatients': 0,
+            'todayExams': 0,
+            'totalPatients': 0,
+            'totalExams': 0,
+          };
+          _isLoadingStats = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading statistics: $e');
+      setState(() {
+        _statistics = {
+          'todayPatients': 0,
+          'todayExams': 0,
+          'totalPatients': 0,
+          'totalExams': 0,
+        };
+        _isLoadingStats = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _handleRefresh,
+          color: AppTheme.lightTheme.colorScheme.primary,
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    NotificationHeader(
+                      doctorName: (_dashboardData["doctorName"] as String?) ?? "Docteur",
+                      notificationCount: ((_dashboardData["notifications"] as Map<String, dynamic>?)?["count"] as int?) ?? 0,
+                      onNotificationTap: _handleNotificationTap,
+                    ),
+
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(4.w, 1.h, 4.w, 0),
+                      child: Text(
+                        'Consultez vos statistiques d\'activité en temps réel.\nSuivez le nombre de patients et d\'examens effectués.',
+                        style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
+                          color: AppTheme.lightTheme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 2.h),
+
+                    _isLoadingStats
+                        ? Container(
+                            height: 20.h,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppTheme.lightTheme.colorScheme.primary,
+                              ),
+                            ),
+                          )
+                        : ActivityStatisticsGrid(
+                            todayPatients: _statistics['todayPatients'] ?? 0,
+                            todayExams: _statistics['todayExams'] ?? 0,
+                            totalPatients: _statistics['totalPatients'] ?? 0,
+                            totalExams: _statistics['totalExams'] ?? 0,
+                          ),
+
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(4.w, 3.h, 4.w, 1.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Actualités',
+                            style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.lightTheme.colorScheme.onSurface,
+                            ),
+                          ),
+                          SizedBox(height: 0.5.h),
+                          Text(
+                            'Découvrez les dernières informations médicales et actualités importantes.\nCampagnes de santé, nouveaux équipements et événements à ne pas manquer.',
+                            style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
+                              color: AppTheme.lightTheme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    NewsCarousel(
+                      newsItems: ((_dashboardData["newsItems"] as List?)?.cast<Map<String, dynamic>>()) ?? [],
+                    ),
+
+                    SizedBox(height: 2.h),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Patients récents',
+                                style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.lightTheme.colorScheme.onSurface,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: _navigateToPatientList,
+                                child: Text(
+                                  'Voir tout',
+                                  style: AppTheme.lightTheme.textTheme.titleSmall?.copyWith(
+                                    color: AppTheme.lightTheme.colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 0.5.h),
+                          Text(
+                            'Retrouvez rapidement vos 6 derniers patients examinés.\nAccédez facilement à leurs informations et dates de consultation.',
+                            style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
+                              color: AppTheme.lightTheme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 1.h),
+                  ],
+                ),
+              ),
+
+              _isLoadingPatients
+                  ? SliverToBoxAdapter(
+                      child: Container(
+                        height: 20.h,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppTheme.lightTheme.colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    )
+                  : _recentPatients.isEmpty
+                      ? SliverToBoxAdapter(
+                          child: Container(
+                            height: 15.h,
+                            margin: EdgeInsets.symmetric(horizontal: 4.w),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.people_outline,
+                                    size: 48,
+                                    color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+                                  ),
+                                  SizedBox(height: 1.h),
+                                  Text(
+                                    'Aucun patient récent',
+                                    style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
+                                      color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      : SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              if (index >= _recentPatients.length) return null;
+                              final patient = _recentPatients[index];
+                              return RecentPatientCard(
+                                patient: patient,
+                                onTap: () => _navigateToPatientDetail(patient),
+                                onCommissionView: () => _showCommissionDetails(patient),
+                                onPatientDetails: () => _navigateToPatientDetail(patient),
+                              );
+                            },
+                            childCount: _recentPatients.length,
+                          ),
+                        ),
+
+              SliverToBoxAdapter(
+                child: SizedBox(height: 10.h),
+              ),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _navigateToSupport,
+        backgroundColor: AppTheme.lightTheme.colorScheme.primary,
+        foregroundColor: Colors.white,
+        shape: const CircleBorder(),
+        child: const CustomIconWidget(
+          iconName: 'support_agent',
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: AppTheme.lightTheme.colorScheme.surface,
+      selectedItemColor: AppTheme.lightTheme.colorScheme.primary,
+      unselectedItemColor: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+      currentIndex: 0,
+      onTap: _handleBottomNavTap,
+      items: [
+        BottomNavigationBarItem(
+          icon: CustomIconWidget(
+            iconName: 'dashboard',
+            color: AppTheme.lightTheme.colorScheme.primary,
+            size: 24,
+          ),
+          label: 'Tableau de bord',
+        ),
+        BottomNavigationBarItem(
+          icon: CustomIconWidget(
+            iconName: 'people',
+            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+            size: 24,
+          ),
+          label: 'Patients',
+        ),
+        BottomNavigationBarItem(
+          icon: CustomIconWidget(
+            iconName: 'assignment',
+            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+            size: 24,
+          ),
+          label: 'Résultats',
+        ),
+        BottomNavigationBarItem(
+          icon: CustomIconWidget(
+            iconName: 'person',
+            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+            size: 24,
+          ),
+          label: 'Profil',
+        ),
+      ],
+    );
+  }
+
+  Future<void> _handleRefresh() async {
+    setState(() {
+      _isRefreshing = true;
+    });
+
+    await Future.wait([
+      _loadRecentPatients(),
+      _loadStatistics(),
+    ]);
+
+    setState(() {
+      _isRefreshing = false;
+      _lastSyncTime = DateTime.now();
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Données mises à jour avec succès',
+          style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: AppTheme.successLight,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  void _handleNotificationTap() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NotificationPage(),
+      ),
+    );
+  }
+
+  void _handleBottomNavTap(int index) {
+    switch (index) {
+      case 0:
+        break;
+      case 1:
+        Navigator.pushNamed(context, '/patient-list');
+        break;
+      case 2:
+        Navigator.pushNamed(context, '/results');
+        break;
+      case 3:
+        Navigator.pushNamed(context, '/doctor-profile');
+        break;
+    }
+  }
 
   void _navigateToSupport() {
     showModalBottomSheet(
@@ -138,7 +541,6 @@ class _DashboardState extends State<Dashboard> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle bar
             Center(
               child: Container(
                 width: 12.w,
@@ -150,8 +552,6 @@ class _DashboardState extends State<Dashboard> {
               ),
             ),
             SizedBox(height: 2.h),
-
-            // Title
             Text(
               'Support & Assistance',
               style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
@@ -160,8 +560,6 @@ class _DashboardState extends State<Dashboard> {
               ),
             ),
             SizedBox(height: 2.h),
-
-            // Support options
             _buildSupportOption(
               icon: Icons.help_outline,
               title: 'Service d\'aide',
@@ -172,7 +570,6 @@ class _DashboardState extends State<Dashboard> {
               },
             ),
             SizedBox(height: 2.h),
-
             _buildSupportOption(
               icon: Icons.request_page,
               title: 'Faire une requête',
@@ -183,7 +580,6 @@ class _DashboardState extends State<Dashboard> {
               },
             ),
             SizedBox(height: 2.h),
-
             _buildSupportOption(
               icon: Icons.menu_book,
               title: 'Guide d\'utilisation',
@@ -281,21 +677,14 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  void _showRequestForm() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Faire une requête'),
-        content: Text('Formulaire de requête sera bientôt disponible.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Fermer'),
-          ),
-        ],
-      ),
-    );
-  }
+void _showRequestForm() {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => RequestPage(), // Your destination screen widget
+    ),
+  );
+}
 
   void _showUserGuide() {
     showDialog(
@@ -313,330 +702,6 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _handleRefresh,
-          color: AppTheme.lightTheme.colorScheme.primary,
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header with notifications
-                    NotificationHeader(
-                      doctorName: (_dashboardData["doctorName"] as String?) ??
-                          "Docteur",
-                      notificationCount: ((_dashboardData["notifications"]
-                      as Map<String, dynamic>?)?["count"] as int?) ??
-                          0,
-                      onNotificationTap: _handleNotificationTap,
-                    ),
-
-                    // Monthly commission summary
-                    // CommissionSummaryCard(
-                    //   totalEarnings: ((_dashboardData["monthlyCommission"]
-                    //   as Map<String, dynamic>?)?[
-                    //   "totalEarnings"] as num?)
-                    //       ?.toDouble() ??
-                    //       0.0,
-                    //   pendingPayments: ((_dashboardData["monthlyCommission"]
-                    //   as Map<String, dynamic>?)?[
-                    //   "pendingPayments"] as num?)
-                    //       ?.toDouble() ??
-                    //       0.0,
-                    //   currency: ((_dashboardData["monthlyCommission"]
-                    //   as Map<String, dynamic>?)?["currency"]
-                    //   as String?) ??
-                    //       "fcfa",
-                    // ),
-
-                    SizedBox(height: 2.h),
-
-                    // Activity statistics grid
-                    ActivityStatisticsGrid(
-                      patientCount: ((_dashboardData["statistics"]
-                      as Map<String, dynamic>?)?["patientCount"]
-                      as int?) ??
-                          0,
-                      examinationCount: ((_dashboardData["statistics"]
-                      as Map<String, dynamic>?)?["examinationCount"]
-                      as int?) ??
-                          0,
-                      recentTransfers: ((_dashboardData["statistics"]
-                      as Map<String, dynamic>?)?["recentTransfers"]
-                      as int?) ??
-                          0,
-                      pendingRequests: ((_dashboardData["statistics"]
-                      as Map<String, dynamic>?)?["pendingRequests"]
-                      as int?) ??
-                          0,
-                    ),
-
-                    // NEWS/ACTUALITÉS CAROUSEL - NEW ADDITION
-                    // Section header for Actualités
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(4.w, 3.h, 4.w, 1.h),
-                      child: Text(
-                        'Actualités',
-                        style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.lightTheme.colorScheme.onSurface,
-                        ),
-                      ),
-                    ),
-
-                    // News carousel
-                    NewsCarousel(
-                      newsItems: ((_dashboardData["newsItems"] as List?)
-                          ?.cast<Map<String, dynamic>>()) ??
-                          [],
-                    ),
-
-                    SizedBox(height: 2.h),
-
-                    // Recent patients section header
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 4.w),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Patients récents',
-                            style: AppTheme.lightTheme.textTheme.headlineSmall
-                                ?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.lightTheme.colorScheme.onSurface,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: _navigateToPatientList,
-                            child: Text(
-                              'Voir tout',
-                              style: AppTheme.lightTheme.textTheme.titleSmall
-                                  ?.copyWith(
-                                color: AppTheme.lightTheme.colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 1.h),
-                  ],
-                ),
-              ),
-
-              // Recent patients list
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                    final patients =
-                        (_dashboardData["recentPatients"] as List?) ?? [];
-                    if (index >= patients.length) return null;
-
-                    final patient = patients[index] as Map<String, dynamic>;
-                    return RecentPatientCard(
-                      patient: patient,
-                      onTap: () => _navigateToPatientDetail(patient),
-                      onCommissionView: () => _showCommissionDetails(patient),
-                      onPatientDetails: () => _navigateToPatientDetail(patient),
-                    );
-                  },
-                  childCount:
-                  ((_dashboardData["recentPatients"] as List?)?.length ??
-                      0),
-                ),
-              ),
-
-              // Bottom spacing
-              SliverToBoxAdapter(
-                child: SizedBox(height: 10.h),
-              ),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToSupport,
-        backgroundColor: AppTheme.lightTheme.colorScheme.primary,
-        foregroundColor: Colors.white,
-        shape: const CircleBorder(),
-        child: const CustomIconWidget(
-          iconName: 'support_agent',
-          color: Colors.white,
-          size: 24,
-        ),
-      ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: AppTheme.lightTheme.colorScheme.surface,
-      selectedItemColor: AppTheme.lightTheme.colorScheme.primary,
-      unselectedItemColor: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-      currentIndex: 0,
-      onTap: _handleBottomNavTap,
-      items: [
-        BottomNavigationBarItem(
-          icon: CustomIconWidget(
-            iconName: 'dashboard',
-            color: AppTheme.lightTheme.colorScheme.primary,
-            size: 24,
-          ),
-          label: 'Tableau de bord',
-        ),
-        BottomNavigationBarItem(
-          icon: CustomIconWidget(
-            iconName: 'people',
-            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-            size: 24,
-          ),
-          label: 'Patients',
-        ),
-        // BottomNavigationBarItem(
-        //   icon: CustomIconWidget(
-        //     iconName: 'account_balance_wallet',
-        //     color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-        //     size: 24,
-        //   ),
-        //   label: 'Commissions',
-        // ),
-        BottomNavigationBarItem(
-          icon: CustomIconWidget(
-            iconName: 'analytics',
-            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-            size: 24,
-          ),
-          label: 'Resultat',
-        ),
-        BottomNavigationBarItem(
-          icon: CustomIconWidget(
-            iconName: 'person',
-            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-            size: 24,
-          ),
-          label: 'Profil',
-        ),
-      ],
-    );
-  }
-
-  Future<void> _handleRefresh() async {
-    setState(() {
-      _isRefreshing = true;
-    });
-
-    // Simulate network call
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() {
-      _isRefreshing = false;
-      _lastSyncTime = DateTime.now();
-    });
-
-    // Show success feedback
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Données mises à jour avec succès',
-          style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: AppTheme.successLight,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-    );
-  }
-
-  void _handleNotificationTap() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppTheme.lightTheme.colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Container(
-        padding: EdgeInsets.all(4.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Notifications',
-              style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(height: 2.h),
-            // ListTile(
-            //   leading: CustomIconWidget(
-            //     iconName: 'payment',
-            //     color: AppTheme.successLight,
-            //   ),
-            //   title: Text('Paiement reçu'),
-            //   subtitle: Text('Commission de Marie Lefevre - 125,50 FCFA'),
-            //   trailing: Text('Il y a 2h'),
-            // ),
-            // ListTile(
-            //   leading: CustomIconWidget(
-            //     iconName: 'schedule',
-            //     color: AppTheme.warningLight,
-            //   ),
-            //   title: Text('Paiement en attente'),
-            //   subtitle: Text('Commission de Jean-Pierre Moreau'),
-            //   trailing: Text('Il y a 1j'),
-            // ),
-            ListTile(
-              leading: CustomIconWidget(
-                iconName: 'person_add',
-                color: AppTheme.lightTheme.colorScheme.primary,
-                size: 24,
-              ),
-              title: Text('Nouveau patient'),
-              subtitle: Text('Sophie Bernard a été ajoutée'),
-              trailing: Text('Il y a 2j'),
-            ),
-            SizedBox(height: 2.h),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _handleBottomNavTap(int index) {
-    switch (index) {
-      case 0:
-      // Already on dashboard
-        break;
-      case 1:
-        Navigator.pushNamed(context, '/patient-list');
-        break;
-      case 2:
-      // Navigator.pushNamed(context, '/commission-analytics');
-        break;
-      case 3:
-      // Navigate to analytics screen
-        break;
-      case 4:
-      // Navigate to profile screen
-        break;
-    }
-  }
-
   void _navigateToPatientList() {
     Navigator.pushNamed(context, '/patient-list');
   }
@@ -650,10 +715,8 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void _showCommissionDetails(Map<String, dynamic> patient) {
-    final String patientName = patient['name'] ?? 'Patient Inconnu';
-    final double commissionAmount =
-        (patient['commissionAmount'] as num?)?.toDouble() ?? 0.0;
-    final String paymentStatus = patient['paymentStatus'] ?? 'pending';
+    final String patientName = patient['patientName'] ?? 'Patient Inconnu';
+    final double commissionAmount = (patient['amount'] as num?)?.toDouble() ?? 0.0;
 
     showDialog(
       context: context,
@@ -683,14 +746,6 @@ class _DashboardState extends State<Dashboard> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 1.h),
-            Text(
-              'Statut: ${_getStatusText(paymentStatus)}',
-              style: AppTheme.lightTheme.textTheme.bodyLarge?.copyWith(
-                color: _getStatusColor(paymentStatus),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
           ],
         ),
         actions: [
@@ -708,35 +763,374 @@ class _DashboardState extends State<Dashboard> {
       ),
     );
   }
+}
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'paid':
-      case 'payé':
-        return AppTheme.successLight;
-      case 'pending':
-      case 'en attente':
-        return AppTheme.warningLight;
-      case 'overdue':
-      case 'en retard':
-        return AppTheme.errorLight;
-      default:
-        return AppTheme.lightTheme.colorScheme.onSurfaceVariant;
-    }
+class _RequestFormBottomSheet extends StatefulWidget {
+  @override
+  _RequestFormBottomSheetState createState() => _RequestFormBottomSheetState();
+}
+
+class _RequestFormBottomSheetState extends State<_RequestFormBottomSheet> {
+  String selectedRequestType = '';
+  final TextEditingController detailsController = TextEditingController();
+  bool isSubmitting = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 90.h,
+      decoration: BoxDecoration(
+        color: AppTheme.lightTheme.colorScheme.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            margin: EdgeInsets.only(top: 1.h),
+            width: 12.w,
+            height: 0.5.h,
+            decoration: BoxDecoration(
+              color: AppTheme.lightTheme.colorScheme.outline.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          
+          Padding(
+            padding: EdgeInsets.all(4.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Envoyer une Requête',
+                  style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.lightTheme.colorScheme.onSurface,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(
+                    Icons.close,
+                    color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 4.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+                      return GridView.count(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 2.w,
+                        mainAxisSpacing: 1.h,
+                        childAspectRatio: crossAxisCount == 3 ? 2.2 : 2.5,
+                        children: [
+                          _buildRequestTypeCard(
+                            'Commission',
+                            'Problèmes liés aux commissions',
+                            selectedRequestType == 'commission',
+                            () => setState(() => selectedRequestType = 'commission'),
+                          ),
+                          _buildRequestTypeCard(
+                            'Connexion',
+                            'Problèmes de connexion',
+                            selectedRequestType == 'connection',
+                            () => setState(() => selectedRequestType = 'connection'),
+                          ),
+                          _buildRequestTypeCard(
+                            'Erreur',
+                            'Signaler une erreur',
+                            selectedRequestType == 'error',
+                            () => setState(() => selectedRequestType = 'error'),
+                          ),
+                          _buildRequestTypeCard(
+                            'Administration',
+                            'Questions administratives',
+                            selectedRequestType == 'administration',
+                            () => setState(() => selectedRequestType = 'administration'),
+                          ),
+                          _buildRequestTypeCard(
+                            'Revendication Examen',
+                            'Revendication d\'examen',
+                            selectedRequestType == 'revendication_examen',
+                            () => setState(() => selectedRequestType = 'revendication_examen'),
+                          ),
+                          _buildRequestTypeCard(
+                            'Suggestion',
+                            'Faire une suggestion',
+                            selectedRequestType == 'suggestion',
+                            () => setState(() => selectedRequestType = 'suggestion'),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+
+                  SizedBox(height: 3.h),
+
+                  Text(
+                    'Détails de la Requête *',
+                    style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.lightTheme.colorScheme.onSurface,
+                    ),
+                  ),
+                  SizedBox(height: 1.h),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: AppTheme.lightTheme.colorScheme.outline.withValues(alpha: 0.3),
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextField(
+                      controller: detailsController,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        hintText: 'Décrivez votre requête en détail...',
+                        hintStyle: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.lightTheme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(3.w),
+                      ),
+                      style: AppTheme.lightTheme.textTheme.bodyMedium,
+                    ),
+                  ),
+                  
+                  SizedBox(height: 4.h),
+                ],
+              ),
+            ),
+          ),
+
+          Container(
+            padding: EdgeInsets.all(4.w),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                          color: AppTheme.lightTheme.colorScheme.outline.withValues(alpha: 0.3),
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      'Annuler',
+                      style: AppTheme.lightTheme.textTheme.titleSmall?.copyWith(
+                        color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 3.w),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: selectedRequestType.isNotEmpty && detailsController.text.isNotEmpty && !isSubmitting
+                        ? _submitRequest
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.lightTheme.colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: isSubmitting
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.send, size: 16),
+                              SizedBox(width: 1.w),
+                              Text(
+                                'Envoyer',
+                                style: AppTheme.lightTheme.textTheme.titleSmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  String _getStatusText(String status) {
-    switch (status.toLowerCase()) {
-      case 'paid':
-        return 'Payé';
-      case 'pending':
-        return 'En attente';
-      case 'overdue':
-        return 'En retard';
-      default:
-        return 'Inconnu';
+  Widget _buildRequestTypeCard(String title, String description, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(2.w),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? AppTheme.lightTheme.colorScheme.primary.withValues(alpha: 0.1)
+              : AppTheme.lightTheme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected 
+                ? AppTheme.lightTheme.colorScheme.primary
+                : AppTheme.lightTheme.colorScheme.outline.withValues(alpha: 0.3),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 4.w,
+                  height: 4.w,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isSelected 
+                          ? AppTheme.lightTheme.colorScheme.primary
+                          : AppTheme.lightTheme.colorScheme.outline,
+                      width: 2,
+                    ),
+                    color: isSelected 
+                        ? AppTheme.lightTheme.colorScheme.primary
+                        : Colors.transparent,
+                  ),
+                  child: isSelected 
+                      ? Icon(
+                          Icons.check,
+                          size: 2.w,
+                          color: Colors.white,
+                        )
+                      : null,
+                ),
+                SizedBox(width: 2.w),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppTheme.lightTheme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: isSelected 
+                          ? AppTheme.lightTheme.colorScheme.primary
+                          : AppTheme.lightTheme.colorScheme.onSurface,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 1.h),
+            Text(
+              description,
+              style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
+                color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+                fontSize: 8.sp,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _submitRequest() async {
+    setState(() {
+      isSubmitting = true;
+    });
+
+    try {
+      final accessToken = StorageService.accessToken;
+      final doctorId = StorageService.doctorId;
+      
+      if (accessToken == null || doctorId == null) {
+        throw Exception('Données d\'authentification manquantes');
+      }
+
+      final authService = AuthService();
+      final doctorProfile = await authService.getDoctorProfile(doctorId, accessToken);
+      
+      final request = RequestModel(
+        administration: selectedRequestType == 'administration',
+        commission: selectedRequestType == 'commission',
+        connection: selectedRequestType == 'connection',
+        email: doctorProfile.doctorEmail,
+        error: selectedRequestType == 'error',
+        firstName: doctorProfile.doctorName,
+        lastName: doctorProfile.doctorLastname,
+        message: detailsController.text,
+        revendicationExamen: selectedRequestType == 'revendication_examen',
+        suggestion: selectedRequestType == 'suggestion',
+      );
+
+      await authService.submitRequest(request);
+      
+      Navigator.pop(context);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Requête envoyée avec succès',
+            style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: AppTheme.successLight,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Erreur lors de l\'envoi: $e',
+            style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: AppTheme.errorLight,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    } finally {
+      setState(() {
+        isSubmitting = false;
+      });
     }
   }
 }
-
-// CustomIconWidget remains the same as in your original code

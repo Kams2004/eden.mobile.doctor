@@ -2,4 +2,14 @@ class ApiConfig {
   static const String baseUrl = 'http://65.21.73.170:1000';
   static const String loginEndpoint = '$baseUrl/user/login';
   static const String sendMailEndpoint = '$baseUrl/users/send_email/';
+  static const String doctorProfileEndpoint = '$baseUrl/doctors/informations';
+  static const String doctorUpdateEndpoint = '$baseUrl/doctors/update';
+  static const String doctorPatientsEndpoint = '$baseUrl/gnu_doctor';
+  static const String requestEndpoint = '$baseUrl/requete/add';
+  static const String getRequestsEndpoint = '$baseUrl/requete/get_requests';
+  static const String notificationsEndpoint = '$baseUrl/notifications/user';
+  static const String notificationTypesEndpoint = '$baseUrl/notifications/types/';
+  static const String resultsEndpoint = '$baseUrl/send_result/doctor';
+  static const String patientEndpoint = '$baseUrl/patient';
+  static const String resultDetailEndpoint = '$baseUrl/result';
 }

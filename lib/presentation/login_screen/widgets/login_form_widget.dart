@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/storage_service.dart';
 import '../../../model/login_model.dart';
 import 'package:eden_medical/presentation/dashboard/dashboard.dart';
+import '../../sendmail_screen/sendmail_screen.dart';
 
 class LoginFormWidget extends StatefulWidget {
   final Function(String username, String password) onLogin;
@@ -80,6 +82,32 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         
         final response = await _authService.login(request);
         
+        // Store login data
+        print('Login successful - User ID: ${response.data.id}, Doctor ID: ${response.data.doctorId}');
+        StorageService.setLoginData(
+          accessToken: response.accessToken,
+          userId: response.data.id,
+          userRole: response.data.roles.isNotEmpty ? response.data.roles.first.name : 'Unknown',
+        );
+        
+        // Fetch and store doctor profile to get correct doctor ID
+        try {
+          print('Fetching doctor profile with user ID: ${response.data.id}');
+          final doctorProfile = await _authService.getDoctorProfile(response.data.id, response.accessToken);
+          print('Doctor profile fetched - Doctor ID: ${doctorProfile.id}');
+          StorageService.setDoctorId(doctorProfile.id);
+        } catch (e) {
+          print('Warning: Could not fetch doctor profile: $e');
+          // Try using doctorId from login response as fallback
+          try {
+            final doctorProfile = await _authService.getDoctorProfile(response.data.doctorId, response.accessToken);
+            print('Doctor profile fetched with doctorId - Doctor ID: ${doctorProfile.id}');
+            StorageService.setDoctorId(doctorProfile.id);
+          } catch (e2) {
+            print('Warning: Could not fetch doctor profile with doctorId either: $e2');
+          }
+        }
+        
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -127,6 +155,8 @@ TextFormField(
       fontFamily: 'Lexend',
       letterSpacing: 0.0,
       color: Colors.black,
+            fontSize: 15.sp,
+
     ),
     hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
       fontFamily: 'Lexend',
@@ -194,6 +224,7 @@ TextFormField(
     // hintText: 'Saisissez votre mot de passe',
     labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
       fontFamily: 'Lexend',
+      fontSize: 15.sp,
       letterSpacing: 0.0,
       color: Colors.black,
     ),
@@ -267,29 +298,28 @@ TextFormField(
 ),
           
           // Forgot Password Link
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: widget.isLoading
-                  ? null
-                  : () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                        'Fonctionnalité de récupération de mot de passe à venir'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              },
-              child: Text(
-                'Mot de passe oublié ?',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.lightTheme.colorScheme.primary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
+Align(
+  alignment: Alignment.centerRight,
+  child: TextButton(
+    onPressed: widget.isLoading
+        ? null
+        : () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SendMailScreen(), // Replace with your actual screen widget
+        ),
+      );
+    },
+    child: Text(
+      'Mot de passe oublié ?',
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        color: AppTheme.lightTheme.colorScheme.primary,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+  ),
+),
           SizedBox(height: 0.5.h),
           // Login Button
           SizedBox(

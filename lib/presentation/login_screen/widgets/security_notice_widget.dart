@@ -37,7 +37,7 @@ class SecurityNoticeWidget extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         color: AppTheme.lightTheme.colorScheme.primary,
                         fontWeight: FontWeight.w600,
-                        fontSize: 14.sp,
+                        fontSize: 16.sp,
                       ),
                 ),
                 SizedBox(height: 0.5.h),
@@ -45,7 +45,7 @@ class SecurityNoticeWidget extends StatelessWidget {
                   'Nous sommes ravis de vous revoir. Accédez à votre espace médical sécurisé pour gérer votre santé en toute tranquillité.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppTheme.lightTheme.colorScheme.primary,
-                        fontSize: 12.sp,
+                        fontSize: 13.sp,
                         height: 1.4,
                       ),
                 ),

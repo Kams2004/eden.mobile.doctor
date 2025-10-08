@@ -4,17 +4,17 @@ import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
 
 class ActivityStatisticsGrid extends StatelessWidget {
-  final int patientCount;
-  final int examinationCount;
-  final int recentTransfers;
-  final int pendingRequests;
+  final int todayPatients;
+  final int todayExams;
+  final int totalPatients;
+  final int totalExams;
 
   const ActivityStatisticsGrid({
     Key? key,
-    required this.patientCount,
-    required this.examinationCount,
-    required this.recentTransfers,
-    required this.pendingRequests,
+    required this.todayPatients,
+    required this.todayExams,
+    required this.totalPatients,
+    required this.totalExams,
   }) : super(key: key);
 
   @override
@@ -25,36 +25,36 @@ class ActivityStatisticsGrid extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 2,
-        crossAxisSpacing: 3.w,
-        mainAxisSpacing: 2.h,
-        childAspectRatio: 1.4,
+        crossAxisSpacing: 2.w,
+        mainAxisSpacing: 1.5.h,
+        childAspectRatio: 1.6,
         children: [
           _buildStatCard(
-            title: 'Patients',
-            value: patientCount.toString(),
-            icon: 'people',
+            title: "Patients d'aujourd'hui",
+            value: todayPatients.toString(),
+            icon: 'person',
             color: AppTheme.lightTheme.colorScheme.primary,
             context: context,
           ),
           _buildStatCard(
-            title: 'Examens',
-            value: examinationCount.toString(),
+            title: "Examens d'aujourd'hui",
+            value: todayExams.toString(),
             icon: 'medical_services',
-            color: AppTheme.successLight,
+            color: const Color(0xFF1B5E20),
             context: context,
           ),
           _buildStatCard(
-            title: 'Transferts',
-            value: recentTransfers.toString(),
-            icon: 'swap_horiz',
-            color: AppTheme.warningLight,
+            title: 'Total Patients',
+            value: totalPatients.toString(),
+            icon: 'people',
+            color: const Color(0xFFBF360C),
             context: context,
           ),
           _buildStatCard(
-            title: 'Demandes',
-            value: pendingRequests.toString(),
-            icon: 'notifications',
-            color: AppTheme.accentLight,
+            title: 'Total Examens',
+            value: totalExams.toString(),
+            icon: 'assignment',
+            color: const Color(0xFF4A148C),
             context: context,
           ),
         ],
@@ -70,59 +70,40 @@ class ActivityStatisticsGrid extends StatelessWidget {
     required BuildContext context,
   }) {
     return Container(
-      padding: EdgeInsets.all(4.w),
+      padding: EdgeInsets.all(2.5.w),
       decoration: BoxDecoration(
-        color: AppTheme.lightTheme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.lightTheme.colorScheme.outline.withValues(alpha: 0.2),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: color,
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: EdgeInsets.all(2.w),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: CustomIconWidget(
-                  iconName: icon,
-                  color: color,
-                  size: 20,
-                ),
-              ),
-            ],
+          CustomIconWidget(
+            iconName: icon,
+            color: Colors.white,
+            size: 20,
           ),
+          SizedBox(height: 0.5.h),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 value,
-                style: AppTheme.lightTheme.textTheme.headlineMedium?.copyWith(
+                style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.lightTheme.colorScheme.onSurface,
+                  color: Colors.white,
                 ),
               ),
-              SizedBox(height: 0.5.h),
+              SizedBox(height: 0.2.h),
               Text(
                 title,
-                style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
-                  color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+                style: AppTheme.lightTheme.textTheme.labelSmall?.copyWith(
+                  color: Colors.white.withOpacity(0.9),
                   fontWeight: FontWeight.w500,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

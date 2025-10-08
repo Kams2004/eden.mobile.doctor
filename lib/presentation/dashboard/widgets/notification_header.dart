@@ -45,63 +45,118 @@ class NotificationHeader extends StatelessWidget {
               ],
             ),
           ),
-          GestureDetector(
-            onTap: onNotificationTap,
-            child: Container(
-              padding: EdgeInsets.all(3.w),
-              decoration: BoxDecoration(
-                color: AppTheme.lightTheme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppTheme.lightTheme.colorScheme.outline
-                      .withValues(alpha: 0.2),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+          Row(
+            children: [
+              // Language Icon
+              Container(
+                padding: EdgeInsets.all(3.w),
+                margin: EdgeInsets.only(right: 2.w),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightTheme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppTheme.lightTheme.colorScheme.outline
+                        .withValues(alpha: 0.2),
                   ),
-                ],
-              ),
-              child: Stack(
-                children: [
-                  CustomIconWidget(
-                    iconName: 'notifications',
-                    color: AppTheme.lightTheme.colorScheme.onSurface,
-                    size: 24,
-                  ),
-                  if (notificationCount > 0)
-                    Positioned(
-                      right: -2,
-                      top: -2,
-                      child: Container(
-                        padding: EdgeInsets.all(1.w),
-                        decoration: BoxDecoration(
-                          color: AppTheme.errorLight,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        constraints: BoxConstraints(
-                          minWidth: 5.w,
-                          minHeight: 5.w,
-                        ),
-                        child: Text(
-                          notificationCount > 99
-                              ? '99+'
-                              : notificationCount.toString(),
-                          style: AppTheme.lightTheme.textTheme.labelSmall
-                              ?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 8.sp,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                ],
+                  ],
+                ),
+                child: Icon(
+                  Icons.language,
+                  color: AppTheme.lightTheme.colorScheme.onSurface,
+                  size: 24,
+                ),
               ),
-            ),
+              // Theme Toggle Icon
+              Container(
+                padding: EdgeInsets.all(3.w),
+                margin: EdgeInsets.only(right: 2.w),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightTheme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppTheme.lightTheme.colorScheme.outline
+                        .withValues(alpha: 0.2),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.light_mode,
+                  color: AppTheme.lightTheme.colorScheme.onSurface,
+                  size: 24,
+                ),
+              ),
+              // Notification Icon
+              GestureDetector(
+                onTap: onNotificationTap,
+                child: Container(
+                  padding: EdgeInsets.all(3.w),
+                  decoration: BoxDecoration(
+                    color: AppTheme.lightTheme.colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppTheme.lightTheme.colorScheme.outline
+                          .withValues(alpha: 0.2),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      CustomIconWidget(
+                        iconName: 'notifications',
+                        color: AppTheme.lightTheme.colorScheme.onSurface,
+                        size: 24,
+                      ),
+                      if (notificationCount > 0)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            padding: EdgeInsets.all(1.w),
+                            decoration: BoxDecoration(
+                              color: AppTheme.errorLight,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            constraints: BoxConstraints(
+                              minWidth: 5.w,
+                              minHeight: 5.w,
+                            ),
+                            child: Text(
+                              notificationCount > 99
+                                  ? '99+'
+                                  : notificationCount.toString(),
+                              style: AppTheme.lightTheme.textTheme.labelSmall
+                                  ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 8.sp,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
