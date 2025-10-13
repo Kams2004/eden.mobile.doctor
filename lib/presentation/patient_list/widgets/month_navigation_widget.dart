@@ -18,11 +18,11 @@ class MonthNavigationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+      margin: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
       decoration: BoxDecoration(
         color: AppTheme.lightTheme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(6),
         border: Border.all(
           color: AppTheme.lightTheme.colorScheme.outline,
           width: 1,
@@ -41,7 +41,7 @@ class MonthNavigationWidget extends StatelessWidget {
             padding: EdgeInsets.zero,
             constraints: BoxConstraints(
               minWidth: 8.w,
-              minHeight: 6.h,
+              minHeight: 4.h,
             ),
           ),
           Expanded(

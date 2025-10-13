@@ -31,7 +31,7 @@ class PatientCardWidget extends StatelessWidget {
     final double commissionAmount = (patient['commissionAmount'] as double?) ?? 0.0;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.5.h),
+      margin: EdgeInsets.symmetric(horizontal: 6.w, vertical: 0.5.h),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(
@@ -80,7 +80,7 @@ class PatientCardWidget extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(8),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.h),
+            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.5.h),
             child: Row(
               children: [
                 Expanded(

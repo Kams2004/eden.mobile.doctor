@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/app_export.dart';
 import '../../services/auth_service.dart';
@@ -13,6 +14,7 @@ import './widgets/news_carousel.dart';
 import '../../presentation/request_page/request_page.dart';
 import '../../presentation/notification_page/notification_page.dart';
 import '../../presentation/results_page/results_page.dart';
+import '../../presentation/login_screen/login_screen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -73,6 +75,15 @@ class _DashboardState extends State<Dashboard> {
       
       if (accessToken != null && doctorId != null) {
         final authService = AuthService();
+        
+        // Load doctor profile to get name
+        try {
+          final doctorProfile = await authService.getDoctorProfile(doctorId, accessToken);
+          StorageService.setDoctorInfo(doctorProfile.doctorName, doctorProfile.doctorLastname);
+        } catch (e) {
+          print('Error loading doctor profile: $e');
+        }
+        
         final response = await authService.getDoctorPatients(doctorId, accessToken);
         
         if (response.dataPatients.isNotEmpty) {
@@ -233,9 +244,28 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: RefreshIndicator(
+      body: Stack(
+        children: [
+         // Background image
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              image: DecorationImage(
+                image: AssetImage("assets/images/overlay2.jpeg"),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // White overlay for readability
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.white.withOpacity(.60),
+          ),
+          SafeArea(
+            child: RefreshIndicator(
           onRefresh: _handleRefresh,
           color: AppTheme.lightTheme.colorScheme.primary,
           child: CustomScrollView(
@@ -245,9 +275,9 @@ class _DashboardState extends State<Dashboard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     NotificationHeader(
-                      doctorName: (_dashboardData["doctorName"] as String?) ?? "Docteur",
                       notificationCount: ((_dashboardData["notifications"] as Map<String, dynamic>?)?["count"] as int?) ?? 0,
                       onNotificationTap: _handleNotificationTap,
+                      onLogoutTap: _showLogoutDialog,
                     ),
 
                     Padding(
@@ -408,7 +438,8 @@ class _DashboardState extends State<Dashboard> {
               ),
             ],
           ),
-        ),
+        ),)
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToSupport,
@@ -426,49 +457,67 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: AppTheme.lightTheme.colorScheme.surface,
-      selectedItemColor: AppTheme.lightTheme.colorScheme.primary,
-      unselectedItemColor: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-      currentIndex: 0,
-      onTap: _handleBottomNavTap,
-      items: [
-        BottomNavigationBarItem(
-          icon: CustomIconWidget(
-            iconName: 'dashboard',
-            color: AppTheme.lightTheme.colorScheme.primary,
-            size: 24,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: Offset(0, -5),
           ),
-          label: 'Tableau de bord',
-        ),
-        BottomNavigationBarItem(
-          icon: CustomIconWidget(
-            iconName: 'people',
-            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-            size: 24,
+        ],
+      ),
+      child: SafeArea(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 2.w,vertical: 1.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(Icons.dashboard, 'Accueil', 0, true),
+              _buildNavItem(Icons.people, 'Patients', 1, false),
+              _buildNavItem(Icons.assignment, 'Résultats', 2, false),
+              _buildNavItem(Icons.request_page, 'Requête', 3, false),
+              _buildNavItem(Icons.person, 'Profil', 4, false),
+            ],
           ),
-          label: 'Patients',
         ),
-        BottomNavigationBarItem(
-          icon: CustomIconWidget(
-            iconName: 'assignment',
-            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-            size: 24,
-          ),
-          label: 'Résultats',
-        ),
-        BottomNavigationBarItem(
-          icon: CustomIconWidget(
-            iconName: 'person',
-            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-            size: 24,
-          ),
-          label: 'Profil',
-        ),
-      ],
+      ),
     );
   }
+
+Widget _buildNavItem(IconData icon, String label, int index, bool isSelected) {
+  return Flexible( // Use Flexible instead of Expanded
+    child: GestureDetector(
+      onTap: () => _handleBottomNavTap(index),
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 1.w),
+        padding: EdgeInsets.symmetric(vertical: 2.w, horizontal: 2.w),
+        decoration: BoxDecoration(
+          color: isSelected ? Color(0xFF3B82F6).withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(2.w),
+              decoration: BoxDecoration(
+                color: isSelected ? Color(0xFF3B82F6) : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? Colors.white : Color(0xFF64748B),
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
   Future<void> _handleRefresh() async {
     setState(() {
@@ -522,6 +571,9 @@ class _DashboardState extends State<Dashboard> {
         Navigator.pushNamed(context, '/results');
         break;
       case 3:
+        Navigator.pushNamed(context, '/request-page');
+        break;
+      case 4:
         Navigator.pushNamed(context, '/doctor-profile');
         break;
     }
@@ -662,18 +714,223 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void _showHelpService() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: EdgeInsets.all(6.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 12.w,
+              height: 0.5.h,
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            SizedBox(height: 3.h),
+            Text(
+              'Service d\'aide',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+            SizedBox(height: 3.h),
+            _buildContactCard(
+              'Relations publiques',
+              '+237 696134160',
+              Icons.public,
+              Color(0xFF3B82F6),
+            ),
+            SizedBox(height: 1.h),
+            _buildContactCard(
+              'Service technique',
+              '+237 695995842',
+              Icons.engineering,
+              Color(0xFF10B981),
+            ),
+            SizedBox(height: 3.h),
+            Text(
+              'Au service de votre santé',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Color(0xFF64748B),
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+            SizedBox(height: 2.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactCard(String title, String phone, IconData icon, Color color) {
+    return GestureDetector(
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(4.w),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: color.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(3.w),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+            SizedBox(width: 4.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  SizedBox(height: 0.5.h),
+                  Text(
+                    phone,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: color,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.all(2.w),
+              decoration: BoxDecoration(
+                color: Color(0xFF25D366).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.chat,
+                color: Color(0xFF25D366),
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
+  void _showLogoutDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Service d\'aide'),
-        content: Text('Service d\'aide technique sera bientôt disponible.'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.logout,
+              color: Color(0xFF3B82F6),
+              size: 24,
+            ),
+            SizedBox(width: 2.w),
+            Text(
+              'Déconnexion',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Êtes-vous sûr de vouloir vous déconnecter ?',
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: Color(0xFF64748B),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Fermer'),
+            child: Text(
+              'Annuler',
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _handleLogout();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF3B82F6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              'Déconnexion',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _handleLogout() async {
+    try {
+      final accessToken = StorageService.accessToken;
+      if (accessToken != null) {
+        final authService = AuthService();
+        await authService.logout(accessToken);
+      }
+    } catch (e) {
+      print('Logout API error (continuing anyway): $e');
+    }
+    
+    // Always clear data and navigate, regardless of API response
+    StorageService.clearData();
+    
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/login-screen',
+      (route) => false,
     );
   }
 

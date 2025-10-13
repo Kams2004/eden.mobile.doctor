@@ -84,7 +84,6 @@ class ActivityStatisticsGrid extends StatelessWidget {
             color: Colors.white,
             size: 20,
           ),
-          SizedBox(height: 0.5.h),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -93,6 +92,7 @@ class ActivityStatisticsGrid extends StatelessWidget {
                 style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
+                  fontSize: 20.sp
                 ),
               ),
               SizedBox(height: 0.2.h),

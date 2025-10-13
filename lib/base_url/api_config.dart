@@ -9,7 +9,10 @@ class ApiConfig {
   static const String getRequestsEndpoint = '$baseUrl/requete/get_requests';
   static const String notificationsEndpoint = '$baseUrl/notifications/user';
   static const String notificationTypesEndpoint = '$baseUrl/notifications/types/';
+  static const String deleteNotificationEndpoint = '$baseUrl/notifications/del';
+  static const String markReadNotificationEndpoint = '$baseUrl/notifications/mark_read';
   static const String resultsEndpoint = '$baseUrl/send_result/doctor';
   static const String patientEndpoint = '$baseUrl/patient';
   static const String resultDetailEndpoint = '$baseUrl/result';
+  static const String logoutEndpoint = '$baseUrl/user/logout';
 }

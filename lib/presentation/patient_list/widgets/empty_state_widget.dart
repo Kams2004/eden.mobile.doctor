@@ -29,19 +29,18 @@ class EmptyStateWidget extends StatelessWidget {
           children: [
             // Illustration
             Container(
-              width: 60.w,
-              height: 30.h,
+              width: 20.w,
+              height: 10.h,
               decoration: BoxDecoration(
-                color: AppTheme.lightTheme.colorScheme.primaryContainer
-                    .withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(20),
+                color: AppTheme.lightTheme.colorScheme.primary
+                  ,
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Center(
                 child: CustomIconWidget(
                   iconName: 'people_outline',
-                  color: AppTheme.lightTheme.colorScheme.primary
-                      .withValues(alpha: 0.6),
-                  size: 80,
+                  color: Colors.white,
+                  size: 40,
                 ),
               ),
             ),

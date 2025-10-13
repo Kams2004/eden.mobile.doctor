@@ -35,7 +35,7 @@ class _GroupedPatientCardWidgetState extends State<GroupedPatientCardWidget> {
     final double totalAmount = (widget.patient['totalAmount'] as double?) ?? 0.0;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.5.h),
+      margin: EdgeInsets.symmetric(horizontal: 6.w, vertical: 0.5.h),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(

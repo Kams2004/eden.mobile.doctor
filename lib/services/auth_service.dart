@@ -565,4 +565,99 @@ class AuthService {
       throw Exception('Notification type error: $e');
     }
   }
+
+  Future<void> deleteNotification(int notificationId, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.deleteNotificationEndpoint}/$notificationId';
+      print('DeleteNotification Request URL: $endpoint');
+      
+      final response = await _dio.delete(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('DeleteNotification Response Status: ${response.statusCode}');
+      print('DeleteNotification Response Body: ${response.data}');
+
+      if (response.statusCode != 200) {
+        throw Exception('Delete notification failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('DeleteNotification DioException: ${e.message}');
+      print('DeleteNotification Response Data: ${e.response?.data}');
+      throw Exception('Delete notification error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('DeleteNotification General Exception: $e');
+      throw Exception('Delete notification error: $e');
+    }
+  }
+
+  Future<void> markNotificationAsRead(List<int> notificationIds, String accessToken) async {
+    try {
+      final endpoint = ApiConfig.markReadNotificationEndpoint;
+      print('MarkReadNotification Request URL: $endpoint');
+      print('MarkReadNotification Request IDs: $notificationIds');
+      
+      final response = await _dio.post(
+        endpoint,
+        data: {'notification_ids': notificationIds},
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('MarkReadNotification Response Status: ${response.statusCode}');
+      print('MarkReadNotification Response Body: ${response.data}');
+
+      if (response.statusCode != 200) {
+        throw Exception('Mark notification as read failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('MarkReadNotification DioException: ${e.message}');
+      print('MarkReadNotification Response Data: ${e.response?.data}');
+      throw Exception('Mark notification as read error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('MarkReadNotification General Exception: $e');
+      throw Exception('Mark notification as read error: $e');
+    }
+  }
+
+  Future<void> logout(String accessToken) async {
+    try {
+      final endpoint = ApiConfig.logoutEndpoint;
+      print('Logout Request URL: $endpoint');
+      
+      final response = await _dio.post(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('Logout Response Status: ${response.statusCode}');
+      print('Logout Response Body: ${response.data}');
+
+      if (response.statusCode != 200) {
+        throw Exception('Logout failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('Logout DioException: ${e.message}');
+      print('Logout Response Data: ${e.response?.data}');
+      throw Exception('Logout error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('Logout General Exception: $e');
+      throw Exception('Logout error: $e');
+    }
+  }
 }

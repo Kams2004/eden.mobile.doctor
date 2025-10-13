@@ -20,7 +20,7 @@ class SearchBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+      margin: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
       child: Row(
         children: [
           Expanded(
@@ -28,17 +28,8 @@ class SearchBarWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppTheme.lightTheme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppTheme.lightTheme.colorScheme.outline,
-                  width: 1,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.shadowLight,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+          
+         
               ),
               child: TextField(
                 controller: controller,
@@ -75,7 +66,7 @@ class SearchBarWidget extends StatelessWidget {
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 4.w,
-                    vertical: 2.h,
+                    vertical: 1.h,
                   ),
                 ),
               ),
@@ -85,7 +76,7 @@ class SearchBarWidget extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: AppTheme.lightTheme.colorScheme.primary,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(6),
               boxShadow: [
                 BoxShadow(
                   color: AppTheme.shadowLight,

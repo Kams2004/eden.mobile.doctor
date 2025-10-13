@@ -224,86 +224,159 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
-      body: SafeArea(
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height -
-                    MediaQuery.of(context).padding.top -
-                    MediaQuery.of(context).padding.bottom,
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.w),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 8.h),
-                    // Animated Logo Section
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: SlideTransition(
-                        position: _slideAnimation,
-                        child: const MedicalLogoWidget(),
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    // Security Notice
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: const SecurityNoticeWidget(),
-                    ),
-                    SizedBox(height: 2.h),
-                    // Login Form
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: SlideTransition(
-                        position: _slideAnimation,
-                        child: LoginFormWidget(
-                          onLogin: _handleLogin,
-                          isLoading: _isLoading,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF3B82F6),
+              Color(0xFF1E40AF),
+              Color(0xFF1E3A8A),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height -
+                      MediaQuery.of(context).padding.top -
+                      MediaQuery.of(context).padding.bottom,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 8.h),
+                      // Header Section
+                      FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: SlideTransition(
+                          position: _slideAnimation,
+                          child: Container(
+                            padding: EdgeInsets.all(4.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 20.w,
+                                  height: 20.w,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Colors.white.withOpacity(0.3),
+                                        Colors.white.withOpacity(0.1),
+                                      ],
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.white.withOpacity(0.2),
+                                        blurRadius: 20,
+                                        spreadRadius: 5,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.medical_services_rounded,
+                                    size: 10.w,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(height: 3.h),
+                                Text(
+                                  'EDEN',
+                                  style: TextStyle(
+                                    fontSize: 20.sp,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                    letterSpacing: 3,
+                                  ),
+                                ),
+                                SizedBox(height: 1.h),
+                                Text(
+                                  'Connexion Sécurisée',
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontWeight: FontWeight.w400,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    // Biometric Authentication
-                    // FadeTransition(
-                    //   opacity: _fadeAnimation,
-                    //   child: BiometricAuthWidget(
-                    //     onBiometricAuth: _handleBiometricAuth,
-                    //     isAvailable: _biometricAvailable,
-                    //   ),
-                    // ),
-                     SizedBox(height: 4.h),
-                    // Footer
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Column(
-                        children: [
-                          Text(
-                            'EDEN Medical v1.0.0',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: const Color.fromARGB(255, 17, 18, 20)
-                                  .withValues(alpha: 0.7),
-                              fontSize: 12.sp,
+                      SizedBox(height: 4.h),
+                      // Login Form
+                      FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: SlideTransition(
+                          position: _slideAnimation,
+                          child: Container(
+                            padding: EdgeInsets.all(6.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 30,
+                                  offset: Offset(0, 15),
+                                ),
+                              ],
+                            ),
+                            child: LoginFormWidget(
+                              onLogin: _handleLogin,
+                              isLoading: _isLoading,
                             ),
                           ),
-                          SizedBox(height: 1.h),
-                          Text(
-                            'Sécurisé • Confidentiel • Conforme',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: const Color.fromARGB(255, 8, 9, 10)
-                                  .withValues(alpha: 0.6),
-                              fontSize: 12.sp,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 4.h),
-                  ],
+                      SizedBox(height: 4.h),
+                      // Footer
+                      FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: Column(
+                          children: [
+                            Text(
+                              'EDEN Medical v1.0.0',
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                color: Colors.white.withOpacity(0.7),
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            SizedBox(height: 1.h),
+                            Text(
+                              'Sécurisé • Confidentiel • Conforme',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Colors.white.withOpacity(0.6),
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -86,6 +86,78 @@ class _NotificationPageState extends State<NotificationPage> with TickerProvider
     }
   }
 
+  Future<void> _deleteNotification(int notificationId) async {
+    try {
+      final accessToken = StorageService.accessToken;
+      if (accessToken != null) {
+        final authService = AuthService();
+        await authService.deleteNotification(notificationId, accessToken);
+        
+        setState(() {
+          allNotifications.removeWhere((n) => n.id == notificationId);
+          filteredNotifications.removeWhere((n) => n.id == notificationId);
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Notification supprimée avec succès'),
+            backgroundColor: Color(0xFF10B981),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors de la suppression: $e'),
+          backgroundColor: Color(0xFFEF4444),
+        ),
+      );
+    }
+  }
+
+  Future<void> _markAsRead(int notificationId) async {
+    try {
+      final accessToken = StorageService.accessToken;
+      if (accessToken != null) {
+        final authService = AuthService();
+        await authService.markNotificationAsRead([notificationId], accessToken);
+        
+        setState(() {
+          final index = allNotifications.indexWhere((n) => n.id == notificationId);
+          if (index != -1) {
+            allNotifications[index] = NotificationModel(
+              id: allNotifications[index].id,
+              title: allNotifications[index].title,
+              message: allNotifications[index].message,
+              isRead: true,
+              readAt: DateTime.now().toIso8601String(),
+              createdAt: allNotifications[index].createdAt,
+              updatedAt: allNotifications[index].updatedAt,
+              userId: allNotifications[index].userId,
+              types: allNotifications[index].types,
+              allUsers: allNotifications[index].allUsers,
+            );
+          }
+        });
+        _filterNotifications();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Notification marquée comme lue'),
+            backgroundColor: Color(0xFF10B981),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors du marquage: $e'),
+          backgroundColor: Color(0xFFEF4444),
+        ),
+      );
+    }
+  }
+
   void _filterNotifications() {
     setState(() {
       filteredNotifications = allNotifications.where((notification) {
@@ -482,25 +554,55 @@ class _NotificationPageState extends State<NotificationPage> with TickerProvider
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.check_circle_outline,
-                    size: 16,
-                    color: Color(0xFF10B981),
-                  ),
-                  SizedBox(width: 2.w),
-                  Text(
-                    'Déjà lue',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: Color(0xFF10B981),
-                      fontWeight: FontWeight.w600,
+                  if (!notification.isRead)
+                    GestureDetector(
+                      onTap: () => _markAsRead(notification.id),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.check_circle_outline,
+                            size: 16,
+                            color: Color(0xFF10B981),
+                          ),
+                          SizedBox(width: 2.w),
+                          Text(
+                            'Marquer comme lue',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Color(0xFF10B981),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          size: 16,
+                          color: Color(0xFF10B981),
+                        ),
+                        SizedBox(width: 2.w),
+                        Text(
+                          'Déjà lue',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Color(0xFF10B981),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
                   Spacer(),
-                  Icon(
-                    Icons.delete_outline,
-                    size: 16,
-                    color: Color(0xFF94A3B8),
+                  GestureDetector(
+                    onTap: () => _deleteNotification(notification.id),
+                    child: Icon(
+                      Icons.delete_outline,
+                      size: 16,
+                      color: Color(0xFFEF4444),
+                    ),
                   ),
                 ],
               ),
@@ -760,25 +862,55 @@ class _NotificationPageState extends State<NotificationPage> with TickerProvider
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.check_circle_outline,
-                  size: 16,
-                  color: Color(0xFF10B981),
-                ),
-                SizedBox(width: 2.w),
-                Text(
-                  'Déjà lue',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Color(0xFF10B981),
-                    fontWeight: FontWeight.w600,
+                if (!notification.isRead)
+                  GestureDetector(
+                    onTap: () => _markAsRead(notification.id),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline,
+                          size: 16,
+                          color: Color(0xFF10B981),
+                        ),
+                        SizedBox(width: 2.w),
+                        Text(
+                          'Marquer comme lue',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Color(0xFF10B981),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        size: 16,
+                        color: Color(0xFF10B981),
+                      ),
+                      SizedBox(width: 2.w),
+                      Text(
+                        'Déjà lue',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Color(0xFF10B981),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
                 Spacer(),
-                Icon(
-                  Icons.delete_outline,
-                  size: 16,
-                  color: Color(0xFF94A3B8),
+                GestureDetector(
+                  onTap: () => _deleteNotification(notification.id),
+                  child: Icon(
+                    Icons.delete_outline,
+                    size: 16,
+                    color: Color(0xFFEF4444),
+                  ),
                 ),
               ],
             ),

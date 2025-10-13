@@ -2,18 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../../services/storage_service.dart';
 
 class NotificationHeader extends StatelessWidget {
-  final String doctorName;
   final int notificationCount;
   final VoidCallback? onNotificationTap;
+  final VoidCallback? onLogoutTap;
 
   const NotificationHeader({
     Key? key,
-    required this.doctorName,
     required this.notificationCount,
     this.onNotificationTap,
+    this.onLogoutTap,
   }) : super(key: key);
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Bonjour,';
+    } else if (hour < 17) {
+      return 'Bon après-midi,';
+    } else {
+      return 'Bonsoir,';
+    }
+  }
+
+  String _getDoctorName() {
+    final firstName = StorageService.doctorName ?? '';
+    final lastName = StorageService.doctorLastname ?? '';
+    if (firstName.isNotEmpty || lastName.isNotEmpty) {
+      return '$firstName $lastName'.trim();
+    }
+    return 'Docteur';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +48,7 @@ class NotificationHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Bonjour,',
+                  _getGreeting(),
                   style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
                     color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w400,
@@ -35,9 +56,10 @@ class NotificationHeader extends StatelessWidget {
                 ),
                 SizedBox(height: 0.5.h),
                 Text(
-                  'Dr. $doctorName',
+                  _getDoctorName(),
                   style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w700,
+                    fontSize: 16.sp,
                     color: AppTheme.lightTheme.colorScheme.onSurface,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -49,23 +71,8 @@ class NotificationHeader extends StatelessWidget {
             children: [
               // Language Icon
               Container(
-                padding: EdgeInsets.all(3.w),
-                margin: EdgeInsets.only(right: 2.w),
-                decoration: BoxDecoration(
-                  color: AppTheme.lightTheme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppTheme.lightTheme.colorScheme.outline
-                        .withValues(alpha: 0.2),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
+                padding: EdgeInsets.all(1.w),
+    
                 child: Icon(
                   Icons.language,
                   color: AppTheme.lightTheme.colorScheme.onSurface,
@@ -74,23 +81,8 @@ class NotificationHeader extends StatelessWidget {
               ),
               // Theme Toggle Icon
               Container(
-                padding: EdgeInsets.all(3.w),
-                margin: EdgeInsets.only(right: 2.w),
-                decoration: BoxDecoration(
-                  color: AppTheme.lightTheme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppTheme.lightTheme.colorScheme.outline
-                        .withValues(alpha: 0.2),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
+                padding: EdgeInsets.all(1.w),
+        
                 child: Icon(
                   Icons.light_mode,
                   color: AppTheme.lightTheme.colorScheme.onSurface,
@@ -101,22 +93,7 @@ class NotificationHeader extends StatelessWidget {
               GestureDetector(
                 onTap: onNotificationTap,
                 child: Container(
-                  padding: EdgeInsets.all(3.w),
-                  decoration: BoxDecoration(
-                    color: AppTheme.lightTheme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppTheme.lightTheme.colorScheme.outline
-                          .withValues(alpha: 0.2),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                  padding: EdgeInsets.all(2.w),
                   child: Stack(
                     children: [
                       CustomIconWidget(
@@ -133,10 +110,6 @@ class NotificationHeader extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: AppTheme.errorLight,
                               borderRadius: BorderRadius.circular(10),
-                            ),
-                            constraints: BoxConstraints(
-                              minWidth: 5.w,
-                              minHeight: 5.w,
                             ),
                             child: Text(
                               notificationCount > 99
@@ -156,6 +129,24 @@ class NotificationHeader extends StatelessWidget {
                   ),
                 ),
               ),
+              // Logout Icon
+            GestureDetector(
+  onTap: onLogoutTap,
+  child: Container(
+    width: 10.w, // Control width
+    height:10.w, // Control height (same as width for perfect circle)
+    padding: EdgeInsets.all(3.w),
+    decoration: BoxDecoration(
+      color: const Color.fromARGB(255, 12, 114, 247),
+  borderRadius: BorderRadius.circular(8),      
+    ),
+    child: Icon(
+      Icons.logout,
+      color: Colors.white,
+      size: 20,
+    ),
+  ),
+),
             ],
           ),
         ],

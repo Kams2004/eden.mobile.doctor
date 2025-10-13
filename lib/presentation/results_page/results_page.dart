@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../core/app_export.dart';
+import '../../widgets/custom_icon_widget.dart';
 import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
 import '../../model/result_model.dart';
@@ -92,9 +93,32 @@ class _ResultsPageState extends State<ResultsPage> with TickerProviderStateMixin
     final notSentCount = allResults.where((r) => !r.isEmailSent).length;
     
     return Scaffold(
-      backgroundColor: Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Background image
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              image: DecorationImage(
+                image: AssetImage("assets/images/overlay2.jpg"),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          // White overlay for readability
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.white.withOpacity(.70),
+          ),
+          Column(
+            children: [
+              // AppBar
+              SafeArea(
+                child: AppBar(
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Container(
           margin: EdgeInsets.all(8),
@@ -171,8 +195,11 @@ class _ResultsPageState extends State<ResultsPage> with TickerProviderStateMixin
             ),
           ),
         ],
-      ),
-      body: FadeTransition(
+              ),
+              ),
+              // Body content
+              Expanded(
+                child: FadeTransition(
         opacity: _fadeAnimation,
         child: Column(
           children: [
@@ -257,7 +284,12 @@ class _ResultsPageState extends State<ResultsPage> with TickerProviderStateMixin
             ),
           ],
         ),
+              ),
+          )],
+          ),
+        ],
       ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
@@ -452,7 +484,91 @@ class _ResultsPageState extends State<ResultsPage> with TickerProviderStateMixin
           ],
         ),
       ),
+      // bottomNavigationBar: _buildBottomNavigationBar(),
     );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 2.w,vertical: 1.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(Icons.dashboard, 'Accueil', 0, false),
+              _buildNavItem(Icons.people, 'Patients', 1, false),
+              _buildNavItem(Icons.assignment, 'Résultats', 2, true),
+              _buildNavItem(Icons.request_page, 'Requête', 3, false),
+              _buildNavItem(Icons.person, 'Profil', 4, false),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+Widget _buildNavItem(IconData icon, String label, int index, bool isSelected) {
+  return Flexible(
+    child: GestureDetector(
+      onTap: () => _handleBottomNavTap(index),
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 1.w),
+        padding: EdgeInsets.symmetric(vertical: 2.w, horizontal: 2.w),
+        decoration: BoxDecoration(
+          color: isSelected ? Color(0xFF3B82F6).withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(2.w),
+              decoration: BoxDecoration(
+                color: isSelected ? Color(0xFF3B82F6) : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? Colors.white : Color(0xFF64748B),
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+
+  void _handleBottomNavTap(int index) {
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/dashboard');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/patient-list');
+        break;
+      case 2:
+        break;
+      case 3:
+        Navigator.pushNamed(context, '/request-page');
+        break;
+      case 4:
+        Navigator.pushReplacementNamed(context, '/doctor-profile');
+        break;
+    }
   }
 
   void _navigateToResultDetail(ExamResult result) {

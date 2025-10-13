@@ -43,6 +43,7 @@ class AppTheme {
   /// Light theme optimized for clinical environments
   static ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
+    fontFamily: GoogleFonts.montserrat().fontFamily,
     colorScheme: ColorScheme(
       brightness: Brightness.light,
       primary: primaryLight,
@@ -70,7 +71,7 @@ class AppTheme {
       onInverseSurface: textPrimaryDark,
       inversePrimary: primaryDark,
     ),
-    scaffoldBackgroundColor: backgroundLight,
+    scaffoldBackgroundColor: Colors.transparent,
     cardColor: surfaceLight,
     dividerColor: dividerLight,
 
@@ -81,7 +82,7 @@ class AppTheme {
       elevation: 0,
       shadowColor: shadowLight,
       surfaceTintColor: Colors.transparent,
-      titleTextStyle: GoogleFonts.inter(
+      titleTextStyle: GoogleFonts.montserrat(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: textPrimaryLight,
@@ -110,11 +111,11 @@ class AppTheme {
       unselectedItemColor: textSecondaryLight,
       type: BottomNavigationBarType.fixed,
       elevation: 8,
-      selectedLabelStyle: GoogleFonts.inter(
+      selectedLabelStyle: GoogleFonts.montserrat(
         fontSize: 12,
         fontWeight: FontWeight.w500,
       ),
-      unselectedLabelStyle: GoogleFonts.inter(
+      unselectedLabelStyle: GoogleFonts.montserrat(
         fontSize: 12,
         fontWeight: FontWeight.w400,
       ),
@@ -144,7 +145,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        textStyle: GoogleFonts.inter(
+        textStyle: GoogleFonts.montserrat(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.02,
@@ -160,7 +161,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        textStyle: GoogleFonts.inter(
+        textStyle: GoogleFonts.montserrat(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.02,
@@ -175,7 +176,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        textStyle: GoogleFonts.inter(
+        textStyle: GoogleFonts.montserrat(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.02,
@@ -211,17 +212,17 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: errorLight, width: 2),
       ),
-      labelStyle: GoogleFonts.inter(
+      labelStyle: GoogleFonts.montserrat(
         color: textSecondaryLight,
         fontSize: 16,
         fontWeight: FontWeight.w400,
       ),
-      hintStyle: GoogleFonts.inter(
+      hintStyle: GoogleFonts.montserrat(
         color: textSecondaryLight.withAlpha(153),
         fontSize: 16,
         fontWeight: FontWeight.w400,
       ),
-      errorStyle: GoogleFonts.inter(
+      errorStyle: GoogleFonts.montserrat(
         color: errorLight,
         fontSize: 14,
         fontWeight: FontWeight.w400,
@@ -278,12 +279,12 @@ class AppTheme {
       unselectedLabelColor: textSecondaryLight,
       indicatorColor: primaryLight,
       indicatorSize: TabBarIndicatorSize.label,
-      labelStyle: GoogleFonts.inter(
+      labelStyle: GoogleFonts.montserrat(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.02,
       ),
-      unselectedLabelStyle: GoogleFonts.inter(
+      unselectedLabelStyle: GoogleFonts.montserrat(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         letterSpacing: -0.02,
@@ -296,7 +297,7 @@ class AppTheme {
         color: textPrimaryLight.withAlpha(230),
         borderRadius: BorderRadius.circular(8),
       ),
-      textStyle: GoogleFonts.inter(
+      textStyle: GoogleFonts.montserrat(
         color: Colors.white,
         fontSize: 14,
         fontWeight: FontWeight.w400,
@@ -306,7 +307,7 @@ class AppTheme {
 
     snackBarTheme: SnackBarThemeData(
       backgroundColor: textPrimaryLight,
-      contentTextStyle: GoogleFonts.inter(
+      contentTextStyle: GoogleFonts.montserrat(
         color: Colors.white,
         fontSize: 16,
         fontWeight: FontWeight.w400,
@@ -335,7 +336,7 @@ class AppTheme {
     chipTheme: ChipThemeData(
       backgroundColor: borderLight,
       selectedColor: primaryLight.withAlpha(51),
-      labelStyle: GoogleFonts.inter(
+      labelStyle: GoogleFonts.montserrat(
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: textPrimaryLight,
@@ -350,6 +351,7 @@ class AppTheme {
   /// Dark theme optimized for dimmed consultation rooms
   static ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
+    fontFamily: GoogleFonts.montserrat().fontFamily,
     colorScheme: ColorScheme(
       brightness: Brightness.dark,
       primary: primaryDark,
@@ -386,7 +388,7 @@ class AppTheme {
       elevation: 0,
       shadowColor: shadowDark,
       surfaceTintColor: Colors.transparent,
-      titleTextStyle: GoogleFonts.inter(
+      titleTextStyle: GoogleFonts.montserrat(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: textPrimaryDark,
@@ -411,11 +413,11 @@ class AppTheme {
       unselectedItemColor: textSecondaryDark,
       type: BottomNavigationBarType.fixed,
       elevation: 8,
-      selectedLabelStyle: GoogleFonts.inter(
+      selectedLabelStyle: GoogleFonts.montserrat(
         fontSize: 12,
         fontWeight: FontWeight.w500,
       ),
-      unselectedLabelStyle: GoogleFonts.inter(
+      unselectedLabelStyle: GoogleFonts.montserrat(
         fontSize: 12,
         fontWeight: FontWeight.w400,
       ),
@@ -441,7 +443,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        textStyle: GoogleFonts.inter(
+        textStyle: GoogleFonts.montserrat(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.02,
@@ -456,7 +458,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        textStyle: GoogleFonts.inter(
+        textStyle: GoogleFonts.montserrat(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.02,
@@ -470,7 +472,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        textStyle: GoogleFonts.inter(
+        textStyle: GoogleFonts.montserrat(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.02,
@@ -502,17 +504,17 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: errorDark, width: 2),
       ),
-      labelStyle: GoogleFonts.inter(
+      labelStyle: GoogleFonts.montserrat(
         color: textSecondaryDark,
         fontSize: 16,
         fontWeight: FontWeight.w400,
       ),
-      hintStyle: GoogleFonts.inter(
+      hintStyle: GoogleFonts.montserrat(
         color: textSecondaryDark.withAlpha(153),
         fontSize: 16,
         fontWeight: FontWeight.w400,
       ),
-      errorStyle: GoogleFonts.inter(
+      errorStyle: GoogleFonts.montserrat(
         color: errorDark,
         fontSize: 14,
         fontWeight: FontWeight.w400,
@@ -561,12 +563,12 @@ class AppTheme {
       unselectedLabelColor: textSecondaryDark,
       indicatorColor: primaryDark,
       indicatorSize: TabBarIndicatorSize.label,
-      labelStyle: GoogleFonts.inter(
+      labelStyle: GoogleFonts.montserrat(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.02,
       ),
-      unselectedLabelStyle: GoogleFonts.inter(
+      unselectedLabelStyle: GoogleFonts.montserrat(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         letterSpacing: -0.02,
@@ -577,7 +579,7 @@ class AppTheme {
         color: textPrimaryDark.withAlpha(230),
         borderRadius: BorderRadius.circular(8),
       ),
-      textStyle: GoogleFonts.inter(
+      textStyle: GoogleFonts.montserrat(
         color: Colors.black,
         fontSize: 14,
         fontWeight: FontWeight.w400,
@@ -586,7 +588,7 @@ class AppTheme {
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: textPrimaryDark,
-      contentTextStyle: GoogleFonts.inter(
+      contentTextStyle: GoogleFonts.montserrat(
         color: Colors.black,
         fontSize: 16,
         fontWeight: FontWeight.w400,
@@ -611,7 +613,7 @@ class AppTheme {
     chipTheme: ChipThemeData(
       backgroundColor: borderDark,
       selectedColor: primaryDark.withAlpha(77),
-      labelStyle: GoogleFonts.inter(
+      labelStyle: GoogleFonts.montserrat(
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: textPrimaryDark,
@@ -631,21 +633,21 @@ class AppTheme {
 
     return TextTheme(
       // Display styles for dashboard headers
-      displayLarge: GoogleFonts.inter(
+      displayLarge: GoogleFonts.montserrat(
         fontSize: 32,
         fontWeight: FontWeight.w600,
         color: textPrimary,
         letterSpacing: -0.02,
         height: 1.2,
       ),
-      displayMedium: GoogleFonts.inter(
+      displayMedium: GoogleFonts.montserrat(
         fontSize: 28,
         fontWeight: FontWeight.w600,
         color: textPrimary,
         letterSpacing: -0.02,
         height: 1.2,
       ),
-      displaySmall: GoogleFonts.inter(
+      displaySmall: GoogleFonts.montserrat(
         fontSize: 24,
         fontWeight: FontWeight.w600,
         color: textPrimary,
@@ -654,21 +656,21 @@ class AppTheme {
       ),
 
       // Headline styles for section headers
-      headlineLarge: GoogleFonts.inter(
+      headlineLarge: GoogleFonts.montserrat(
         fontSize: 22,
         fontWeight: FontWeight.w600,
         color: textPrimary,
         letterSpacing: -0.02,
         height: 1.3,
       ),
-      headlineMedium: GoogleFonts.inter(
+      headlineMedium: GoogleFonts.montserrat(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         color: textPrimary,
         letterSpacing: -0.02,
         height: 1.3,
       ),
-      headlineSmall: GoogleFonts.inter(
+      headlineSmall: GoogleFonts.montserrat(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: textPrimary,
@@ -677,21 +679,21 @@ class AppTheme {
       ),
 
       // Title styles for patient names and important labels
-      titleLarge: GoogleFonts.inter(
+      titleLarge: GoogleFonts.montserrat(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: textPrimary,
         letterSpacing: -0.02,
         height: 1.4,
       ),
-      titleMedium: GoogleFonts.inter(
+      titleMedium: GoogleFonts.montserrat(
         fontSize: 16,
         fontWeight: FontWeight.w500,
         color: textPrimary,
         letterSpacing: -0.01,
         height: 1.4,
       ),
-      titleSmall: GoogleFonts.inter(
+      titleSmall: GoogleFonts.montserrat(
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: textPrimary,
@@ -700,21 +702,21 @@ class AppTheme {
       ),
 
       // Body styles for patient details and commission information
-      bodyLarge: GoogleFonts.inter(
+      bodyLarge: GoogleFonts.montserrat(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         color: textPrimary,
         letterSpacing: -0.01,
         height: 1.5,
       ),
-      bodyMedium: GoogleFonts.inter(
+      bodyMedium: GoogleFonts.montserrat(
         fontSize: 14,
         fontWeight: FontWeight.w400,
         color: textPrimary,
         letterSpacing: -0.01,
         height: 1.5,
       ),
-      bodySmall: GoogleFonts.inter(
+      bodySmall: GoogleFonts.montserrat(
         fontSize: 12,
         fontWeight: FontWeight.w400,
         color: textSecondary,
@@ -723,21 +725,21 @@ class AppTheme {
       ),
 
       // Label styles for form labels and buttons
-      labelLarge: GoogleFonts.inter(
+      labelLarge: GoogleFonts.montserrat(
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: textPrimary,
         letterSpacing: -0.01,
         height: 1.4,
       ),
-      labelMedium: GoogleFonts.inter(
+      labelMedium: GoogleFonts.montserrat(
         fontSize: 12,
         fontWeight: FontWeight.w500,
         color: textSecondary,
         letterSpacing: 0,
         height: 1.4,
       ),
-      labelSmall: GoogleFonts.inter(
+      labelSmall: GoogleFonts.montserrat(
         fontSize: 10,
         fontWeight: FontWeight.w500,
         color: textSecondary,
@@ -750,7 +752,7 @@ class AppTheme {
   /// Data text style for financial figures and patient IDs
   static TextStyle dataTextStyle(
       {required bool isLight, double fontSize = 14}) {
-    return GoogleFonts.robotoMono(
+    return GoogleFonts.montserrat(
       fontSize: fontSize,
       fontWeight: FontWeight.w500,
       color: isLight ? textPrimaryLight : textPrimaryDark,
@@ -762,7 +764,7 @@ class AppTheme {
   /// Success text style for positive status indicators
   static TextStyle successTextStyle(
       {required bool isLight, double fontSize = 14}) {
-    return GoogleFonts.inter(
+    return GoogleFonts.montserrat(
       fontSize: fontSize,
       fontWeight: FontWeight.w500,
       color: isLight ? successLight : successDark,
@@ -774,7 +776,7 @@ class AppTheme {
   /// Warning text style for pending alerts
   static TextStyle warningTextStyle(
       {required bool isLight, double fontSize = 14}) {
-    return GoogleFonts.inter(
+    return GoogleFonts.montserrat(
       fontSize: fontSize,
       fontWeight: FontWeight.w500,
       color: isLight ? warningLight : warningDark,
@@ -786,7 +788,7 @@ class AppTheme {
   /// Error text style for critical alerts
   static TextStyle errorTextStyle(
       {required bool isLight, double fontSize = 14}) {
-    return GoogleFonts.inter(
+    return GoogleFonts.montserrat(
       fontSize: fontSize,
       fontWeight: FontWeight.w500,
       color: isLight ? errorLight : errorDark,

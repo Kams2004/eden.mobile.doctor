@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
-import 'package:lottie/lottie.dart'; 
+ 
 
 
 class SplashScreen extends StatefulWidget {
@@ -176,14 +176,13 @@ class _SplashScreenState extends State<SplashScreen>
         height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
-              AppTheme.primaryLight,
-              AppTheme.primaryLight.withValues(alpha: 0.8),
-              AppTheme.accentLight.withValues(alpha: 0.6),
+              Color(0xFF3B82F6),
+              Color(0xFF1E40AF),
+              Color(0xFF1E3A8A),
             ],
-            stops: const [0.0, 0.6, 1.0],
           ),
         ),
         child: SafeArea(
@@ -237,95 +236,104 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Widget _buildLogoSection() {
+    return Container(
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            'assets/images/pdmd.png',
+            width: 25.w,
+            height: 25.w,
+            fit: BoxFit.contain,
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            'EDEN',
+            style: TextStyle(
+              fontSize: 24.sp,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              letterSpacing: 3,
+            ),
+          ),
+          SizedBox(height: 1.h),
+          Text(
+            'Plateforme Médicale Digitale',
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.white.withOpacity(0.9),
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Logo Image (No background, no box)
-        Image.asset(
-          'assets/images/pdmd.png',
-          width: 25.w,
-          height: 25.w,
-          fit: BoxFit.contain,
-        ),
-        SizedBox(height: 4.h),
-        // App Name
-        Text(
-          'EDEN',
-          style: AppTheme.lightTheme.textTheme.displayMedium?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
+        Container(
+          width: 20.w,
+          height: 20.w,
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            strokeWidth: 3,
           ),
         ),
-        SizedBox(height: 1.h),
-        // Subtitle
+        SizedBox(height: 3.h),
         Text(
-          'Au service de votre santé',
-          style: AppTheme.lightTheme.textTheme.bodyLarge?.copyWith(
-            color: Colors.white.withOpacity(0.9),
+          'Initialisation sécurisée...',
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: Colors.white.withOpacity(0.8),
             fontWeight: FontWeight.w400,
-            letterSpacing: 0.5,
           ),
-          textAlign: TextAlign.center,
         ),
       ],
     );
   }
 
-  Widget _buildLoadingIndicator() {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      // Lottie Loading Animation with more control
-      Lottie.asset(
-        'assets/lotties/splash.json',
-        width: 35.w,
-        height: 35.w,
-        fit: BoxFit.contain,
-        repeat: true, // Loop the animation
-        animate: true, // Start animation automatically
-      ),
-      SizedBox(height: 2.h),
-      // Loading Text
-      Text(
-        'Initialisation sécurisée...',
-        style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
-          color: Colors.white.withValues(alpha: 0.8),
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-    ],
-  );
-}
-
   Widget _buildFooterSection() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Security Badge
         Container(
           padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: Colors.white.withOpacity(0.1),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.white.withOpacity(0.2),
               width: 1,
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CustomIconWidget(
-                iconName: 'security',
-                color: Colors.white.withValues(alpha: 0.9),
+              Icon(
+                Icons.security,
+                color: Colors.white.withOpacity(0.9),
                 size: 4.w,
               ),
               SizedBox(width: 2.w),
               Text(
-                'Conforme HIPAA',
-                style: AppTheme.lightTheme.textTheme.labelMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.9),
+                'Sécurisé & Conforme',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: Colors.white.withOpacity(0.9),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -335,9 +343,10 @@ class _SplashScreenState extends State<SplashScreen>
         SizedBox(height: 2.h),
         // Version Info
         Text(
-          'Version 1.0.0',
-          style: AppTheme.lightTheme.textTheme.labelSmall?.copyWith(
-            color: Colors.white.withValues(alpha: 0.6),
+          '© 2024 EDEN Medical Platform',
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: Colors.white.withOpacity(0.6),
             fontWeight: FontWeight.w400,
           ),
         ),

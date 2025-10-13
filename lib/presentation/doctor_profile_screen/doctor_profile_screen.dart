@@ -163,88 +163,119 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'Profil Médecin',
-          style: AppTheme.lightTheme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: AppTheme.lightTheme.colorScheme.surface,
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () {
-              setState(() {
-                _isEditing = !_isEditing;
-              });
-            },
-            icon: CustomIconWidget(
-              iconName: _isEditing ? 'close' : 'edit',
-              color: AppTheme.lightTheme.colorScheme.primary,
-              size: 24,
+      body: Stack(
+        children: [
+          // Background image
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              image: DecorationImage(
+                image: AssetImage("assets/images/overlay2.jpeg"),
+                fit: BoxFit.cover,
+              ),
             ),
+          ),
+          // White overlay for readability
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.white.withOpacity(.70),
+          ),
+          Column(
+            children: [
+              // AppBar
+              SafeArea(
+                child: AppBar(
+                  title: Text(
+                    'Profil Médecin',
+                    style: AppTheme.lightTheme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  actions: [
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isEditing = !_isEditing;
+                        });
+                      },
+                      icon: CustomIconWidget(
+                        iconName: _isEditing ? 'close' : 'edit',
+                        color: AppTheme.lightTheme.colorScheme.primary,
+                        size: 24,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Body content
+              Expanded(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : Column(
+                        children: [
+                          // Circular page indicator
+                          Container(
+                            padding: EdgeInsets.symmetric(vertical: 2.h),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildCircularPageIndicator(0),
+                                SizedBox(width: 4.w),
+                                _buildCircularPageIndicator(1),
+                              ],
+                            ),
+                          ),
+                          
+                          // Form pages
+                          Expanded(
+                            child: PageView(
+                              controller: _pageController,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _currentPage = index;
+                                });
+                              },
+                              children: [
+                                _buildPersonalInfoPage(),
+                                _buildProfessionalInfoPage(),
+                              ],
+                            ),
+                          ),
+                          
+                          // Save button (only show when editing)
+                          if (_isEditing)
+                            Container(
+                              padding: EdgeInsets.all(4.w),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _saveProfile,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.lightTheme.colorScheme.primary,
+                                    padding: EdgeInsets.symmetric(vertical: 2.h),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Enregistrer',
+                                    style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+              ),
+            ],
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                // Circular page indicator
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 2.h),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildCircularPageIndicator(0),
-                      SizedBox(width: 4.w),
-                      _buildCircularPageIndicator(1),
-                    ],
-                  ),
-                ),
-                
-                // Form pages
-                Expanded(
-                  child: PageView(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
-                    children: [
-                      _buildPersonalInfoPage(),
-                      _buildProfessionalInfoPage(),
-                    ],
-                  ),
-                ),
-                
-                // Save button (only show when editing)
-                if (_isEditing)
-                  Container(
-                    padding: EdgeInsets.all(4.w),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _saveProfile,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.lightTheme.colorScheme.primary,
-                          padding: EdgeInsets.symmetric(vertical: 2.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Enregistrer',
-                          style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
     );
   }
 

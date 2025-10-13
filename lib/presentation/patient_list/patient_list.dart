@@ -324,40 +324,112 @@ class _PatientListState extends State<PatientList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Patients',
-              style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w600,
+      body: Stack(
+        children: [
+          // Background image
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              image: DecorationImage(
+                image: AssetImage("assets/images/overlay2.jpeg"),
+                fit: BoxFit.cover,
               ),
             ),
-            Text(
-              'Commission totale: ${_totalCommission.toStringAsFixed(2)} FCFA',
-              style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
-                color: AppTheme.lightTheme.colorScheme.primary,
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppTheme.lightTheme.colorScheme.surface,
+          ),
+          // White overlay for readability
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.white.withOpacity(.70),
+          ),
+          Column(
+            children: [
+              // AppBar
+              SafeArea(
+                child: AppBar(
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: Container(
+          margin: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(
+              Icons.arrow_back_ios_new,
+              color: Color(0xFF334155),
+              size: 20,
+            ),
+          ),
+        ),
+        title: Flexible(
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(2.w),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF3B82F6), Color(0xFF1E40AF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                   borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.assignment_outlined,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              SizedBox(width: 2.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Patients',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1E293B),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                // Text(
+            //   'Commission totale: ${_totalCommission.toStringAsFixed(2)} FCFA',
+            //   style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
+            //     color: AppTheme.lightTheme.colorScheme.primary,
+            //   ),
+            // ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
         actions: [
-          IconButton(
+          TextButton(
             onPressed: _refreshPatients,
-            icon: CustomIconWidget(
-              iconName: 'refresh',
-              color: AppTheme.lightTheme.colorScheme.primary,
-              size: 24,
+            child: Text(
+              'Actualiser',
+              style: TextStyle(
+                color: Color(0xFF3B82F6),
+                fontWeight: FontWeight.w600,
+                fontSize: 12.sp,
+              ),
             ),
           ),
         ],
-      ),
-      body: Column(
-        children: [
+              ),
+              ),
+              // Body content
+              Expanded(
+                child: Column(
+                  children: [
           // Month Navigation
           MonthNavigationWidget(
             currentMonth: _getMonthName(_currentMonth),
@@ -394,19 +466,12 @@ class _PatientListState extends State<PatientList> {
                         title:
                             _searchQuery.isNotEmpty || _activeFilters.isNotEmpty
                                 ? 'Aucun patient trouvé'
-                                : 'Aucun patient',
+                                : 'Aucun patient pour ce mois',
                         subtitle: _searchQuery.isNotEmpty ||
                                 _activeFilters.isNotEmpty
                             ? 'Essayez de modifier vos critères de recherche ou filtres.'
-                            : 'Commencez par ajouter votre premier patient pour suivre les commissions.',
+                            : 'Veuillez cliquer les flèches en haut pour changer de mois et voir la liste de vos patients.',
                         buttonText: 'Ajouter un patient',
-                        onButtonPressed: () {
-                          Fluttertoast.showToast(
-                            msg: "Fonctionnalité d'ajout de patient",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                          );
-                        },
                       )
                     : RefreshIndicator(
                         onRefresh: _refreshPatients,
@@ -427,8 +492,97 @@ class _PatientListState extends State<PatientList> {
                         ),
                       ),
           ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
+      ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 2.w,vertical: 1.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(Icons.dashboard, 'Accueil', 0, false),
+              _buildNavItem(Icons.people, 'Patients', 1, true),
+              _buildNavItem(Icons.assignment, 'Résultats', 2, false),
+              _buildNavItem(Icons.request_page, 'Requête', 3, false),
+              _buildNavItem(Icons.person, 'Profil', 4, false),
+            ],
+          ),
+        ),
       ),
     );
   }
+
+Widget _buildNavItem(IconData icon, String label, int index, bool isSelected) {
+  return Flexible(
+    child: GestureDetector(
+      onTap: () => _handleBottomNavTap(index),
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 1.w),
+        padding: EdgeInsets.symmetric(vertical: 2.w, horizontal: 2.w),
+        decoration: BoxDecoration(
+          color: isSelected ? Color(0xFF3B82F6).withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(2.w),
+              decoration: BoxDecoration(
+                color: isSelected ? Color(0xFF3B82F6) : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? Colors.white : Color(0xFF64748B),
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
+
+  void _handleBottomNavTap(int index) {
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/dashboard');
+        break;
+      case 1:
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/results');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/request-page');
+        break;
+      case 4:
+        Navigator.pushReplacementNamed(context, '/doctor-profile');
+        break;
+    }
+  }
+}
+ 

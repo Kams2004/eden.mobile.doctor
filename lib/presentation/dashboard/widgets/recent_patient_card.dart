@@ -24,73 +24,9 @@ class RecentPatientCard extends StatelessWidget {
     final String examType = patient['examType'] ?? '';
     final String patientId = patient['id']?.toString() ?? '';
 
-    return Dismissible(
-      key: Key('patient_$patientId'),
-      background: Container(
-        margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
-        padding: EdgeInsets.symmetric(horizontal: 6.w),
-        decoration: BoxDecoration(
-          color: AppTheme.lightTheme.colorScheme.primary.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        alignment: Alignment.centerLeft,
-        child: Row(
-          children: [
-            CustomIconWidget(
-              iconName: 'euro_symbol',
-              color: AppTheme.lightTheme.colorScheme.primary,
-              size: 24,
-            ),
-            SizedBox(width: 2.w),
-            Text(
-              'Commission',
-              style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
-                color: AppTheme.lightTheme.colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-      secondaryBackground: Container(
-        margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
-        padding: EdgeInsets.symmetric(horizontal: 6.w),
-        decoration: BoxDecoration(
-          color: AppTheme.accentLight.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        alignment: Alignment.centerRight,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              'Détails',
-              style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
-                color: AppTheme.accentLight,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(width: 2.w),
-            CustomIconWidget(
-              iconName: 'person',
-              color: AppTheme.accentLight,
-              size: 24,
-            ),
-          ],
-        ),
-      ),
-      onDismissed: (direction) {
-        if (direction == DismissDirection.startToEnd &&
-            onCommissionView != null) {
-          onCommissionView!();
-        } else if (direction == DismissDirection.endToStart &&
-            onPatientDetails != null) {
-          onPatientDetails!();
-        }
-      },
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
           margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
           padding: EdgeInsets.all(4.w),
           decoration: BoxDecoration(
@@ -172,7 +108,6 @@ if (examType.isNotEmpty) ...[
             ],
           ),
         ),
-      ),
     );
   }
 

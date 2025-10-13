@@ -78,137 +78,229 @@ class _SendMailScreenState extends State<SendMailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'Récupération des identifiants',
-          style: AppTheme.lightTheme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF3B82F6),
+              Color(0xFF1E40AF),
+              Color(0xFF1E3A8A),
+            ],
           ),
         ),
-        backgroundColor: AppTheme.lightTheme.colorScheme.surface,
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Logo/Icon
-              Container(
-                width: 20.w,
-                height: 20.w,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryLight.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: CustomIconWidget(
-                  iconName: 'email',
-                  color: AppTheme.primaryLight,
-                  size: 10.w,
-                ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
               ),
-              SizedBox(height: 4.h),
-
-              // Title
-              Text(
-                'Récupérer vos identifiants',
-                style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.lightTheme.colorScheme.onSurface,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 2.h),
-
-              // Description
-              Text(
-                'Saisissez votre ID de fédération pour recevoir vos identifiants par email',
-                style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 4.h),
-
-              // Form
-              Form(
-                key: _formKey,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Federation ID Field
-                    TextFormField(
-                      controller: _federationIdController,
-                      enabled: !_isLoading,
-                      decoration: InputDecoration(
-                        labelText: 'ID de Fédération',
-                        hintText: 'Ex: XXXMIY380BZM',
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.all(3.w),
-                          child: CustomIconWidget(
-                            iconName: 'badge',
-                            color: AppTheme.lightTheme.colorScheme.primary,
-                            size: 6.w,
-                          ),
+                    // Header Section
+                    Container(
+                      padding: EdgeInsets.all(6.w),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1,
                         ),
                       ),
-                      validator: _validateFederationId,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                    ),
-                    SizedBox(height: 4.h),
-
-                    // Send Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 7.h,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleSendMail,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.lightTheme.colorScheme.primary,
-                          foregroundColor: Colors.white,
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(3.w),
-                          ),
-                        ),
-                        child: _isLoading
-                            ? SizedBox(
-                                height: 5.w,
-                                width: 5.w,
-                                child: const CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(4.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 20,
+                                  offset: Offset(0, 10),
                                 ),
-                              )
-                            : Text(
-                                'Envoyer les identifiants',
-                                style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.email_outlined,
+                              size: 40,
+                              color: Color(0xFF3B82F6),
+                            ),
+                          ),
+                          SizedBox(height: 3.h),
+                          Text(
+                            'Récupération des identifiants',
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 1.h),
+                          Text(
+                            'Saisissez votre ID de fédération pour recevoir vos identifiants par email',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w400,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    SizedBox(height: 4.h),
+                    
+                    // Form Section
+                    Container(
+                      padding: EdgeInsets.all(6.w),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 30,
+                            offset: Offset(0, 15),
+                          ),
+                        ],
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            // Federation ID Field
+                            TextFormField(
+                              controller: _federationIdController,
+                              enabled: !_isLoading,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Color(0xFF1E293B),
+                              ),
+                              decoration: InputDecoration(
+                                labelText: 'ID de Fédération',
+                                hintText: 'Ex: XXXMIY380BZM',
+                                labelStyle: TextStyle(
+                                  color: Color(0xFF64748B),
+                                  fontSize: 13.sp,
+                                ),
+                                hintStyle: TextStyle(
+                                  color: Color(0xFF94A3B8),
+                                  fontSize: 12.sp,
+                                ),
+                                prefixIcon: Container(
+                                  margin: EdgeInsets.all(3.w),
+                                  padding: EdgeInsets.all(2.w),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF3B82F6).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.badge_outlined,
+                                    color: Color(0xFF3B82F6),
+                                    size: 20,
+                                  ),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Color(0xFFE2E8F0),
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Color(0xFF3B82F6),
+                                    width: 2,
+                                  ),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Color(0xFFEF4444),
+                                  ),
                                 ),
                               ),
+                              validator: _validateFederationId,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                            ),
+                            SizedBox(height: 4.h),
+
+                            // Send Button
+                            SizedBox(
+                              width: double.infinity,
+                              height: 6.h,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _handleSendMail,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF3B82F6),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: _isLoading
+                                    ? SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: const CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        ),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.send,
+                                            size: 18,
+                                          ),
+                                          SizedBox(width: 2.w),
+                                          Text(
+                                            'Envoyer les identifiants',
+                                            style: TextStyle(
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                            
+                            SizedBox(height: 3.h),
+                            
+                            // Back to login link
+                            TextButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () => Navigator.pushReplacementNamed(context, '/login-screen'),
+                              child: Text(
+                                'Retour à la connexion',
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  color: Color(0xFF3B82F6),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 4.h),
-
-              // Back to login link
-              TextButton(
-                onPressed: _isLoading
-                    ? null
-                    : () => Navigator.pushReplacementNamed(context, '/login-screen'),
-                child: Text(
-                  'Retour à la connexion',
-                  style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.lightTheme.colorScheme.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

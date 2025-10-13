@@ -30,6 +30,7 @@ dependencies:
   image: ^4.5.4
   lottie: 3.3.1
   intl: ^0.20.2
+  url_launcher: ^6.2.2
 
   universal_html: ^2.2.4
 dev_dependencies:
@@ -43,6 +44,7 @@ flutter:
     - assets/
     - assets/images/
     - assets/images/pdmd.png
+    - assets/images/overlay2.jpeg
     - assets/images/img.png
     - assets/images/61804.jpg
     - assets/lotties/login.json
