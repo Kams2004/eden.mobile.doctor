@@ -15,4 +15,9 @@ class ApiConfig {
   static const String patientEndpoint = '$baseUrl/patient';
   static const String resultDetailEndpoint = '$baseUrl/result';
   static const String logoutEndpoint = '$baseUrl/user/logout';
+  static const String laboratoryResultsEndpoint = '$baseUrl/laboratoire/all_results';
+  static const String laboratoryDetailEndpoint = '$baseUrl/laboratoire/more_infos';
+  static const String imageryResultsEndpoint = '$baseUrl/imagerie/all_results';
+  static const String explorationResultsEndpoint = '$baseUrl/exploration/all_results';
+  static const String patientNotificationsEndpoint = '$baseUrl/notifications/user';
 }

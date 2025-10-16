@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../patient-core/core/app_export.dart';
-import '../../../patient-widgets/widgets/custom_icon_widget.dart';
-
 class ResultHeaderWidget extends StatelessWidget {
   final Map<String, dynamic> resultData;
 
@@ -12,22 +9,48 @@ class ResultHeaderWidget extends StatelessWidget {
     required this.resultData,
   });
 
+  String _formatDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return 'Non disponible';
+    try {
+      // Handle different date formats
+      DateTime date;
+      if (dateString.contains('GMT') || dateString.contains('UTC')) {
+        date = DateTime.parse(dateString);
+      } else if (dateString.contains('/')) {
+        final parts = dateString.split('/');
+        if (parts.length == 3) {
+          date = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+        } else {
+          return 'Format invalide';
+        }
+      } else {
+        date = DateTime.parse(dateString);
+      }
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+    } catch (e) {
+      return 'Non disponible';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Container(
-      width: double.infinity,
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(3.w),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF3B82F6),
+            Color(0xFF1E40AF),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Color(0xFF3B82F6).withOpacity(0.3),
+            blurRadius: 12,
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -37,145 +60,137 @@ class ResultHeaderWidget extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                padding: EdgeInsets.all(2.w),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(colorScheme),
-                  borderRadius: BorderRadius.circular(2.w),
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.science_outlined,
+                  color: Colors.white,
+                  size: 6.w,
+                ),
+              ),
+              SizedBox(width: 3.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Analyse de Laboratoire',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      resultData['test'] ?? resultData['name'] ?? 'Test de laboratoire',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.8.h),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  _getStatusText(),
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: colorScheme.onPrimary,
-                    fontWeight: FontWeight.w500,
+                  resultData['state'] == 'validated' ? 'Validé' : 'En cours',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
                 ),
               ),
-              const Spacer(),
-              CustomIconWidget(
-                iconName: 'share',
-                color: colorScheme.primary,
-                size: 6.w,
+            ],
+          ),
+          SizedBox(height: 3.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInfoItem(
+                  'Code',
+                  resultData['name'] ?? 'N/A',
+                  Icons.qr_code,
+                ),
+              ),
+              Expanded(
+                child: _buildInfoItem(
+                  'Patient',
+                  resultData['patient'] ?? 'N/A',
+                  Icons.person_outline,
+                ),
               ),
             ],
           ),
           SizedBox(height: 2.h),
-          Text(
-            (resultData['testName'] as String?) ?? 'Test de laboratoire',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
-            ),
-          ),
-          SizedBox(height: 1.h),
-          Text(
-            'Ordre N° ${(resultData['orderNumber'] as String?) ?? 'N/A'}',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-          SizedBox(height: 2.h),
-          _buildMetadataRow(
-            context,
-            'Date d\'émission',
-            (resultData['emissionDate'] as String?) ?? '28/08/2025',
-            Icons.calendar_today_outlined,
-          ),
-          SizedBox(height: 1.h),
-          _buildMetadataRow(
-            context,
-            'Date de résultat',
-            (resultData['resultDate'] as String?) ?? '28/08/2025',
-            Icons.event_available_outlined,
-          ),
-          SizedBox(height: 1.h),
-          _buildMetadataRow(
-            context,
-            'Durée',
-            (resultData['duration'] as String?) ?? '2 jours',
-            Icons.schedule_outlined,
-          ),
-          SizedBox(height: 1.h),
-          _buildMetadataRow(
-            context,
-            'Actes d\'examen',
-            (resultData['examinationActs'] as String?) ??
-                'Analyses sanguines complètes',
-            Icons.medical_services_outlined,
+          Row(
+            children: [
+              Expanded(
+                child: _buildInfoItem(
+                  'Date d\'analyse',
+                  _formatDate(resultData['date_analysis']),
+                  Icons.calendar_today_outlined,
+                ),
+              ),
+              Expanded(
+                child: _buildInfoItem(
+                  'Validé par',
+                  resultData['validated_by'] ?? 'N/A',
+                  Icons.verified_user_outlined,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMetadataRow(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Row(
+  Widget _buildInfoItem(String label, String value, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CustomIconWidget(
-          iconName: icon.toString().split('.').last,
-          color: colorScheme.primary,
-          size: 4.w,
+        Row(
+          children: [
+            Icon(
+              icon,
+              color: Colors.white70,
+              size: 4.w,
+            ),
+            SizedBox(width: 1.w),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
-        SizedBox(width: 3.w),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              Text(
-                value,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+        SizedBox(height: 0.5.h),
+        Text(
+          value,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
           ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
-  }
-
-  Color _getStatusColor(ColorScheme colorScheme) {
-    final status =
-        (resultData['status'] as String?)?.toLowerCase() ?? 'completed';
-    switch (status) {
-      case 'completed':
-        return colorScheme.primary;
-      case 'pending':
-        return Colors.orange;
-      case 'abnormal':
-        return Colors.red;
-      default:
-        return colorScheme.primary;
-    }
-  }
-
-  String _getStatusText() {
-    final status =
-        (resultData['status'] as String?)?.toLowerCase() ?? 'completed';
-    switch (status) {
-      case 'completed':
-        return 'Terminé';
-      case 'pending':
-        return 'En attente';
-      case 'abnormal':
-        return 'Anormal';
-      default:
-        return 'Terminé';
-    }
   }
 }

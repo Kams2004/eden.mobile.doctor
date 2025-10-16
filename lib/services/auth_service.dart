@@ -660,4 +660,250 @@ class AuthService {
       throw Exception('Logout error: $e');
     }
   }
+
+  Future<Map<String, dynamic>> getPatientProfile(int patientId, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/patient/$patientId';
+      print('PatientProfile Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('PatientProfile Response Status: ${response.statusCode}');
+      print('PatientProfile Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('Get patient profile failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('PatientProfile DioException: ${e.message}');
+      print('PatientProfile Response Data: ${e.response?.data}');
+      throw Exception('Patient profile error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('PatientProfile General Exception: $e');
+      throw Exception('Patient profile error: $e');
+    }
+  }
+
+  Future<void> updatePatientProfile(int patientId, Map<String, dynamic> updateData, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/patient/update/$patientId';
+      print('UpdatePatientProfile Request URL: $endpoint');
+      print('UpdatePatientProfile Request Data: $updateData');
+      
+      final response = await _dio.put(
+        endpoint,
+        data: updateData,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('UpdatePatientProfile Response Status: ${response.statusCode}');
+      print('UpdatePatientProfile Response Body: ${response.data}');
+
+      if (response.statusCode != 200) {
+        throw Exception('Update patient profile failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('UpdatePatientProfile DioException: ${e.message}');
+      print('UpdatePatientProfile Response Data: ${e.response?.data}');
+      throw Exception('Update patient profile error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('UpdatePatientProfile General Exception: $e');
+      throw Exception('Update patient profile error: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getLaboratoryResults(String accessToken) async {
+    try {
+      final endpoint = ApiConfig.laboratoryResultsEndpoint;
+      print('LaboratoryResults Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('LaboratoryResults Response Status: ${response.statusCode}');
+      print('LaboratoryResults Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get laboratory results failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('LaboratoryResults DioException: ${e.message}');
+      print('LaboratoryResults Response Data: ${e.response?.data}');
+      throw Exception('Laboratory results error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('LaboratoryResults General Exception: $e');
+      throw Exception('Laboratory results error: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getLaboratoryDetail(String testCode, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.laboratoryDetailEndpoint}/$testCode/result';
+      print('LaboratoryDetail Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('LaboratoryDetail Response Status: ${response.statusCode}');
+      print('LaboratoryDetail Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get laboratory detail failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('LaboratoryDetail DioException: ${e.message}');
+      print('LaboratoryDetail Response Data: ${e.response?.data}');
+      throw Exception('Laboratory detail error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('LaboratoryDetail General Exception: $e');
+      throw Exception('Laboratory detail error: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getImageryResults(String accessToken) async {
+    try {
+      final endpoint = ApiConfig.imageryResultsEndpoint;
+      print('ImageryResults Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('ImageryResults Response Status: ${response.statusCode}');
+      print('ImageryResults Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get imagery results failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('ImageryResults DioException: ${e.message}');
+      print('ImageryResults Response Data: ${e.response?.data}');
+      throw Exception('Imagery results error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('ImageryResults General Exception: $e');
+      throw Exception('Imagery results error: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getExplorationResults(String accessToken) async {
+    try {
+      final endpoint = ApiConfig.explorationResultsEndpoint;
+      print('ExplorationResults Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('ExplorationResults Response Status: ${response.statusCode}');
+      print('ExplorationResults Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get exploration results failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('ExplorationResults DioException: ${e.message}');
+      print('ExplorationResults Response Data: ${e.response?.data}');
+      throw Exception('Exploration results error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('ExplorationResults General Exception: $e');
+      throw Exception('Exploration results error: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPatientNotifications(int userId, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.patientNotificationsEndpoint}/$userId';
+      print('PatientNotifications Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('PatientNotifications Response Status: ${response.statusCode}');
+      print('PatientNotifications Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get patient notifications failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('PatientNotifications DioException: ${e.message}');
+      print('PatientNotifications Response Data: ${e.response?.data}');
+      throw Exception('Patient notifications error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('PatientNotifications General Exception: $e');
+      throw Exception('Patient notifications error: $e');
+    }
+  }
 }

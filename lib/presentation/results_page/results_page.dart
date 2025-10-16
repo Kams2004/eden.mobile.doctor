@@ -102,7 +102,7 @@ class _ResultsPageState extends State<ResultsPage> with TickerProviderStateMixin
             decoration: BoxDecoration(
               color: Colors.white,
               image: DecorationImage(
-                image: AssetImage("assets/images/overlay2.jpg"),
+                image: AssetImage("assets/images/overlay2.jpeg"),
                 fit: BoxFit.cover,
               ),
             ),

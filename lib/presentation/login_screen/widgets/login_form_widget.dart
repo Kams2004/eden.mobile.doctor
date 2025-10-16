@@ -73,64 +73,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
 
   void _handleLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
-      try {
-        final request = LoginRequest(
-          username: _usernameController.text.trim(),
-          password: _passwordController.text,
-          rememberMe: _rememberMe,
-        );
-        
-        final response = await _authService.login(request);
-        
-        // Store login data
-        print('Login successful - User ID: ${response.data.id}, Doctor ID: ${response.data.doctorId}');
-        StorageService.setLoginData(
-          accessToken: response.accessToken,
-          userId: response.data.id,
-          userRole: response.data.roles.isNotEmpty ? response.data.roles.first.name : 'Unknown',
-        );
-        
-        // Fetch and store doctor profile to get correct doctor ID
-        try {
-          print('Fetching doctor profile with user ID: ${response.data.id}');
-          final doctorProfile = await _authService.getDoctorProfile(response.data.id, response.accessToken);
-          print('Doctor profile fetched - Doctor ID: ${doctorProfile.id}');
-          StorageService.setDoctorId(doctorProfile.id);
-        } catch (e) {
-          print('Warning: Could not fetch doctor profile: $e');
-          // Try using doctorId from login response as fallback
-          try {
-            final doctorProfile = await _authService.getDoctorProfile(response.data.doctorId, response.accessToken);
-            print('Doctor profile fetched with doctorId - Doctor ID: ${doctorProfile.id}');
-            StorageService.setDoctorId(doctorProfile.id);
-          } catch (e2) {
-            print('Warning: Could not fetch doctor profile with doctorId either: $e2');
-          }
-        }
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Connexion réussie ! Bienvenue ${response.data.firstName}'),
-              backgroundColor: AppTheme.successLight,
-            ),
-          );
-          
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const Dashboard()),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erreur de connexion: ${e.toString()}'),
-              backgroundColor: AppTheme.errorLight,
-            ),
-          );
-        }
-      }
+      widget.onLogin(_usernameController.text.trim(), _passwordController.text);
     }
   }
 

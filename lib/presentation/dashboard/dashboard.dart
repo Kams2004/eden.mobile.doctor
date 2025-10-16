@@ -72,8 +72,10 @@ class _DashboardState extends State<Dashboard> {
       
       final accessToken = StorageService.accessToken;
       final doctorId = StorageService.doctorId;
+      final userRole = StorageService.userRole;
       
-      if (accessToken != null && doctorId != null) {
+      // Only load doctor data if user is actually a doctor
+      if (accessToken != null && doctorId != null && userRole != 'Patient') {
         final authService = AuthService();
         
         // Load doctor profile to get name
@@ -138,8 +140,10 @@ class _DashboardState extends State<Dashboard> {
       
       final accessToken = StorageService.accessToken;
       final doctorId = StorageService.doctorId;
+      final userRole = StorageService.userRole;
       
-      if (accessToken != null && doctorId != null) {
+      // Only load doctor statistics if user is actually a doctor
+      if (accessToken != null && doctorId != null && userRole != 'Patient') {
         final authService = AuthService();
         final response = await authService.getDoctorPatients(doctorId, accessToken);
         

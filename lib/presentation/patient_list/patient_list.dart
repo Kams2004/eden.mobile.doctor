@@ -348,7 +348,8 @@ class _PatientListState extends State<PatientList> {
             children: [
               // AppBar
               SafeArea(
-                child: AppBar(
+                child:
+                 AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Container(

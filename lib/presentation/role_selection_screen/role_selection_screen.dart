@@ -201,7 +201,8 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> with TickerPr
                             Color(0xFF10B981),
                             () => Navigator.pushReplacementNamed(
                               context,
-                              '/patient-dashboard',
+                              '/login-screen',
+                              arguments: 'Patient',
                             ),
                           ),
                         ],

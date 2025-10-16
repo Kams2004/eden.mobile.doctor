@@ -99,7 +99,8 @@ class _RequestPageState extends State<RequestPage> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF8FAFC),
-      appBar: AppBar(
+      appBar:
+       AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         shadowColor: Colors.black.withOpacity(0.1),
@@ -109,14 +110,16 @@ class _RequestPageState extends State<RequestPage> with TickerProviderStateMixin
             color: Color(0xFFF1F5F9),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: Color(0xFF334155),
-              size: 20,
-            ),
-          ),
+       child: IconButton(
+  onPressed: () {
+    Navigator.popAndPushNamed(context, '/dashboard');
+  },
+  icon: Icon(
+    Icons.arrow_back_ios_new,
+    color: Color(0xFF334155),
+    size: 20,
+  ),
+),
         ),
         title: Row(
           children: [
@@ -143,7 +146,7 @@ class _RequestPageState extends State<RequestPage> with TickerProviderStateMixin
                 Text(
                   'Centre de Requêtes',
                   style: TextStyle(
-                    fontSize: 18.sp,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1E293B),
                   ),
@@ -187,7 +190,7 @@ class _RequestPageState extends State<RequestPage> with TickerProviderStateMixin
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(6.w),
+                      padding: EdgeInsets.all(3.w),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [Color(0xFF3B82F6), Color(0xFF1E40AF)],
@@ -240,7 +243,7 @@ class _RequestPageState extends State<RequestPage> with TickerProviderStateMixin
                     ),
                     
                     Padding(
-                      padding: EdgeInsets.all(6.w),
+                      padding: EdgeInsets.all(3.w),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -427,7 +430,7 @@ class _RequestPageState extends State<RequestPage> with TickerProviderStateMixin
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(6.w),
+                      padding: EdgeInsets.all(3.w),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [Color(0xFF6366F1), Color(0xFF4F46E5)],
@@ -480,7 +483,7 @@ class _RequestPageState extends State<RequestPage> with TickerProviderStateMixin
                     ),
 
                     Padding(
-                      padding: EdgeInsets.all(6.w),
+                      padding: EdgeInsets.all(3.w),
                       child: Column(
                         children: [
                           // Search and Filter Row

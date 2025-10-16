@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 import '../../core/app_export.dart';
 import '../../theme/app_theme.dart';
+import '../../services/auth_service.dart';
+import '../../services/storage_service.dart';
+import '../../model/login_model.dart';
 import './widgets/biometric_auth_widget.dart';
 import './widgets/login_form_widget.dart';
 import './widgets/medical_logo_widget.dart';
@@ -21,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  String? _selectedRole;
 
   // Mock credentials for different user types (now using usernames)
   final Map<String, Map<String, String>> _mockCredentials = {
@@ -39,6 +43,11 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       'role': 'Spécialiste',
       'name': 'Dr. Sophie Laurent'
     },
+    'evowesau': {
+      'password': 'W3QeftnR',
+      'role': 'Patient',
+      'name': 'MOFFO MELASSI Chamberlain'
+    },
   };
 
   @override
@@ -47,6 +56,13 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     _initializeAnimations();
     _checkBiometricAvailability();
     _setupSystemUI();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _selectedRole = ModalRoute.of(context)?.settings.arguments as String?;
+    print('Selected role from navigation: $_selectedRole');
   }
 
   void _initializeAnimations() {
@@ -92,39 +108,89 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     }
   }
 
-  // Updated to accept username instead of email
+  // Updated to handle both doctor and patient login
   Future<void> _handleLogin(String username, String password) async {
     if (_isLoading) return;
     setState(() {
       _isLoading = true;
     });
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 1500));
-    if (!mounted) return;
-    // Check mock credentials
-    final credentials = _mockCredentials[username.toLowerCase()];
-    if (credentials != null && credentials['password'] == password) {
+    
+    try {
+      // First try API login
+      final authService = AuthService();
+      final loginRequest = LoginRequest(
+        username: username,
+        password: password,
+        rememberMe: true,
+      );
+      
+      final response = await authService.login(loginRequest);
+      
+      // Store login data
+      StorageService.setLoginData(
+        accessToken: response.accessToken,
+        userId: response.data.id,
+        userRole: response.data.roles.first.name,
+      );
+      
+      // Store user-specific data based on role
+      if (response.data.roles.first.name == 'Patient') {
+        if (response.data.patientId != null) {
+          StorageService.setPatientId(response.data.patientId!);
+        }
+        StorageService.setPatientInfo(
+          response.data.firstName,
+          response.data.lastName,
+        );
+      } else {
+        if (response.data.doctorId != null) {
+          StorageService.setDoctorId(response.data.doctorId!);
+        }
+        StorageService.setDoctorInfo(
+          response.data.firstName,
+          response.data.lastName,
+        );
+      }
+      
       // Success - trigger haptic feedback
       HapticFeedback.lightImpact();
+      
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Connexion réussie ! Bienvenue ${credentials['name']}'),
+          content: Text('Connexion réussie ! Bienvenue ${response.data.firstName}'),
           backgroundColor: AppTheme.successLight,
           duration: const Duration(seconds: 2),
         ),
       );
-      // Navigate to dashboard
+      
+      // Navigate based on API role
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        final userRole = response.data.roles.first.name;
+        print('=== LOGIN NAVIGATION DEBUG ===');
+        print('User role from API: "$userRole"');
+        print('Role comparison (userRole == "Patient"): ${userRole == 'Patient'}');
+        print('Patient ID: ${response.data.patientId}');
+        print('Doctor ID: ${response.data.doctorId}');
+        
+        if (userRole == 'Patient') {
+          print('✅ Navigating to PATIENT dashboard: /patient-dashboard');
+          Navigator.pushReplacementNamed(context, '/patient-dashboard');
+        } else {
+          print('✅ Navigating to DOCTOR dashboard: /dashboard');
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        }
+        print('=== END DEBUG ===');
       }
-    } else {
-      // Error - show specific error message
-      String errorMessage = 'Identifiants incorrects';
-      if (!_mockCredentials.containsKey(username.toLowerCase())) {
-        errorMessage = 'Compte non trouvé. Veuillez vérifier votre nom d\'utilisateur.';
-      }
+      
+    } catch (e) {
+      print('API login failed: $e');
+      // Show clear error message
+      String errorMessage = e.toString().contains('Exception:') 
+          ? e.toString().replaceFirst('Exception: ', '')
+          : 'Erreur de connexion: $e';
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(errorMessage),
@@ -142,6 +208,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       // Error haptic feedback
       HapticFeedback.mediumImpact();
     }
+    
     if (mounted) {
       setState(() {
         _isLoading = false;
@@ -160,6 +227,22 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           children: [
             const Text('Utilisez ces identifiants pour tester l\'application :'),
             const SizedBox(height: 16),
+            // Patient credentials
+            const Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Patient',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Text('Nom d\'utilisateur: EVowESau'),
+                  Text('Mot de passe: W3QeftnR'),
+                ],
+              ),
+            ),
+            // Doctor credentials
             ..._mockCredentials.entries.map((entry) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Column(
@@ -169,7 +252,6 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                     entry.value['role']!,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  // Updated to show username instead of email
                   Text('Nom d\'utilisateur: ${entry.key}'),
                   Text('Mot de passe: ${entry.value['password']}'),
                 ],

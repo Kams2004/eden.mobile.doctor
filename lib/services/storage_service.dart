@@ -5,6 +5,9 @@ class StorageService {
   static int? _doctorId;
   static String? _doctorName;
   static String? _doctorLastname;
+  static int? _patientId;
+  static String? _patientName;
+  static String? _patientLastname;
 
   static void setLoginData({
     required String accessToken,
@@ -25,12 +28,24 @@ class StorageService {
     _doctorLastname = lastname;
   }
 
+  static void setPatientId(int patientId) {
+    _patientId = patientId;
+  }
+
+  static void setPatientInfo(String name, String lastname) {
+    _patientName = name;
+    _patientLastname = lastname;
+  }
+
   static String? get accessToken => _accessToken;
   static int? get userId => _userId;
   static String? get userRole => _userRole;
   static int? get doctorId => _doctorId;
   static String? get doctorName => _doctorName;
   static String? get doctorLastname => _doctorLastname;
+  static int? get patientId => _patientId;
+  static String? get patientName => _patientName;
+  static String? get patientLastname => _patientLastname;
 
   static void clearData() {
     _accessToken = null;
@@ -39,7 +54,12 @@ class StorageService {
     _doctorId = null;
     _doctorName = null;
     _doctorLastname = null;
+    _patientId = null;
+    _patientName = null;
+    _patientLastname = null;
   }
 
   static bool get isLoggedIn => _accessToken != null;
+  static bool get isPatient => _userRole == 'Patient';
+  static bool get isDoctor => _userRole == 'Medecin' || _userRole == 'Doctor';
 }

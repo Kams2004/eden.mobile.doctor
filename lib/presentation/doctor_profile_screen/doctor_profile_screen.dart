@@ -187,30 +187,99 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
             children: [
               // AppBar
               SafeArea(
-                child: AppBar(
-                  title: Text(
-                    'Profil Médecin',
-                    style: AppTheme.lightTheme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  actions: [
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _isEditing = !_isEditing;
-                        });
-                      },
-                      icon: CustomIconWidget(
-                        iconName: _isEditing ? 'close' : 'edit',
-                        color: AppTheme.lightTheme.colorScheme.primary,
-                        size: 24,
-                      ),
-                    ),
-                  ],
+                child: 
+                
+                
+              AppBar(
+  backgroundColor: Colors.transparent,
+  elevation: 0,
+  leading: Container(
+    margin: EdgeInsets.all(8),
+    decoration: BoxDecoration(
+      color: Color(0xFFF1F5F9),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: IconButton(
+      onPressed: () => Navigator.pop(context),
+      icon: Icon(
+        Icons.arrow_back_ios_new,
+        color: Color(0xFF334155),
+        size: 20,
+      ),
+    ),
+  ),
+  title: Flexible(
+    child: Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(2.w),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF3B82F6), Color(0xFF1E40AF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            Icons.person_outline, // Changed to person icon for doctor profile
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+        SizedBox(width: 2.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Profil Médecin', // Your original title
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
                 ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              // You can add a subtitle here if needed
+              // Text(`
+              //   'Doctor Details',
+              //   style: TextStyle(
+              //     fontSize: 12.sp,
+              //     color: Color(0xFF64748B),
+              //   ),
+              // ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  ),
+  actions: [
+    Container(
+      margin: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: IconButton(
+        onPressed: () {
+          setState(() {
+            _isEditing = !_isEditing;
+          });
+        },
+        icon: CustomIconWidget(
+          iconName: _isEditing ? 'close' : 'edit',
+          color: AppTheme.lightTheme.colorScheme.primary,
+          size: 24,
+        ),
+      ),
+    ),
+  ],
+)  
+                
+                
+                
               ),
               // Body content
               Expanded(
