@@ -93,7 +93,7 @@ class _ImagerySearchHeaderState extends State<ImagerySearchHeader> {
         decoration: InputDecoration(
           hintText: 'Rechercher examens d\'imagerie...',
           hintStyle: GoogleFonts.inter(
-            fontSize: 13.sp,
+            fontSize: 15.sp,
             fontWeight: FontWeight.w400,
             color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),
@@ -125,7 +125,7 @@ class _ImagerySearchHeaderState extends State<ImagerySearchHeader> {
           ),
         ),
         style: GoogleFonts.inter(
-          fontSize: 13.sp,
+          fontSize: 15.sp,
           fontWeight: FontWeight.w400,
           color: colorScheme.onSurface,
         ),
@@ -224,7 +224,7 @@ class _ImagerySearchHeaderState extends State<ImagerySearchHeader> {
           child: Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 11.sp,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w500,
               color: colorScheme.onSurface.withValues(alpha: 0.8),
             ),

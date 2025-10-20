@@ -24,30 +24,18 @@ class ImageryFilterBottomSheet extends StatefulWidget {
 class _ImageryFilterBottomSheetState extends State<ImageryFilterBottomSheet> {
   late Map<String, dynamic> _filters;
 
-  final List<String> _imagingTypes = [
-    'Radiographie',
+  final List<String> _examTypes = [
+    'RX PULMONAIRE',
+    'SPIROMÉTRIE',
+    'ÉCHOGRAPHIE',
+    'SCANNER',
     'IRM',
-    'Scanner',
-    'Échographie',
-    'Mammographie',
-    'Scintigraphie',
-    'Angiographie',
-  ];
-
-  final List<String> _bodyRegions = [
-    'Tête et cou',
-    'Thorax',
-    'Abdomen',
-    'Pelvis',
-    'Membres supérieurs',
-    'Membres inférieurs',
-    'Colonne vertébrale',
-    'Système cardiovasculaire',
+    'MAMMOGRAPHIE',
+    'RADIOGRAPHIE',
   ];
 
   final List<String> _statusOptions = [
-    'Terminé',
-    'En attente',
+    'Validé',
     'En cours',
   ];
 
@@ -88,9 +76,7 @@ class _ImageryFilterBottomSheetState extends State<ImageryFilterBottomSheet> {
                 children: [
                   _buildDateRangeSection(colorScheme),
                   SizedBox(height: 3.h),
-                  _buildImagingTypeSection(colorScheme),
-                  SizedBox(height: 3.h),
-                  _buildBodyRegionSection(colorScheme),
+                  _buildExamTypeSection(colorScheme),
                   SizedBox(height: 3.h),
                   _buildStatusSection(colorScheme),
                   SizedBox(height: 3.h),
@@ -163,39 +149,19 @@ class _ImageryFilterBottomSheetState extends State<ImageryFilterBottomSheet> {
     );
   }
 
-  Widget _buildImagingTypeSection(ColorScheme colorScheme) {
+  Widget _buildExamTypeSection(ColorScheme colorScheme) {
     return _buildSection(
-      title: 'Type d\'imagerie',
+      title: 'Type d\'examen',
       colorScheme: colorScheme,
       child: Wrap(
         spacing: 2.w,
         runSpacing: 1.h,
-        children: _imagingTypes
+        children: _examTypes
             .map((type) => _buildFilterChip(
                   label: type,
-                  isSelected: (_filters['imagingTypes'] as List<String>? ?? [])
+                  isSelected: (_filters['examTypes'] as List<String>? ?? [])
                       .contains(type),
-                  onTap: () => _toggleListFilter('imagingTypes', type),
-                  colorScheme: colorScheme,
-                ))
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildBodyRegionSection(ColorScheme colorScheme) {
-    return _buildSection(
-      title: 'Région corporelle',
-      colorScheme: colorScheme,
-      child: Wrap(
-        spacing: 2.w,
-        runSpacing: 1.h,
-        children: _bodyRegions
-            .map((region) => _buildFilterChip(
-                  label: region,
-                  isSelected: (_filters['bodyRegions'] as List<String>? ?? [])
-                      .contains(region),
-                  onTap: () => _toggleListFilter('bodyRegions', region),
+                  onTap: () => _toggleListFilter('examTypes', type),
                   colorScheme: colorScheme,
                 ))
             .toList(),

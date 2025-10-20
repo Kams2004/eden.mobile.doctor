@@ -11,6 +11,8 @@ import '../presentation/patient_list/patient_list.dart';
 import '../presentation/doctor_profile_screen/doctor_profile_screen.dart';
 import '../presentation/results_page/results_page.dart';
 import '../presentation/request_page/request_page.dart';
+import '../patient/patient-presentation/patient_notifications/patient_notifications.dart';
+import '../patient/patient-presentation/exploration_results_list/exploration_results_list.dart';
 
 class AppRoutes {
   // TODO: Add your routes here
@@ -28,6 +30,8 @@ class AppRoutes {
   static const String doctorProfile = '/doctor-profile';
   static const String results = '/results';
   static const String requestPage = '/request-page';
+  static const String patientNotifications = '/patient-notifications-settings';
+  static const String explorationResults = '/exploration-results';
 
   static Map<String, WidgetBuilder> routes = {
     initial: (context) => const SplashScreen(),
@@ -43,6 +47,8 @@ class AppRoutes {
     doctorProfile: (context) => const DoctorProfileScreen(),
     results: (context) => const ResultsPage(),
     requestPage: (context) => const RequestPage(),
+    patientNotifications: (context) => const PatientNotifications(),
+    explorationResults: (context) => const ExplorationResultsList(),
     // TODO: Add your other routes here
   };
 }

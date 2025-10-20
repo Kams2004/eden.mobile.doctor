@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import '../../patient-presentation/laboratory_results_list/laboratory_results_list.dart';
+import '../../patient-presentation/imagery_results_list/imagery_results_list.dart';
+import '../../patient-presentation/shared_results_list/shared_results_list.dart';
+import '../../patient-presentation/patient_requests/patient_requests_list.dart';
+import '../../patient-presentation/patient_notifications/patient_notifications.dart';
+import '../../patient-presentation/exploration_results_list/exploration_results_list.dart';
 
 class PatientSidebar extends StatelessWidget {
   final String currentRoute;
@@ -14,190 +20,230 @@ class PatientSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 70.w,
+      width: 75.w,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFF1E293B),
+        borderRadius: BorderRadius.zero,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(2, 0),
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 20,
+            offset: Offset(4, 0),
           ),
         ],
       ),
       child: Column(
         children: [
-          // Header with user info
+          // Professional Header
           Container(
-            padding: EdgeInsets.only(top: 8.h, bottom: 4.h, left: 4.w, right: 4.w),
+            padding: EdgeInsets.only(top: 8.h, bottom: 3.h, left: 6.w, right: 6.w),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Color(0xFF0F172A),
               border: Border(
-                bottom: BorderSide(color: Colors.grey[200]!, width: 1),
+                bottom: BorderSide(color: Color(0xFF334155), width: 1),
               ),
             ),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 8.w,
-                  backgroundColor: Color(0xFF3B82F6),
-                  child: Icon(
-                    Icons.person,
-                    size: 8.w,
+                // PDMD Logo
+                Container(
+                  width: 18.w,
+                  height: 18.w,
+                  decoration: BoxDecoration(
                     color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'images/assets/pdmd_logo.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'PDMD',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 SizedBox(height: 2.h),
                 Text(
-                  'Patient',
+                  'Espace Patient',
                   style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
                 ),
+                SizedBox(height: 0.5.h),
                 Text(
-                  'En ligne',
+                  'Plateforme Médicale',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: Colors.grey[600],
+                    color: Color(0xFF94A3B8),
                   ),
                 ),
               ],
             ),
           ),
           
-          // Menu items
+          // Menu Items
           Expanded(
-            child: ListView(
+            child: Container(
               padding: EdgeInsets.symmetric(vertical: 2.h),
-              children: [
-                _buildMenuItem(
-                  context,
-                  icon: Icons.home_outlined,
-                  title: 'Tableau de bord',
-                  route: '/patient-dashboard',
-                ),
-                _buildMenuItem(
-                  context,
-                  icon: Icons.calendar_today_outlined,
-                  title: 'Laboratoire',
-                  route: '/patient-laboratoire',
-                ),
-                _buildMenuItem(
-                  context,
-                  icon: Icons.assignment_outlined,
-                  title: 'Imagerie',
-                  route: '/patient-Imagerie',
-                ),
-                _buildMenuItem(
-                  context,
-                  icon: Icons.notifications_outlined,
-                  title: 'Prescriptions',
-                  route: '/patient-prescriptions',
-                ),
-                _buildMenuItem(
-                  context,
-                  icon: Icons.cloud_outlined,
-                  title: 'Exploration',
-                  route: '/patient-exploration',
-                ),
-                _buildMenuItem(
-                  context,
-                  icon: Icons.flight_outlined,
-                  title: 'Resultats Partages',
-                  route: '/patient-resultats-partages',
-                ),
-            
-                
-                // Divider
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 4.w),
-                  height: 1,
-                  color: Colors.grey[200],
-                ),
-                
-                _buildMenuItem(
-                  context,
-                  icon: Icons.notifications_active_outlined,
-                  title: 'Notifications',
-                  route: '/patient-notifications-settings',
-                  hasNotification: true,
-                ),
-                _buildMenuItem(
-                  context,
-                  icon: Icons.settings_outlined,
-                  title: 'Paramètres',
-                  route: '/patient-settings',
-                ),
-              ],
-            ),
-          ),
-          
-          // Footer with user profile and logout
-          Container(
-            padding: EdgeInsets.all(4.w),
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.grey[200]!, width: 1),
+              child: ListView(
+                children: [
+                  _buildSectionHeader('TABLEAU DE BORD'),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.dashboard,
+                    title: 'Accueil',
+                    route: '/patient-dashboard',
+                  ),
+                  
+                  SizedBox(height: 1.h),
+                  _buildSectionHeader('RÉSULTATS MÉDICAUX'),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.biotech,
+                    title: 'Laboratoire',
+                    route: '/laboratory-results-list',
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.medical_services,
+                    title: 'Imagerie',
+                    route: '/imagery-results-list',
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.monitor_heart,
+                    title: 'Exploration',
+                    route: '/exploration-results',
+                  ),
+                  
+                  SizedBox(height: 1.h),
+                  _buildSectionHeader('COMMUNICATION'),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.assignment,
+                    title: 'Requêtes',
+                    route: '/patient-requests',
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.share,
+                    title: 'Résultats Partagés',
+                    route: '/patient-resultats-partages',
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.notifications,
+                    title: 'Notifications',
+                    route: '/patient-notifications-settings',
+                    hasNotification: true,
+                  ),
+                  
+                  SizedBox(height: 1.h),
+                  _buildSectionHeader('COMPTE'),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.person,
+                    title: 'Profil',
+                    route: '/patient-profile',
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.settings,
+                    title: 'Paramètres',
+                    route: '/patient-settings',
+                  ),
+                ],
               ),
             ),
-            child: Column(
-              children: [
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    radius: 4.w,
-                    backgroundColor: Color(0xFF3B82F6),
-                    child: Icon(
-                      Icons.person,
-                      size: 4.w,
-                      color: Colors.white,
-                    ),
+          ),
+          
+          // Logout Section
+          Container(
+            padding: EdgeInsets.all(6.w),
+            decoration: BoxDecoration(
+              color: Color(0xFF0F172A),
+              border: Border(
+                top: BorderSide(color: Color(0xFF334155), width: 1),
+              ),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  _showLogoutDialog(context);
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 3.w, horizontal: 4.w),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF991B1B),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  title: Text(
-                    'Mon Profil',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.logout,
+                        color: Colors.white,
+                        size: 5.w,
+                      ),
+                      SizedBox(width: 3.w),
+                      Text(
+                        'Déconnexion',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
-                  trailing: Icon(
-                    Icons.chevron_right,
-                    color: Colors.grey[400],
-                    size: 5.w,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushReplacementNamed(context, '/patient-profile');
-                  },
                 ),
-                SizedBox(height: 1.h),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Icon(
-                    Icons.logout,
-                    color: Colors.red,
-                    size: 5.w,
-                  ),
-                  title: Text(
-                    'Déconnexion',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.red,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showLogoutDialog(context);
-                  },
-                ),
-              ],
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(6.w, 1.h, 6.w, 1.h),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 10.sp,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF64748B),
+          letterSpacing: 1.2,
+        ),
       ),
     );
   }
@@ -212,46 +258,57 @@ class PatientSidebar extends StatelessWidget {
     final isSelected = currentRoute == route;
     
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.5.h),
+      margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.5.h),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
             Navigator.pop(context);
             if (!isSelected) {
-              Navigator.pushReplacementNamed(context, route);
+              _navigateToRoute(context, route);
             }
           },
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.w),
             decoration: BoxDecoration(
-              color: isSelected ? Color(0xFF3B82F6).withOpacity(0.1) : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
+              color: isSelected ? Color(0xFF3B82F6) : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                Stack(
-                  children: [
-                    Icon(
-                      icon,
-                      color: isSelected ? Color(0xFF3B82F6) : Colors.grey[600],
-                      size: 5.w,
-                    ),
-                    if (hasNotification)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          width: 2.w,
-                          height: 2.w,
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
+                Container(
+                  width: 10.w,
+                  height: 10.w,
+                  decoration: BoxDecoration(
+                    color: isSelected 
+                        ? Colors.white.withOpacity(0.2)
+                        : Color(0xFF334155),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        icon,
+                        color: isSelected ? Colors.white : Color(0xFF94A3B8),
+                        size: 5.w,
+                      ),
+                      if (hasNotification)
+                        Positioned(
+                          right: 1,
+                          top: 1,
+                          child: Container(
+                            width: 2.w,
+                            height: 2.w,
+                            decoration: BoxDecoration(
+                              color: Color(0xFFEF4444),
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
                 SizedBox(width: 4.w),
                 Expanded(
@@ -259,19 +316,16 @@ class PatientSidebar extends StatelessWidget {
                     title,
                     style: TextStyle(
                       fontSize: 14.sp,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                      color: isSelected ? Color(0xFF3B82F6) : Colors.grey[800],
+                      fontWeight: FontWeight.w500,
+                      color: isSelected ? Colors.white : Color(0xFFE2E8F0),
                     ),
                   ),
                 ),
                 if (isSelected)
-                  Container(
-                    width: 1.w,
-                    height: 4.h,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF3B82F6),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.white,
+                    size: 3.w,
                   ),
               ],
             ),
@@ -281,25 +335,117 @@ class PatientSidebar extends StatelessWidget {
     );
   }
 
+  void _navigateToRoute(BuildContext context, String route) {
+    switch (route) {
+      case '/patient-dashboard':
+        Navigator.pushReplacementNamed(context, route);
+        break;
+      case '/laboratory-results-list':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LaboratoryResultsList(),
+          ),
+        );
+        break;
+      case '/imagery-results-list':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ImageryResultsList(),
+          ),
+        );
+        break;
+      case '/patient-resultats-partages':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SharedResultsList(),
+          ),
+        );
+        break;
+      case '/patient-requests':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PatientRequestsList(),
+          ),
+        );
+        break;
+      case '/patient-notifications-settings':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PatientNotifications(),
+          ),
+        );
+        break;
+      case '/exploration-results':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ExplorationResultsList(),
+          ),
+        );
+        break;
+      default:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(
+                title: Text('En construction'),
+                backgroundColor: Color(0xFF3B82F6),
+                foregroundColor: Colors.white,
+              ),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.construction,
+                      size: 12.w,
+                      color: Colors.grey[400],
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      'Cette fonctionnalité est en cours de développement',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+    }
+  }
+
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
           ),
           title: Text(
             'Déconnexion',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               color: Colors.black87,
+              fontSize: 16.sp,
             ),
           ),
           content: Text(
             'Êtes-vous sûr de vouloir vous déconnecter ?',
             style: TextStyle(
               color: Colors.grey[600],
+              fontSize: 14.sp,
             ),
           ),
           actions: [
@@ -310,6 +456,7 @@ class PatientSidebar extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontWeight: FontWeight.w500,
+                  fontSize: 14.sp,
                 ),
               ),
             ),
@@ -329,6 +476,7 @@ class PatientSidebar extends StatelessWidget {
                 'Déconnexion',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
+                  fontSize: 14.sp,
                 ),
               ),
             ),

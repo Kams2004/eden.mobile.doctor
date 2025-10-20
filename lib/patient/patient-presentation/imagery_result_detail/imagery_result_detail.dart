@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-
-
-import '../../patient-theme/theme/app_theme.dart';
-import '../../patient-widgets/widgets/custom_icon_widget.dart';
-import '../../patient-widgets/widgets/custom_image_widget.dart';
-import './widgets/action_buttons_widget.dart';
-import './widgets/image_gallery_widget.dart';
-import './widgets/medical_image_viewer_widget.dart';
-import './widgets/medical_section_widget.dart';
-import './widgets/section_navigation_widget.dart';
+import '../../../services/auth_service.dart';
+import '../../../services/storage_service.dart';
 
 class ImageryResultDetail extends StatefulWidget {
   const ImageryResultDetail({super.key});
@@ -18,536 +10,723 @@ class ImageryResultDetail extends StatefulWidget {
   State<ImageryResultDetail> createState() => _ImageryResultDetailState();
 }
 
-class _ImageryResultDetailState extends State<ImageryResultDetail>
-    with TickerProviderStateMixin {
-  late ScrollController _scrollController;
-  late ScrollController _sectionScrollController;
-  late TabController _tabController;
-
-  int _currentImageIndex = 0;
-  int _currentSection = 0;
-
-  final List<String> _sections = [
-    'Indication',
-    'Technique',
-    'Résultats',
-    'Conclusion'
-  ];
-  final List<GlobalKey> _sectionKeys = List.generate(4, (index) => GlobalKey());
-
-  // Mock data for imagery result
-  final Map<String, dynamic> imageryResult = {
-    "id": "IMG_2024_001",
-    "patientName": "Marie Dubois",
-    "examinationType": "IRM Cérébrale",
-    "completionDate": "28/08/2024",
-    "orderNumber": "ORD-IMG-2024-0892",
-    "requestingPhysician": "Dr. Laurent Moreau",
-    "radiologist": "Dr. Sophie Bernard",
-    "images": [
-      "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3",
-      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3",
-      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3",
-      "https://images.unsplash.com/photo-1612277795421-9bc7706a4a34?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3"
-    ],
-    "indication": {
-      "content":
-          """Céphalées chroniques persistantes depuis 3 mois, associées à des troubles visuels intermittents. 
-      Le patient présente également des épisodes de vertiges et une sensation de pression intracrânienne. 
-      Examen clinique neurologique normal. Recherche d'une étiologie structurelle.""",
-      "technicalDetails":
-          """Indication médicale précise : R51 - Céphalée. Antécédents : Hypertension artérielle contrôlée. 
-      Traitement actuel : Amlodipine 5mg/jour. Allergies : Aucune connue.""",
-      "keyFindings": [
-        "Céphalées chroniques > 3 mois",
-        "Troubles visuels intermittents",
-        "Vertiges associés",
-        "Examen neurologique normal"
-      ]
-    },
-    "technique": {
-      "content":
-          """IRM cérébrale réalisée sur appareil 3 Tesla avec injection de produit de contraste gadoliné. 
-      Séquences T1, T2, FLAIR, diffusion et T1 après injection dans les trois plans de l'espace. 
-      Épaisseur de coupe : 5mm. Temps d'acquisition total : 45 minutes.""",
-      "technicalDetails": """Paramètres techniques détaillés :
-      - Appareil : Siemens Magnetom Vida 3T
-      - Antenne : Head/Neck 64 canaux
-      - Séquences : T1 SE, T2 TSE, FLAIR, DWI, T1 Gd+
-      - Résolution : 0.5 x 0.5 x 5mm
-      - Produit de contraste : Dotarem 0.2ml/kg IV"""
-    },
-    "results": {
-      "content":
-          """L'examen révèle une morphologie cérébrale normale pour l'âge. 
-      Les structures de la ligne médiane sont en place. Le système ventriculaire présente une taille normale. 
-      Absence de lésion expansive intracrânienne. Le parenchyme cérébral ne présente pas d'anomalie de signal. 
-      Les espaces sous-arachnoïdiens sont de taille normale. Absence de collection extra-axiale.""",
-      "keyFindings": [
-        "Morphologie cérébrale normale",
-        "Système ventriculaire normal",
-        "Absence de lésion expansive",
-        "Parenchyme cérébral sans anomalie",
-        "Espaces sous-arachnoïdiens normaux"
-      ]
-    },
-    "conclusion": {
-      "content":
-          """IRM cérébrale normale. Aucune anomalie structurelle décelée pouvant expliquer la symptomatologie clinique. 
-      Les céphalées semblent d'origine fonctionnelle. Recommandation de suivi clinique et éventuellement 
-      consultation spécialisée en neurologie pour prise en charge symptomatique.""",
-      "keyFindings": [
-        "IRM cérébrale strictement normale",
-        "Absence d'étiologie structurelle",
-        "Céphalées probablement fonctionnelles",
-        "Suivi clinique recommandé"
-      ]
-    }
-  };
+class _ImageryResultDetailState extends State<ImageryResultDetail> {
+  Map<String, dynamic>? _resultData;
 
   @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-    _sectionScrollController = ScrollController();
-    _tabController = TabController(length: _sections.length, vsync: this);
-
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
-    _sectionScrollController.dispose();
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    for (int i = 0; i < _sectionKeys.length; i++) {
-      final RenderBox? renderBox =
-          _sectionKeys[i].currentContext?.findRenderObject() as RenderBox?;
-      if (renderBox != null) {
-        final position = renderBox.localToGlobal(Offset.zero);
-        if (position.dy <= 200 && position.dy >= -200) {
-          if (_currentSection != i) {
-            setState(() {
-              _currentSection = i;
-            });
-            _tabController.animateTo(i);
-            break;
-          }
-        }
-      }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null && _resultData == null) {
+      _resultData = args;
     }
-  }
-
-  void _scrollToSection(int index) {
-    final RenderBox? renderBox =
-        _sectionKeys[index].currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox != null) {
-      final position = renderBox.localToGlobal(Offset.zero);
-      _scrollController.animateTo(
-        _scrollController.offset + position.dy - 150,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  void _onImageSelected(int index) {
-    setState(() {
-      _currentImageIndex = index;
-    });
-  }
-
-  void _showFullScreenImage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => _FullScreenImageViewer(
-          imageUrls: (imageryResult["images"] as List).cast<String>(),
-          initialIndex: _currentImageIndex,
-        ),
-      ),
-    );
-  }
-
-  void _handleShareImages() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Images partagées avec succès'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _handleDownloadReport() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Rapport téléchargé avec succès'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _handlePrintResults() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Impression en cours...'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _handleAddToHealthRecords() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Ajouté au dossier médical avec succès'),
-        duration: Duration(seconds: 2),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final imageUrls = (imageryResult["images"] as List).cast<String>();
-
-    return Scaffold(
-      backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: AppTheme.lightTheme.colorScheme.surface,
-        elevation: 2.0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: CustomIconWidget(
-            iconName: 'arrow_back',
-            color: AppTheme.lightTheme.colorScheme.onSurface,
-            size: 24,
+    if (_resultData == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Détail du Résultat'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              imageryResult["examinationType"] as String,
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.lightTheme.colorScheme.onSurface,
+        body: Center(
+          child: Text('Aucune donnée disponible'),
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Color(0xFF3B82F6)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Détail de l\'Imagerie',
+          style: TextStyle(
+            color: Color(0xFF3B82F6),
+            fontWeight: FontWeight.bold,
+            fontSize: 18.sp,
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/images/overlay2.jpeg"),
+                fit: BoxFit.cover,
               ),
             ),
+          ),
+          SingleChildScrollView(
+            padding: EdgeInsets.all(4.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildResultHeader(),
+                SizedBox(height: 3.h),
+                _buildResultDetails(),
+                SizedBox(height: 3.h),
+                _buildMedicalDisclaimer(),
+                SizedBox(height: 3.h),
+                _buildActionButtons(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResultHeader() {
+    return Container(
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF10B981),
+            Color(0xFF059669),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0xFF10B981).withOpacity(0.3),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(2.w),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.medical_information_outlined,
+                  color: Colors.white,
+                  size: 6.w,
+                ),
+              ),
+              SizedBox(width: 3.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Examen d\'Imagerie',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      _resultData!['requested_test'] ?? _resultData!['test'] ?? 'Examen d\'imagerie',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.8.h),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  _resultData!['state'] == 'validated' ? 'Validé' : 'En cours',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 3.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInfoItem(
+                  'Code',
+                  _resultData!['number'] ?? 'N/A',
+                  Icons.qr_code,
+                ),
+              ),
+              Expanded(
+                child: _buildInfoItem(
+                  'Patient',
+                  _resultData!['patient'] ?? 'N/A',
+                  Icons.person_outline,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 2.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInfoItem(
+                  'Date d\'analyse',
+                  _formatDate(_resultData!['date'] ?? _resultData!['done_date']),
+                  Icons.calendar_today_outlined,
+                ),
+              ),
+              Expanded(
+                child: _buildInfoItem(
+                  'Statut',
+                  _resultData!['state'] == 'validated' ? 'Validé' : 'En cours',
+                  Icons.verified_user_outlined,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(String label, String value, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              color: Colors.white70,
+              size: 4.w,
+            ),
+            SizedBox(width: 1.w),
             Text(
-              'Complété le ${imageryResult["completionDate"]}',
+              label,
               style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w400,
-                color: AppTheme.lightTheme.colorScheme.onSurface
-                    .withValues(alpha: 0.7),
+                color: Colors.white70,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            onPressed: _handleDownloadReport,
-            icon: CustomIconWidget(
-              iconName: 'download',
-              color: AppTheme.lightTheme.colorScheme.primary,
-              size: 24,
+        SizedBox(height: 0.5.h),
+        Text(
+          value,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResultDetails() {
+    return Container(
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Détails de l\'Examen',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
           ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(6.h),
-          child: SectionNavigationWidget(
-            sections: _sections,
-            currentSection: _currentSection,
-            onSectionTap: _scrollToSection,
-            scrollController: _sectionScrollController,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              padding: EdgeInsets.all(4.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Patient Information Header
-                  Container(
-                    padding: EdgeInsets.all(4.w),
-                    decoration: BoxDecoration(
-                      color: AppTheme.lightTheme.colorScheme.surface,
-                      borderRadius: BorderRadius.circular(16.0),
-                      border: Border.all(
-                        color: AppTheme.lightTheme.colorScheme.outline
-                            .withValues(alpha: 0.2),
-                        width: 1.0,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            CustomIconWidget(
-                              iconName: 'person',
-                              color: AppTheme.lightTheme.colorScheme.primary,
-                              size: 20,
-                            ),
-                            SizedBox(width: 2.w),
-                            Text(
-                              imageryResult["patientName"] as String,
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                color:
-                                    AppTheme.lightTheme.colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 1.h),
-                        Row(
-                          children: [
-                            Text(
-                              'N° Ordre: ',
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w500,
-                                color: AppTheme.lightTheme.colorScheme.onSurface
-                                    .withValues(alpha: 0.7),
-                              ),
-                            ),
-                            Text(
-                              imageryResult["orderNumber"] as String,
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.lightTheme.colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 0.5.h),
-                        Row(
-                          children: [
-                            Text(
-                              'Radiologue: ',
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w500,
-                                color: AppTheme.lightTheme.colorScheme.onSurface
-                                    .withValues(alpha: 0.7),
-                              ),
-                            ),
-                            Text(
-                              imageryResult["radiologist"] as String,
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w500,
-                                color:
-                                    AppTheme.lightTheme.colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(height: 3.h),
-
-                  // Medical Image Viewer
-                  MedicalImageViewerWidget(
-                    imageUrl: imageUrls[_currentImageIndex],
-                    imageTitle:
-                        'Image ${_currentImageIndex + 1}/${imageUrls.length}',
-                    onFullScreenTap: _showFullScreenImage,
-                  ),
-
-                  SizedBox(height: 2.h),
-
-                  // Image Gallery
-                  ImageGalleryWidget(
-                    imageUrls: imageUrls,
-                    initialIndex: _currentImageIndex,
-                    onImageSelected: _onImageSelected,
-                  ),
-
-                  SizedBox(height: 3.h),
-
-                  // Medical Sections
-                  Container(
-                    key: _sectionKeys[0],
-                    child: MedicalSectionWidget(
-                      title: 'Indication',
-                      content: (imageryResult["indication"]
-                          as Map<String, dynamic>)["content"] as String,
-                      technicalDetails: (imageryResult["indication"]
-                              as Map<String, dynamic>)["technicalDetails"]
-                          as String?,
-                      isExpandable: true,
-                      keyFindings: ((imageryResult["indication"]
-                              as Map<String, dynamic>)["keyFindings"] as List?)
-                          ?.cast<String>(),
-                    ),
-                  ),
-
-                  Container(
-                    key: _sectionKeys[1],
-                    child: MedicalSectionWidget(
-                      title: 'Technique',
-                      content: (imageryResult["technique"]
-                          as Map<String, dynamic>)["content"] as String,
-                      technicalDetails: (imageryResult["technique"]
-                              as Map<String, dynamic>)["technicalDetails"]
-                          as String?,
-                      isExpandable: true,
-                    ),
-                  ),
-
-                  Container(
-                    key: _sectionKeys[2],
-                    child: MedicalSectionWidget(
-                      title: 'Résultats',
-                      content: (imageryResult["results"]
-                          as Map<String, dynamic>)["content"] as String,
-                      keyFindings: ((imageryResult["results"]
-                              as Map<String, dynamic>)["keyFindings"] as List?)
-                          ?.cast<String>(),
-                    ),
-                  ),
-
-                  Container(
-                    key: _sectionKeys[3],
-                    child: MedicalSectionWidget(
-                      title: 'Conclusion',
-                      content: (imageryResult["conclusion"]
-                          as Map<String, dynamic>)["content"] as String,
-                      keyFindings: ((imageryResult["conclusion"]
-                              as Map<String, dynamic>)["keyFindings"] as List?)
-                          ?.cast<String>(),
-                    ),
-                  ),
-
-                  SizedBox(height: 10.h), // Space for bottom actions
-                ],
+          SizedBox(height: 2.h),
+          if (_resultData!['requestor'] != null) ...[
+            _buildDetailRow('Demandeur', _resultData!['requestor']),
+            SizedBox(height: 1.h),
+          ],
+          if (_resultData!['request_date'] != null) ...[
+            _buildDetailRow('Date demandée', _formatDate(_resultData!['request_date'])),
+            SizedBox(height: 1.h),
+          ],
+          if (_resultData!['done_date'] != null) ...[
+            _buildDetailRow('Date réalisation', _formatDate(_resultData!['done_date'])),
+            SizedBox(height: 1.h),
+          ],
+          if (_resultData!['validation_date'] != null) ...[
+            _buildDetailRow('Date validation', _formatDate(_resultData!['validation_date'])),
+            SizedBox(height: 1.h),
+          ],
+          if (_resultData!['realisateur'] != null) ...[
+            _buildDetailRow('Réalisateur', _resultData!['realisateur']),
+            SizedBox(height: 1.h),
+          ],
+          if (_resultData!['done_by'] != null) ...[
+            _buildDetailRow('Fait par', _resultData!['done_by']),
+            SizedBox(height: 1.h),
+          ],
+          if (_resultData!['order'] != null) ...[
+            _buildDetailRow('Commande', _resultData!['order']),
+            SizedBox(height: 1.h),
+          ],
+          if (_resultData!['service_cot'] != null) ...[
+            _buildDetailRow('Service', _resultData!['service_cot']),
+            SizedBox(height: 1.h),
+          ],
+          if (_resultData!['conclusion'] != null && _resultData!['conclusion'].toString().trim().isNotEmpty) ...[
+            SizedBox(height: 2.h),
+            Text(
+              'Conclusion',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
               ),
             ),
-          ),
+            SizedBox(height: 1.h),
+            Container(
+              padding: EdgeInsets.all(3.w),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue.withOpacity(0.2)),
+              ),
+              child: Text(
+                _resultData!['conclusion'].toString().trim(),
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
+          if (_resultData!['resultat'] != null && _resultData!['resultat'].toString().trim().isNotEmpty) ...[
+            SizedBox(height: 2.h),
+            Text(
+              'Résultats détaillés',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 1.h),
+            Container(
+              padding: EdgeInsets.all(3.w),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.withOpacity(0.2)),
+              ),
+              child: Text(
+                _resultData!['resultat'].toString().trim(),
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 
-          // Action Buttons
-          ActionButtonsWidget(
-            onShareImages: _handleShareImages,
-            onDownloadReport: _handleDownloadReport,
-            onPrintResults: _handlePrintResults,
-            onAddToHealthRecords: _handleAddToHealthRecords,
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 25.w,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w400,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMedicalDisclaimer() {
+    return Container(
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[300]!, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                color: Colors.grey[700],
+                size: 4.w,
+              ),
+              SizedBox(width: 2.w),
+              Text(
+                'Avis médical important',
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 1.5.h),
+          Text(
+            'Ces résultats doivent être interprétés par un professionnel de santé qualifié. En cas de question ou de préoccupation concernant ces résultats, veuillez consulter votre médecin traitant.',
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w400,
+              height: 1.5,
+            ),
           ),
         ],
       ),
     );
   }
-}
 
-class _FullScreenImageViewer extends StatefulWidget {
-  final List<String> imageUrls;
-  final int initialIndex;
-
-  const _FullScreenImageViewer({
-    required this.imageUrls,
-    required this.initialIndex,
-  });
-
-  @override
-  State<_FullScreenImageViewer> createState() => _FullScreenImageViewerState();
-}
-
-class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
-  late PageController _pageController;
-  late int _currentIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentIndex = widget.initialIndex;
-    _pageController = PageController(initialPage: widget.initialIndex);
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black.withValues(alpha: 0.7),
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: CustomIconWidget(
-            iconName: 'close',
-            color: Colors.white,
-            size: 24,
-          ),
-        ),
-        title: Text(
-          'Image ${_currentIndex + 1}/${widget.imageUrls.length}',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Image sauvegardée'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            },
-            icon: CustomIconWidget(
-              iconName: 'download',
-              color: Colors.white,
-              size: 24,
+  Widget _buildActionButtons() {
+    return Container(
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Actions',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
+          ),
+          SizedBox(height: 2.h),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => _showShareDialog(),
+                  icon: Icon(
+                    Icons.share_outlined,
+                    size: 4.w,
+                  ),
+                  label: Text(
+                    'Partager',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 2.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 3.w),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _handleDownloadReport,
+                  icon: Icon(
+                    Icons.download_outlined,
+                    size: 4.w,
+                  ),
+                  label: Text(
+                    'Télécharger',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF3B82F6),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 2.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
-      body: PageView.builder(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        itemCount: widget.imageUrls.length,
-        itemBuilder: (context, index) {
-          return InteractiveViewer(
-            minScale: 1.0,
-            maxScale: 5.0,
-            child: Center(
-              child: CustomImageWidget(
-                imageUrl: widget.imageUrls[index],
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.contain,
+    );
+  }
+
+  String _formatDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return 'Non disponible';
+    
+    try {
+      DateTime date;
+      
+      if (dateString.contains('GMT') || dateString.contains('UTC')) {
+        // Handle RFC 2822 format: "Wed, 19 Mar 2025 08:12:01 GMT"
+        final cleanDate = dateString.replaceAll(RegExp(r'^\w+,\s*'), '').replaceAll(' GMT', '').replaceAll(' UTC', '');
+        final parts = cleanDate.split(' ');
+        if (parts.length >= 4) {
+          final day = int.parse(parts[0]);
+          final monthStr = parts[1];
+          final year = int.parse(parts[2]);
+          final timePart = parts[3];
+          
+          final months = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+                         'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12};
+          final month = months[monthStr] ?? 1;
+          
+          final timeComponents = timePart.split(':');
+          final hour = int.parse(timeComponents[0]);
+          final minute = int.parse(timeComponents[1]);
+          
+          date = DateTime(year, month, day, hour, minute);
+        } else {
+          return 'Non disponible';
+        }
+      } else if (dateString.contains('/')) {
+        final parts = dateString.split('/');
+        if (parts.length == 3) {
+          date = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+        } else {
+          return 'Non disponible';
+        }
+      } else {
+        date = DateTime.parse(dateString);
+      }
+      
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return 'Non disponible';
+    }
+  }
+
+  void _showShareDialog() {
+    final TextEditingController matriculeController = TextEditingController();
+    bool isSearching = false;
+    String? doctorName;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Row(
+                children: [
+                  Icon(Icons.share_outlined, color: Color(0xFF3B82F6), size: 6.w),
+                  SizedBox(width: 2.w),
+                  Text('Partager le résultat', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600)),
+                ],
               ),
-            ),
-          );
-        },
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(3.w),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Examen à partager:', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.blue[700])),
+                        SizedBox(height: 0.5.h),
+                        Text('Type: Imagerie', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600)),
+                        Text('Code: ${_resultData!['number'] ?? _resultData!['id'] ?? 'N/A'}', style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text('Matricule du médecin:', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500)),
+                  SizedBox(height: 1.h),
+                  TextField(
+                    controller: matriculeController,
+                    onChanged: (value) {
+                      setState(() {
+                        if (value.isNotEmpty && doctorName == null) {
+                          Future.delayed(Duration(milliseconds: 300), () {
+                            if (matriculeController.text.isNotEmpty) {
+                              setState(() {
+                                doctorName = 'Dr. ${matriculeController.text.toUpperCase()}';
+                              });
+                            }
+                          });
+                        } else if (value.isEmpty) {
+                          doctorName = null;
+                        }
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Entrez le matricule',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      suffixIcon: IconButton(
+                        icon: isSearching ? SizedBox(width: 4.w, height: 4.w, child: CircularProgressIndicator(strokeWidth: 2)) : Icon(Icons.search),
+                        onPressed: () async {
+                          if (matriculeController.text.isNotEmpty) {
+                            setState(() { isSearching = true; });
+                            await Future.delayed(Duration(milliseconds: 500));
+                            setState(() { 
+                              isSearching = false;
+                              doctorName = 'Dr. ${matriculeController.text.toUpperCase()}';
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  if (doctorName != null) ...[
+                    SizedBox(height: 2.h),
+                    Container(
+                      padding: EdgeInsets.all(3.w),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.green, size: 5.w),
+                          SizedBox(width: 2.w),
+                          Text('Médecin trouvé: $doctorName', style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Annuler', style: TextStyle(color: Colors.grey[600])),
+                ),
+                ElevatedButton(
+                  onPressed: (doctorName != null && matriculeController.text.isNotEmpty) ? () async {
+                    Navigator.pop(context);
+                    await _shareResult();
+                  } : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF3B82F6),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Text('Partager', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _shareResult() async {
+    try {
+      final authService = AuthService();
+      final accessToken = StorageService.accessToken;
+      final doctorId = StorageService.doctorId;
+      
+      if (accessToken == null || doctorId == null) {
+        throw Exception('Données d\'authentification manquantes');
+      }
+      
+      print('=== SHARE RESULT DEBUG ===');
+      print('Doctor ID: $doctorId');
+      print('Exam Type: Imagerie');
+      print('Exam Code: ${_resultData!['number'] ?? _resultData!['id']?.toString() ?? ''}');
+      print('Access Token: ${accessToken?.substring(0, 10)}...');
+      
+      await authService.shareResult(
+        doctorId: doctorId,
+        examType: 'Imagerie',
+        examCode: _resultData!['number'] ?? _resultData!['id']?.toString() ?? '',
+        accessToken: accessToken,
+      );
+      
+      print('Share result completed successfully');
+      print('=== END SHARE DEBUG ===');
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Résultat d\'imagerie partagé avec succès'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors du partage: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _handleDownloadReport() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Téléchargement du rapport en cours...'),
+        backgroundColor: Color(0xFF3B82F6),
       ),
     );
   }

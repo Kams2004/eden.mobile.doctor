@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../patient-presentation/patient_dashboard/patient_dashboard.dart';
-import '../patient-presentation/laboratory_results_list/laboratory_results_list.dart';
-import '../patient-presentation/laboratory_result_detail/laboratory_result_detail.dart';
+import '../../patient-presentation/patient_dashboard/patient_dashboard.dart';
+import '../../patient-presentation/laboratory_results_list/laboratory_results_list.dart';
+import '../../patient-presentation/laboratory_result_detail/laboratory_result_detail.dart';
 
 class AppRoutes {
   static const String initial = '/';

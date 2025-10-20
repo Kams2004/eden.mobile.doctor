@@ -9,9 +9,9 @@ class MedicalDisclaimerWidget extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.05),
+        color: Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.amber.withOpacity(0.3), width: 1),
+        border: Border.all(color: Colors.grey[300]!, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -19,28 +19,38 @@ class MedicalDisclaimerWidget extends StatelessWidget {
           Row(
             children: [
               Icon(
-                Icons.warning_amber_outlined,
-                color: Colors.amber[700],
-                size: 5.w,
+                Icons.info_outline,
+                color: Colors.grey[700],
+                size: 4.w,
               ),
               SizedBox(width: 2.w),
               Text(
                 'Avis médical important',
                 style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.amber[800],
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 1.5.h),
           Text(
-            'Ces résultats doivent être interprétés par un professionnel de santé. En cas de question ou de préoccupation, consultez votre médecin.',
+            'Ces résultats doivent être interprétés par un professionnel de santé qualifié. En cas de question ou de préoccupation concernant ces résultats, veuillez consulter votre médecin traitant.',
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w400,
+              height: 1.5,
+            ),
+          ),
+          SizedBox(height: 1.h),
+          Text(
+            'Ce document ne constitue pas un diagnostic médical et ne remplace pas une consultation médicale.',
             style: TextStyle(
               fontSize: 12.sp,
-              color: Colors.amber[800],
-              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+              fontStyle: FontStyle.italic,
               height: 1.4,
             ),
           ),

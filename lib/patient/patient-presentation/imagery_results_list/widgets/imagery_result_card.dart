@@ -175,7 +175,7 @@ class ImageryResultCard extends StatelessWidget {
                       imageryResult["examinationType"] as String? ??
                           "Examen d'imagerie",
                       style: GoogleFonts.inter(
-                        fontSize: 14.sp,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         color: colorScheme.onSurface,
                       ),
@@ -194,7 +194,7 @@ class ImageryResultCard extends StatelessWidget {
                       child: Text(
                         '${imageryResult["imageCount"]} images',
                         style: GoogleFonts.inter(
-                          fontSize: 10.sp,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w500,
                           color: colorScheme.primary,
                         ),
@@ -207,7 +207,7 @@ class ImageryResultCard extends StatelessWidget {
                 imageryResult["indication"] as String? ??
                     "Indication non spécifiée",
                 style: GoogleFonts.inter(
-                  fontSize: 12.sp,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w400,
                   color: colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
@@ -257,7 +257,7 @@ class ImageryResultCard extends StatelessWidget {
           child: Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 11.sp,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w500,
               color: colorScheme.onSurface.withValues(alpha: 0.6),
             ),
@@ -267,7 +267,7 @@ class ImageryResultCard extends StatelessWidget {
           child: Text(
             value,
             style: GoogleFonts.inter(
-              fontSize: 11.sp,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w400,
               color: colorScheme.onSurface,
             ),
@@ -307,7 +307,7 @@ class ImageryResultCard extends StatelessWidget {
               Text(
                 statusText,
                 style: GoogleFonts.inter(
-                  fontSize: 10.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w500,
                   color: statusColor,
                 ),
@@ -336,7 +336,7 @@ class ImageryResultCard extends StatelessWidget {
                   SizedBox(width: 3.w),
                   Text(
                     'Voir les images',
-                    style: GoogleFonts.inter(fontSize: 12.sp),
+                    style: GoogleFonts.inter(fontSize: 14.sp),
                   ),
                 ],
               ),
@@ -353,7 +353,7 @@ class ImageryResultCard extends StatelessWidget {
                   SizedBox(width: 3.w),
                   Text(
                     'Partager avec médecin',
-                    style: GoogleFonts.inter(fontSize: 12.sp),
+                    style: GoogleFonts.inter(fontSize: 14.sp),
                   ),
                 ],
               ),
@@ -370,7 +370,7 @@ class ImageryResultCard extends StatelessWidget {
                   SizedBox(width: 3.w),
                   Text(
                     'Télécharger rapport',
-                    style: GoogleFonts.inter(fontSize: 12.sp),
+                    style: GoogleFonts.inter(fontSize: 14.sp),
                   ),
                 ],
               ),
@@ -387,7 +387,7 @@ class ImageryResultCard extends StatelessWidget {
                   SizedBox(width: 3.w),
                   Text(
                     'Ajouter aux favoris',
-                    style: GoogleFonts.inter(fontSize: 12.sp),
+                    style: GoogleFonts.inter(fontSize: 14.sp),
                   ),
                 ],
               ),

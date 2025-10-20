@@ -7,6 +7,8 @@ class ApiConfig {
   static const String doctorPatientsEndpoint = '$baseUrl/gnu_doctor';
   static const String requestEndpoint = '$baseUrl/requete/add';
   static const String getRequestsEndpoint = '$baseUrl/requete/get_requests';
+  static const String patientRequestsEndpoint = '$baseUrl/requete/get_requests';
+  static const String addRequestEndpoint = '$baseUrl/requete/add';
   static const String notificationsEndpoint = '$baseUrl/notifications/user';
   static const String notificationTypesEndpoint = '$baseUrl/notifications/types/';
   static const String deleteNotificationEndpoint = '$baseUrl/notifications/del';
@@ -20,4 +22,7 @@ class ApiConfig {
   static const String imageryResultsEndpoint = '$baseUrl/imagerie/all_results';
   static const String explorationResultsEndpoint = '$baseUrl/exploration/all_results';
   static const String patientNotificationsEndpoint = '$baseUrl/notifications/user';
+  static const String shareResultEndpoint = '$baseUrl/send_result/';
+  static const String sharedResultsEndpoint = '$baseUrl/send_result/patient';
+  static const String deleteSharedResultEndpoint = '$baseUrl/send_result/del';
 }

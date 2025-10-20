@@ -1,4 +1,5 @@
 import 'package:eden_medical/patient/patient-presentation/laboratory_results_list/laboratory_results_list.dart';
+import 'package:eden_medical/patient/patient-presentation/imagery_results_list/imagery_results_list.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../services/auth_service.dart';
@@ -372,16 +373,23 @@ class _PatientDashboardState extends State<PatientDashboard> {
 
   Widget _buildCompactResultCard(String title, int count, IconData icon, Color color, String lastDate) {
     return GestureDetector(
-   onTap: () {
-  if (title == 'Laboratoire' && count > 0) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LaboratoryResultsList(),
-      ),
-    );
-  }
-},
+      onTap: () {
+        if (title == 'Laboratoire' && count > 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LaboratoryResultsList(),
+            ),
+          );
+        } else if (title == 'Imagerie' && count > 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ImageryResultsList(),
+            ),
+          );
+        }
+      },
       child: Container(
         padding: EdgeInsets.all(2.5.w),
         decoration: BoxDecoration(

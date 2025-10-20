@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class QRCodeWidget extends StatelessWidget {
   final Map<String, dynamic> resultData;
@@ -11,6 +12,8 @@ class QRCodeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final qrData = 'EDEN_LAB_${resultData['name'] ?? 'UNKNOWN'}_${resultData['patient'] ?? 'PATIENT'}';
+    
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
@@ -25,65 +28,43 @@ class QRCodeWidget extends StatelessWidget {
               Icon(
                 Icons.qr_code,
                 color: Color(0xFF3B82F6),
-                size: 5.w,
+                size: 4.w,
               ),
               SizedBox(width: 2.w),
               Text(
                 'Code QR du Résultat',
                 style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 3.h),
+          SizedBox(height: 2.h),
           Container(
-            width: 40.w,
-            height: 40.w,
+            padding: EdgeInsets.all(2.w),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[300]!, width: 2),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey[300]!, width: 1),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.qr_code_2,
-                  size: 20.w,
-                  color: Colors.grey[400],
-                ),
-                SizedBox(height: 1.h),
-                Text(
-                  'QR Code',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+            child: QrImageView(
+              data: qrData,
+              version: QrVersions.auto,
+              size: 25.w,
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
             ),
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 1.5.h),
           Text(
-            'Scannez ce code pour accéder rapidement à ce résultat',
+            'Scannez pour accéder au résultat',
             style: TextStyle(
-              fontSize: 11.sp,
+              fontSize: 10.sp,
               color: Colors.grey[600],
             ),
             textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 1.h),
-          Text(
-            'Code: ${resultData['name'] ?? 'N/A'}',
-            style: TextStyle(
-              fontSize: 10.sp,
-              color: Colors.grey[500],
-              fontFamily: 'monospace',
-            ),
           ),
         ],
       ),

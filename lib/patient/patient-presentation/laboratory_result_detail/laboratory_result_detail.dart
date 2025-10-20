@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import 'package:intl/intl.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/storage_service.dart';
 import 'widgets/medical_disclaimer_widget.dart';

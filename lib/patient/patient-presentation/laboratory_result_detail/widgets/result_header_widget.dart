@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import 'package:intl/intl.dart';
 
 class ResultHeaderWidget extends StatelessWidget {
   final Map<String, dynamic> resultData;
@@ -11,22 +12,82 @@ class ResultHeaderWidget extends StatelessWidget {
 
   String _formatDate(String? dateString) {
     if (dateString == null || dateString.isEmpty) return 'Non disponible';
+    
     try {
-      // Handle different date formats
       DateTime date;
+      
       if (dateString.contains('GMT') || dateString.contains('UTC')) {
-        date = DateTime.parse(dateString);
+        // Handle RFC 2822 format: "Wed, 19 Mar 2025 08:12:01 GMT"
+        final cleanDate = dateString.replaceAll(RegExp(r'^\w+,\s*'), '').replaceAll(' GMT', '').replaceAll(' UTC', '');
+        final parts = cleanDate.split(' ');
+        if (parts.length >= 4) {
+          final day = int.parse(parts[0]);
+          final monthStr = parts[1];
+          final year = int.parse(parts[2]);
+          final timePart = parts[3];
+          
+          final months = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+                         'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12};
+          final month = months[monthStr] ?? 1;
+          
+          final timeComponents = timePart.split(':');
+          final hour = int.parse(timeComponents[0]);
+          final minute = int.parse(timeComponents[1]);
+          
+          date = DateTime(year, month, day, hour, minute);
+        } else {
+          return 'Non disponible';
+        }
       } else if (dateString.contains('/')) {
         final parts = dateString.split('/');
         if (parts.length == 3) {
           date = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
         } else {
-          return 'Format invalide';
+          return 'Non disponible';
         }
       } else {
         date = DateTime.parse(dateString);
       }
-      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+      
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return 'Non disponible';
+    }
+  }
+
+  String _calculateDuration(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return 'Non disponible';
+    try {
+      DateTime date;
+      
+      if (dateString.contains('GMT') || dateString.contains('UTC')) {
+        // Handle RFC 2822 format
+        final cleanDate = dateString.replaceAll(RegExp(r'^\w+,\s*'), '').replaceAll(' GMT', '').replaceAll(' UTC', '');
+        final parts = cleanDate.split(' ');
+        if (parts.length >= 4) {
+          final day = int.parse(parts[0]);
+          final monthStr = parts[1];
+          final year = int.parse(parts[2]);
+          final timePart = parts[3];
+          
+          final months = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+                         'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12};
+          final month = months[monthStr] ?? 1;
+          
+          final timeComponents = timePart.split(':');
+          final hour = int.parse(timeComponents[0]);
+          final minute = int.parse(timeComponents[1]);
+          
+          date = DateTime(year, month, day, hour, minute);
+        } else {
+          return 'Non disponible';
+        }
+      } else {
+        date = DateTime.parse(dateString);
+      }
+      
+      // Return the actual time from the date, not duration
+      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
     } catch (e) {
       return 'Non disponible';
     }
@@ -138,9 +199,47 @@ class ResultHeaderWidget extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildInfoItem(
+                  'Date demandée',
+                  _formatDate(resultData['date_requested']),
+                  Icons.schedule_outlined,
+                ),
+              ),
+              Expanded(
+                child: _buildInfoItem(
                   'Date d\'analyse',
                   _formatDate(resultData['date_analysis']),
                   Icons.calendar_today_outlined,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 2.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInfoItem(
+                  'Date validation',
+                  _formatDate(resultData['validation_date']),
+                  Icons.verified_outlined,
+                ),
+              ),
+              Expanded(
+                child: _buildInfoItem(
+                  'Fait le',
+                  _formatDate(resultData['done_date']),
+                  Icons.done_outline,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 2.h),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInfoItem(
+                  'Demandeur',
+                  resultData['requestor'] ?? 'N/A',
+                  Icons.person_outline,
                 ),
               ),
               Expanded(

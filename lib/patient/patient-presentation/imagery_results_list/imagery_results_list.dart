@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import '../imagery_result_detail/imagery_result_detail.dart';
+import '../../../services/auth_service.dart';
+import '../../../services/storage_service.dart';
+import '../../patient-widgets/widgets/patient_sidebar.dart';
 
 
-import '../../patient-widgets/widgets/custom_bottom_bar.dart';
 import './widgets/imagery_empty_state.dart';
 import './widgets/imagery_filter_bottom_sheet.dart';
 import './widgets/imagery_filter_chips.dart';
@@ -34,102 +37,7 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
   List<Map<String, dynamic>> _imageryResults = [];
   List<Map<String, dynamic>> _filteredResults = [];
 
-  // Mock data for imagery results
-  final List<Map<String, dynamic>> _mockImageryResults = [
-    {
-      "id": 1,
-      "examinationType": "Radiographie thoracique",
-      "indication": "Contrôle post-opératoire, surveillance pneumonie",
-      "technique": "Radiographie numérique standard, incidences face et profil",
-      "examinationDate": "15/08/2024",
-      "completionDate": "15/08/2024 14:30",
-      "bodyRegion": "Thorax",
-      "status": "completed",
-      "imageCount": 2,
-      "thumbnailUrl":
-          "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3",
-      "results":
-          """Examen radiographique du thorax réalisé en incidences de face et de profil. TECHNIQUE: Radiographie numérique standard, patient debout. RÉSULTATS: - Poumons: Parenchyme pulmonaire d'aspect normal - Plèvres: Pas d'épanchement pleural visible - Médiastin: Silhouette cardiaque de taille normale - Structures osseuses: Intégrité des côtes et du rachis dorsal CONCLUSION: Radiographie thoracique normale. Pas d'anomalie détectée.""",
-      "conclusion": "Radiographie thoracique normale. Pas d'anomalie détectée.",
-      "doctorName": "Dr. Marie Dubois",
-      "department": "Radiologie"
-    },
-    {
-      "id": 2,
-      "examinationType": "IRM cérébrale",
-      "indication": "Céphalées persistantes, bilan neurologique",
-      "technique":
-          "IRM 1.5T avec injection de gadolinium, séquences T1, T2, FLAIR",
-      "examinationDate": "12/08/2024",
-      "completionDate": "12/08/2024 16:45",
-      "bodyRegion": "Tête et cou",
-      "status": "completed",
-      "imageCount": 15,
-      "thumbnailUrl":
-          "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3",
-      "results":
-          """IRM cérébrale avec injection de produit de contraste. TECHNIQUE: IRM 1.5 Tesla, séquences T1, T2, FLAIR, diffusion et T1 après injection. RÉSULTATS: - Substance blanche: Quelques hypersignaux punctiformes en T2/FLAIR - Substance grise: Aspect normal - Ventricules: Taille et morphologie normales - Espaces sous-arachnoïdiens: Pas de dilatation - Vascularisation: Pas d'anomalie de signal CONCLUSION: IRM cérébrale montrant quelques hypersignaux punctiformes aspécifiques en substance blanche, compatibles avec l'âge. Pas d'anomalie significative.""",
-      "conclusion":
-          "Quelques hypersignaux punctiformes aspécifiques compatibles avec l'âge.",
-      "doctorName": "Dr. Pierre Martin",
-      "department": "Neuroradiologie"
-    },
-    {
-      "id": 3,
-      "examinationType": "Scanner abdomino-pelvien",
-      "indication": "Douleurs abdominales, bilan digestif",
-      "technique":
-          "Scanner hélicoïdal avec injection IV, reconstructions multiplanaires",
-      "examinationDate": "10/08/2024",
-      "completionDate": "10/08/2024 11:20",
-      "bodyRegion": "Abdomen",
-      "status": "completed",
-      "imageCount": 8,
-      "thumbnailUrl":
-          "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3",
-      "results":
-          """Scanner abdomino-pelvien avec injection de produit de contraste iodé. TECHNIQUE: Acquisition hélicoïdale, coupes de 2.5mm, injection IV de 100ml. RÉSULTATS: - Foie: Taille et densité normales, pas de lésion focale - Vésicule biliaire: Aspect normal - Pancréas: Morphologie et rehaussement normaux - Rate: Taille normale - Reins: Aspect morphologique normal bilatéralement - Tube digestif: Pas d'anomalie visible CONCLUSION: Scanner abdomino-pelvien normal. Pas d'anomalie détectée.""",
-      "conclusion": "Scanner abdomino-pelvien normal.",
-      "doctorName": "Dr. Sophie Laurent",
-      "department": "Radiologie"
-    },
-    {
-      "id": 4,
-      "examinationType": "Échographie cardiaque",
-      "indication": "Bilan cardiologique, souffle systolique",
-      "technique": "Échographie transthoracique, doppler couleur",
-      "examinationDate": "08/08/2024",
-      "completionDate": "08/08/2024 09:15",
-      "bodyRegion": "Thorax",
-      "status": "completed",
-      "imageCount": 6,
-      "thumbnailUrl":
-          "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3",
-      "results":
-          """Échographie cardiaque transthoracique avec doppler. TECHNIQUE: Sonde sectorielle 2-4 MHz, toutes les incidences standard. RÉSULTATS: - Ventricule gauche: Taille normale, fonction systolique conservée (FE: 65%) - Ventricule droit: Aspect normal - Oreillettes: Tailles normales - Valves: Aspect morphologique normal, pas de fuite significative - Péricarde: Pas d'épanchement CONCLUSION: Échographie cardiaque normale. Fonction ventriculaire gauche conservée.""",
-      "conclusion": "Échographie cardiaque normale, fonction VG conservée.",
-      "doctorName": "Dr. Jean Moreau",
-      "department": "Cardiologie"
-    },
-    {
-      "id": 5,
-      "examinationType": "Mammographie bilatérale",
-      "indication": "Dépistage systématique, antécédents familiaux",
-      "technique": "Mammographie numérique, incidences CC et MLO bilatérales",
-      "examinationDate": "05/08/2024",
-      "completionDate": "05/08/2024 14:00",
-      "bodyRegion": "Thorax",
-      "status": "pending",
-      "imageCount": 4,
-      "thumbnailUrl":
-          "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3",
-      "results":
-          """Mammographie de dépistage bilatérale. TECHNIQUE: Mammographie numérique, incidences cranio-caudale et oblique médio-latérale. RÉSULTATS: - Sein droit: Densité mammaire hétérogène, pas de masse suspecte - Sein gauche: Aspect symétrique, quelques calcifications bénignes - Ganglions axillaires: Aspect normal bilatéralement CONCLUSION: Mammographie de dépistage normale (ACR 2). Contrôle recommandé dans 2 ans.""",
-      "conclusion": "Mammographie normale (ACR 2), contrôle dans 2 ans.",
-      "doctorName": "Dr. Anne Rousseau",
-      "department": "Sénologie"
-    }
-  ];
+
 
   @override
   void initState() {
@@ -145,18 +53,39 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
   }
 
   Future<void> _initializeData() async {
-    setState(() {
-      _isLoading = true;
-    });
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-    // Simulate API call delay
-    await Future.delayed(Duration(milliseconds: 1500));
-
-    setState(() {
-      _imageryResults = List.from(_mockImageryResults);
-      _filteredResults = List.from(_imageryResults);
-      _isLoading = false;
-    });
+      final authService = AuthService();
+      final accessToken = StorageService.accessToken;
+      
+      if (accessToken == null) {
+        throw Exception('Token d\'accès manquant');
+      }
+      
+      final results = await authService.getImageryResults(accessToken);
+      print('=== IMAGERY RESULTS DEBUG ===');
+      print('Results count: ${results.length}');
+      if (results.isNotEmpty) {
+        print('First result: ${results[0]}');
+      }
+      print('=== END DEBUG ===');
+      
+      setState(() {
+        _imageryResults = results;
+        _filteredResults = List.from(_imageryResults);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading imagery results: $e');
+      setState(() {
+        _imageryResults = [];
+        _filteredResults = [];
+        _isLoading = false;
+      });
+    }
   }
 
   void _onScroll() {
@@ -168,25 +97,46 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
   }
 
   Future<void> _onRefresh() async {
-    setState(() {
-      _isRefreshing = true;
-    });
+    try {
+      setState(() {
+        _isRefreshing = true;
+      });
 
-    // Simulate refresh delay
-    await Future.delayed(Duration(milliseconds: 1000));
+      final authService = AuthService();
+      final accessToken = StorageService.accessToken;
+      
+      if (accessToken != null) {
+        final results = await authService.getImageryResults(accessToken);
+        setState(() {
+          _imageryResults = results;
+          _applyFiltersAndSearch();
+          _isRefreshing = false;
+        });
+      } else {
+        setState(() {
+          _imageryResults = [];
+          _applyFiltersAndSearch();
+          _isRefreshing = false;
+        });
+      }
 
-    setState(() {
-      _imageryResults = List.from(_mockImageryResults);
-      _applyFiltersAndSearch();
-      _isRefreshing = false;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Résultats d\'imagerie actualisés'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Résultats d\'imagerie actualisés'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      setState(() {
+        _isRefreshing = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors de l\'actualisation'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _onSearchChanged(String query) {
@@ -223,21 +173,15 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
       activeFilters.add('date:${filters['dateRange']}');
     }
 
-    if (filters['imagingTypes'] != null) {
-      for (String type in (filters['imagingTypes'] as List<String>)) {
-        activeFilters.add('type:${type.toLowerCase()}');
-      }
-    }
-
-    if (filters['bodyRegions'] != null) {
-      for (String region in (filters['bodyRegions'] as List<String>)) {
-        activeFilters.add('region:$region');
+    if (filters['examTypes'] != null) {
+      for (String type in (filters['examTypes'] as List<String>)) {
+        activeFilters.add('type:$type');
       }
     }
 
     if (filters['status'] != null) {
       for (String status in (filters['status'] as List<String>)) {
-        activeFilters.add('status:${status.toLowerCase()}');
+        activeFilters.add('status:$status');
       }
     }
 
@@ -251,13 +195,13 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
     if (_searchQuery.isNotEmpty) {
       results = results.where((result) {
         final searchLower = _searchQuery.toLowerCase();
-        return (result['examinationType'] as String)
+        return (result['test'] as String? ?? '')
                 .toLowerCase()
                 .contains(searchLower) ||
-            (result['indication'] as String)
+            (result['patient'] as String? ?? '')
                 .toLowerCase()
                 .contains(searchLower) ||
-            (result['bodyRegion'] as String? ?? '')
+            (result['requestor'] as String? ?? '')
                 .toLowerCase()
                 .contains(searchLower);
       }).toList();
@@ -277,23 +221,13 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
       List<Map<String, dynamic>> results) {
     List<Map<String, dynamic>> filtered = results;
 
-    // Apply imaging type filter
-    if (_currentFilters['imagingTypes'] != null &&
-        (_currentFilters['imagingTypes'] as List).isNotEmpty) {
+    // Apply exam type filter
+    if (_currentFilters['examTypes'] != null &&
+        (_currentFilters['examTypes'] as List).isNotEmpty) {
       filtered = filtered.where((result) {
-        final examType = (result['examinationType'] as String).toLowerCase();
-        return (_currentFilters['imagingTypes'] as List<String>)
-            .any((type) => examType.contains(type.toLowerCase()));
-      }).toList();
-    }
-
-    // Apply body region filter
-    if (_currentFilters['bodyRegions'] != null &&
-        (_currentFilters['bodyRegions'] as List).isNotEmpty) {
-      filtered = filtered.where((result) {
-        final region = (result['bodyRegion'] as String? ?? '').toLowerCase();
-        return (_currentFilters['bodyRegions'] as List<String>)
-            .any((filterRegion) => region.contains(filterRegion.toLowerCase()));
+        final examType = (result['requested_test'] ?? result['test'] ?? '').toString().toUpperCase();
+        return (_currentFilters['examTypes'] as List<String>)
+            .any((type) => examType.contains(type.toUpperCase()));
       }).toList();
     }
 
@@ -301,10 +235,58 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
     if (_currentFilters['status'] != null &&
         (_currentFilters['status'] as List).isNotEmpty) {
       filtered = filtered.where((result) {
-        final status = (result['status'] as String).toLowerCase();
-        return (_currentFilters['status'] as List<String>)
-            .any((filterStatus) => status == filterStatus.toLowerCase());
+        final status = result['state'] == 'validated' ? 'Validé' : 'En cours';
+        return (_currentFilters['status'] as List<String>).contains(status);
       }).toList();
+    }
+
+    // Apply date range filter
+    if (_currentFilters['dateRange'] != null) {
+      final now = DateTime.now();
+      DateTime? startDate;
+      
+      switch (_currentFilters['dateRange']) {
+        case 'Aujourd\'hui':
+          startDate = DateTime(now.year, now.month, now.day);
+          break;
+        case 'Cette semaine':
+          startDate = now.subtract(Duration(days: now.weekday - 1));
+          break;
+        case 'Ce mois':
+          startDate = DateTime(now.year, now.month, 1);
+          break;
+        case 'Ces 3 mois':
+          startDate = DateTime(now.year, now.month - 3, 1);
+          break;
+        case 'Cette année':
+          startDate = DateTime(now.year, 1, 1);
+          break;
+      }
+      
+      if (startDate != null) {
+        filtered = filtered.where((result) {
+          try {
+            final dateStr = result['date'] ?? result['request_date'] ?? '';
+            if (dateStr.toString().contains('GMT')) {
+              final cleanDate = dateStr.toString().replaceAll(RegExp(r'^\w+,\s*'), '').replaceAll(' GMT', '');
+              final parts = cleanDate.split(' ');
+              if (parts.length >= 3) {
+                final day = int.parse(parts[0]);
+                final monthStr = parts[1];
+                final year = int.parse(parts[2]);
+                final months = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+                               'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12};
+                final month = months[monthStr] ?? 1;
+                final resultDate = DateTime(year, month, day);
+                return resultDate.isAfter(startDate!) || resultDate.isAtSameMomentAs(startDate);
+              }
+            }
+            return true;
+          } catch (e) {
+            return true;
+          }
+        }).toList();
+      }
     }
 
     // Apply sorting
@@ -312,17 +294,17 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
     filtered.sort((a, b) {
       switch (sortBy) {
         case 'date_asc':
-          return (a['examinationDate'] as String)
-              .compareTo(b['examinationDate'] as String);
+          return (a['date'] ?? a['request_date'] ?? '')
+              .toString().compareTo((b['date'] ?? b['request_date'] ?? '').toString());
         case 'date_desc':
-          return (b['examinationDate'] as String)
-              .compareTo(a['examinationDate'] as String);
+          return (b['date'] ?? b['request_date'] ?? '')
+              .toString().compareTo((a['date'] ?? a['request_date'] ?? '').toString());
         case 'type_asc':
-          return (a['examinationType'] as String)
-              .compareTo(b['examinationType'] as String);
+          return (a['requested_test'] ?? a['test'] ?? '')
+              .toString().compareTo((b['requested_test'] ?? b['test'] ?? '').toString());
         case 'type_desc':
-          return (b['examinationType'] as String)
-              .compareTo(a['examinationType'] as String);
+          return (b['requested_test'] ?? b['test'] ?? '')
+              .toString().compareTo((a['requested_test'] ?? a['test'] ?? '').toString());
         default:
           return 0;
       }
@@ -350,15 +332,12 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
   void _updateFiltersFromActiveList() {
     // Rebuild current filters from active filters list
     Map<String, dynamic> newFilters = {};
-    List<String> imagingTypes = [];
-    List<String> bodyRegions = [];
+    List<String> examTypes = [];
     List<String> status = [];
 
     for (String filter in _activeFilters) {
       if (filter.startsWith('type:')) {
-        imagingTypes.add(filter.substring(5));
-      } else if (filter.startsWith('region:')) {
-        bodyRegions.add(filter.substring(7));
+        examTypes.add(filter.substring(5));
       } else if (filter.startsWith('status:')) {
         status.add(filter.substring(7));
       } else if (filter.startsWith('date:')) {
@@ -366,43 +345,203 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
       }
     }
 
-    if (imagingTypes.isNotEmpty) newFilters['imagingTypes'] = imagingTypes;
-    if (bodyRegions.isNotEmpty) newFilters['bodyRegions'] = bodyRegions;
+    if (examTypes.isNotEmpty) newFilters['examTypes'] = examTypes;
     if (status.isNotEmpty) newFilters['status'] = status;
 
     _currentFilters = newFilters;
   }
 
   void _onResultTap(Map<String, dynamic> result) {
-    Navigator.pushNamed(
+    Navigator.push(
       context,
-      '/imagery-result-detail',
-      arguments: result,
+      MaterialPageRoute(
+        builder: (context) => ImageryResultDetail(),
+        settings: RouteSettings(arguments: result),
+      ),
     );
   }
 
   void _onViewImages(Map<String, dynamic> result) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Ouverture des images pour ${result["examinationType"]}'),
+        content: Text('Ouverture des images pour ${result["test"] ?? "cet examen"}'),
         duration: Duration(seconds: 2),
       ),
     );
   }
 
-  void _onShareWithDoctor(Map<String, dynamic> result) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Partage avec le médecin: ${result["examinationType"]}'),
-        duration: Duration(seconds: 2),
-      ),
+  void _showShareDialog(Map<String, dynamic> result) {
+    final TextEditingController matriculeController = TextEditingController();
+    bool isSearching = false;
+    String? doctorName;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Row(
+                children: [
+                  Icon(Icons.share_outlined, color: Color(0xFF3B82F6), size: 6.w),
+                  SizedBox(width: 2.w),
+                  Text('Partager le résultat', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600)),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(3.w),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Examen à partager:', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.blue[700])),
+                        SizedBox(height: 0.5.h),
+                        Text('Type: Imagerie', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600)),
+                        Text('Code: ${result['name'] ?? result['id'] ?? 'N/A'}', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text('Matricule du médecin:', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500)),
+                  SizedBox(height: 1.h),
+                  TextField(
+                    controller: matriculeController,
+                    onChanged: (value) {
+                      setState(() {
+                        if (value.isNotEmpty && doctorName == null) {
+                          Future.delayed(Duration(milliseconds: 300), () {
+                            if (matriculeController.text.isNotEmpty) {
+                              setState(() {
+                                doctorName = 'Dr. ${matriculeController.text.toUpperCase()}';
+                              });
+                            }
+                          });
+                        } else if (value.isEmpty) {
+                          doctorName = null;
+                        }
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Entrez le matricule',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      suffixIcon: IconButton(
+                        icon: isSearching ? SizedBox(width: 4.w, height: 4.w, child: CircularProgressIndicator(strokeWidth: 2)) : Icon(Icons.search),
+                        onPressed: () async {
+                          if (matriculeController.text.isNotEmpty) {
+                            setState(() { isSearching = true; });
+                            await Future.delayed(Duration(milliseconds: 500));
+                            setState(() { 
+                              isSearching = false;
+                              doctorName = 'Dr. ${matriculeController.text.toUpperCase()}';
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  if (doctorName != null) ...[
+                    SizedBox(height: 2.h),
+                    Container(
+                      padding: EdgeInsets.all(3.w),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.green, size: 5.w),
+                          SizedBox(width: 2.w),
+                          Text('Médecin trouvé: $doctorName', style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Annuler', style: TextStyle(color: Colors.grey[600])),
+                ),
+                ElevatedButton(
+                  onPressed: (doctorName != null && matriculeController.text.isNotEmpty) ? () async {
+                    Navigator.pop(context);
+                    await _shareWithDoctor(result);
+                  } : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF3B82F6),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Text('Partager', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
+  }
+
+  Future<void> _shareWithDoctor(Map<String, dynamic> result) async {
+    try {
+      final authService = AuthService();
+      final accessToken = StorageService.accessToken;
+      final doctorId = StorageService.doctorId;
+      
+      if (accessToken == null || doctorId == null) {
+        throw Exception('Données d\'authentification manquantes');
+      }
+      
+      print('=== SHARE RESULT DEBUG ===');
+      print('Doctor ID: $doctorId');
+      print('Exam Type: Imagerie');
+      print('Exam Code: ${result['number'] ?? result['id']?.toString() ?? ''}');
+      print('Access Token: ${accessToken?.substring(0, 10)}...');
+      
+      await authService.shareResult(
+        doctorId: doctorId,
+        examType: 'Imagerie',
+        examCode: result['number'] ?? result['id']?.toString() ?? '',
+        accessToken: accessToken,
+      );
+      
+      print('Share result completed successfully');
+      print('=== END SHARE DEBUG ===');
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Résultat partagé avec succès'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors du partage: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _onShareWithDoctor(Map<String, dynamic> result) {
+    _showShareDialog(result);
   }
 
   void _onAddToFavorites(Map<String, dynamic> result) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Ajouté aux favoris: ${result["examinationType"]}'),
+        content: Text('Ajouté aux favoris: ${result["test"] ?? "cet examen"}'),
         duration: Duration(seconds: 2),
         action: SnackBarAction(
           label: 'Annuler',
@@ -416,10 +555,256 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content:
-            Text('Téléchargement du rapport: ${result["examinationType"]}'),
+            Text('Téléchargement du rapport: ${result["test"] ?? "cet examen"}'),
         duration: Duration(seconds: 2),
       ),
     );
+  }
+
+  void _handleLogout() {
+    StorageService.clearData();
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/login-screen',
+      (route) => false,
+    );
+  }
+
+  Widget _buildSimpleResultCard(Map<String, dynamic> result) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _onResultTap(result),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: EdgeInsets.all(4.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(2.5.w),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xFF10B981).withOpacity(0.1),
+                            Color(0xFF10B981).withOpacity(0.05),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.medical_information_outlined,
+                        color: Color(0xFF10B981),
+                        size: 5.w,
+                      ),
+                    ),
+                    SizedBox(width: 3.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  result['requested_test'] ?? result['test'] ?? 'Examen d\'imagerie',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () => _showShareDialog(result),
+                                    icon: Icon(
+                                      Icons.share_outlined,
+                                      color: Color(0xFF3B82F6),
+                                      size: 5.w,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () => _onResultTap(result),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.arrow_forward_ios,
+                                          color: Color(0xFF3B82F6),
+                                          size: 4.w,
+                                        ),
+                                        SizedBox(width: 1.w),
+                                        Text(
+                                          'Détails',
+                                          style: TextStyle(
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF3B82F6),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 0.5.h),
+                          Text(
+                            'Code: ${result['number'] ?? result['id'] ?? 'N/A'}',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.8.h),
+                      decoration: BoxDecoration(
+                        color: result['state'] == 'validated' 
+                            ? Colors.green.withOpacity(0.1) 
+                            : Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        result['state'] == 'validated' ? 'Validé' : 'En cours',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: result['state'] == 'validated' 
+                              ? Colors.green[700] 
+                              : Colors.orange[700],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 2.h),
+                Container(
+                  padding: EdgeInsets.all(3.w),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          _buildInfoColumn('Patient', result['patient'] ?? 'N/A'),
+                          _buildInfoColumn('Date', _formatDate(result['date'] ?? result['request_date'])),
+                        ],
+                      ),
+                      SizedBox(height: 1.5.h),
+                      Row(
+                        children: [
+                          _buildInfoColumn('Demandeur', result['requestor'] ?? 'N/A'),
+                          _buildInfoColumn('Validé par', result['validated_by'] ?? 'N/A'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoColumn(String label, String value) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: Colors.grey[500],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 0.5.h),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return 'Non disponible';
+    
+    try {
+      DateTime date;
+      
+      if (dateString.contains('GMT') || dateString.contains('UTC')) {
+        // Handle RFC 2822 format: "Wed, 19 Mar 2025 08:12:01 GMT"
+        final cleanDate = dateString.replaceAll(RegExp(r'^\w+,\s*'), '').replaceAll(' GMT', '').replaceAll(' UTC', '');
+        final parts = cleanDate.split(' ');
+        if (parts.length >= 4) {
+          final day = int.parse(parts[0]);
+          final monthStr = parts[1];
+          final year = int.parse(parts[2]);
+          final timePart = parts[3];
+          
+          final months = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+                         'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12};
+          final month = months[monthStr] ?? 1;
+          
+          final timeComponents = timePart.split(':');
+          final hour = int.parse(timeComponents[0]);
+          final minute = int.parse(timeComponents[1]);
+          
+          date = DateTime(year, month, day, hour, minute);
+        } else {
+          return 'Non disponible';
+        }
+      } else if (dateString.contains('/')) {
+        final parts = dateString.split('/');
+        if (parts.length == 3) {
+          date = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+        } else {
+          return 'Non disponible';
+        }
+      } else {
+        date = DateTime.parse(dateString);
+      }
+      
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return 'Non disponible';
+    }
   }
 
   @override
@@ -429,6 +814,37 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
 
     return Scaffold(
       backgroundColor: colorScheme.surface.withValues(alpha: 0.95),
+      drawer: Drawer(
+        child: PatientSidebar(
+          currentRoute: '/imagery-results-list',
+          onLogout: _handleLogout,
+        ),
+      ),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.white,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu, color: Color(0xFF3B82F6)),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        title: Text(
+          'Résultats d\'Imagerie',
+          style: TextStyle(
+            color: Color(0xFF3B82F6),
+            fontWeight: FontWeight.bold,
+            fontSize: 18.sp,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: Color(0xFF3B82F6)),
+            onPressed: _onRefresh,
+          ),
+        ],
+      ),
       body: Container(
         decoration: BoxDecoration(
           // Medical watermark background
@@ -465,10 +881,7 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomBar(
-        currentIndex: 2, // Imagery tab
-        variant: BottomBarVariant.standard,
-      ),
+
     );
   }
 
@@ -499,14 +912,7 @@ class _ImageryResultsListState extends State<ImageryResultsList> {
         itemCount: _filteredResults.length,
         itemBuilder: (context, index) {
           final result = _filteredResults[index];
-          return ImageryResultCard(
-            imageryResult: result,
-            onTap: () => _onResultTap(result),
-            onViewImages: () => _onViewImages(result),
-            onShareWithDoctor: () => _onShareWithDoctor(result),
-            onAddToFavorites: () => _onAddToFavorites(result),
-            onDownloadReport: () => _onDownloadReport(result),
-          );
+          return _buildSimpleResultCard(result);
         },
       ),
     );
