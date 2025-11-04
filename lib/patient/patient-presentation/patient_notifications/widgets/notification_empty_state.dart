@@ -1,13 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import '../../../../services/theme_service.dart';
 
-class NotificationEmptyState extends StatelessWidget {
+class NotificationEmptyState extends StatefulWidget {
   final VoidCallback onRefresh;
+  final String? message;
 
   const NotificationEmptyState({
     Key? key,
     required this.onRefresh,
+    this.message,
   }) : super(key: key);
+
+  @override
+  State<NotificationEmptyState> createState() => _NotificationEmptyStateState();
+}
+
+class _NotificationEmptyStateState extends State<NotificationEmptyState> {
+  final ThemeService _themeService = ThemeService();
+
+  @override
+  void initState() {
+    super.initState();
+    _themeService.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    _themeService.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,26 +57,26 @@ class NotificationEmptyState extends StatelessWidget {
           ),
           SizedBox(height: 4.h),
           Text(
-            'Aucune notification',
+            widget.message ?? 'Aucune notification',
             style: TextStyle(
               fontSize: 20.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: _themeService.isDarkMode ? Colors.white : Colors.black87,
             ),
           ),
           SizedBox(height: 2.h),
           Text(
-            'Vous n\'avez aucune notification pour le moment.\nTirez vers le bas pour actualiser.',
+            'Vous n\'avez aucune notification pour le moment.\nCliquez le bouton en bas pour actualiser.',
             style: TextStyle(
               fontSize: 14.sp,
-              color: Colors.grey[600],
+              color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
               height: 1.5,
             ),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 4.h),
           ElevatedButton.icon(
-            onPressed: onRefresh,
+            onPressed: widget.onRefresh,
             icon: Icon(Icons.refresh),
             label: Text('Actualiser'),
             style: ElevatedButton.styleFrom(

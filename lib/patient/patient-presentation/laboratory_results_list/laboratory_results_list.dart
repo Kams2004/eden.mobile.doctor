@@ -3,8 +3,11 @@ import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/storage_service.dart';
+import '../../../services/theme_service.dart';
 import '../../patient-widgets/widgets/patient_sidebar.dart';
+import '../imagery_results_list/widgets/imagery_skeleton_loader.dart';
 import '../laboratory_result_detail/laboratory_result_detail.dart';
+import '../../patient-widgets/widgets/professional_app_bar.dart';
 
 class LaboratoryResultsList extends StatefulWidget {
   const LaboratoryResultsList({super.key});
@@ -16,11 +19,15 @@ class LaboratoryResultsList extends StatefulWidget {
 class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
   bool _isLoading = true;
   List<Map<String, dynamic>> _laboratoryResults = [];
+  List<Map<String, dynamic>> _filteredResults = [];
   String? _error;
+  String _selectedFilter = 'Tous';
+  late ThemeService _themeService;
 
   @override
   void initState() {
     super.initState();
+    _themeService = ThemeService();
     _loadLaboratoryResults();
   }
 
@@ -49,8 +56,10 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
       
       setState(() {
         _laboratoryResults = results;
+        _filteredResults = results;
         _isLoading = false;
       });
+      _applyFilter();
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -145,85 +154,177 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
   void _showShareDialog(Map<String, dynamic> result) {
     final TextEditingController matriculeController = TextEditingController();
     bool isSearching = false;
-    String? doctorName;
+    Map<String, dynamic>? doctorInfo;
     
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
+          builder: (context, setDialogState) {
+            return Dialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Row(
-                children: [
-                  Icon(Icons.share_outlined, color: Color(0xFF3B82F6), size: 6.w),
-                  SizedBox(width: 2.w),
-                  Text('Partager le résultat', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600)),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Matricule du médecin:', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500)),
-                  SizedBox(height: 1.h),
-                  TextField(
-                    controller: matriculeController,
-                    decoration: InputDecoration(
-                      hintText: 'Entrez le matricule',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      suffixIcon: IconButton(
-                        icon: isSearching ? SizedBox(width: 4.w, height: 4.w, child: CircularProgressIndicator(strokeWidth: 2)) : Icon(Icons.search),
-                        onPressed: () async {
-                          if (matriculeController.text.isNotEmpty) {
-                            setState(() { isSearching = true; });
-                            await Future.delayed(Duration(milliseconds: 500));
-                            setState(() { 
-                              isSearching = false;
-                              doctorName = 'Dr. ${matriculeController.text.toUpperCase()}';
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                  if (doctorName != null) ...[
-                    SizedBox(height: 2.h),
+              child: Container(
+                width: 90.w,
+                constraints: BoxConstraints(maxHeight: 70.h),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     Container(
-                      padding: EdgeInsets.all(3.w),
+                      padding: EdgeInsets.all(4.w),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green.withOpacity(0.3)),
+                        color: Color(0xFF3B82F6),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.check_circle, color: Colors.green, size: 5.w),
-                          SizedBox(width: 2.w),
-                          Text('Médecin trouvé: $doctorName', style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.w500)),
+                          Icon(Icons.share_outlined, color: Colors.white, size: 6.w),
+                          SizedBox(width: 3.w),
+                          Expanded(
+                            child: Text(
+                              'Partager le résultat',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: Icon(Icons.close, color: Colors.white),
+                          ),
                         ],
                       ),
                     ),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(4.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(3.w),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Résultat à partager:', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.blue[700])),
+                                  SizedBox(height: 0.5.h),
+                                  Text('Type: Laboratoire', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600)),
+                                  Text('Code: ${result['name'] ?? 'N/A'}', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 3.h),
+                            Text('Matricule du médecin:', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500)),
+                            SizedBox(height: 1.h),
+                            TextField(
+                              controller: matriculeController,
+                              decoration: InputDecoration(
+                                hintText: 'Entrez le matricule (ex: XXXALL587EWK)',
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                suffixIcon: IconButton(
+                                  icon: isSearching 
+                                      ? SizedBox(width: 4.w, height: 4.w, child: CircularProgressIndicator(strokeWidth: 2)) 
+                                      : Icon(Icons.search),
+                                  onPressed: () async {
+                                    if (matriculeController.text.isNotEmpty) {
+                                      setDialogState(() { isSearching = true; doctorInfo = null; });
+                                      try {
+                                        final authService = AuthService();
+                                        final accessToken = StorageService.accessToken;
+                                        if (accessToken != null) {
+                                          final doctor = await authService.getDoctorByMatricule(matriculeController.text.trim(), accessToken);
+                                          setDialogState(() { 
+                                            isSearching = false;
+                                            doctorInfo = doctor;
+                                          });
+                                        } else {
+                                          throw Exception('Token d\'accès manquant');
+                                        }
+                                      } catch (e) {
+                                        print('Doctor lookup error: $e');
+                                        setDialogState(() { isSearching = false; });
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Médecin non trouvé ou erreur de recherche'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                            if (doctorInfo != null) ...[
+                              SizedBox(height: 2.h),
+                              Container(
+                                padding: EdgeInsets.all(3.w),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.green.withOpacity(0.3)),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(Icons.check_circle, color: Colors.green, size: 5.w),
+                                        SizedBox(width: 2.w),
+                                        Text('Médecin trouvé', style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.w600)),
+                                      ],
+                                    ),
+                                    SizedBox(height: 1.h),
+                                    Text('Nom: ${doctorInfo!['DoctorName']} ${doctorInfo!['DoctorLastname']}', style: TextStyle(fontSize: 12.sp)),
+                                    Text('Spécialité: ${doctorInfo!['Speciality']}', style: TextStyle(fontSize: 12.sp)),
+                                    Text('Email: ${doctorInfo!['DoctorEmail']}', style: TextStyle(fontSize: 12.sp)),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 2.h),
+                              Text(
+                                'Confirmez-vous l\'envoi de ce résultat au Dr. ${doctorInfo!['DoctorName']} ${doctorInfo!['DoctorLastname']} ?',
+                                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                            SizedBox(height: 3.h),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text('Annuler', style: TextStyle(color: Colors.grey[600])),
+                                  ),
+                                ),
+                                SizedBox(width: 2.w),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: doctorInfo != null ? () async {
+                                      Navigator.pop(context);
+                                      await _shareResult(result, doctorInfo!);
+                                    } : null,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFF3B82F6),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    ),
+                                    child: Text('Envoyer', style: TextStyle(color: Colors.white)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
-                ],
+                ),
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Annuler', style: TextStyle(color: Colors.grey[600])),
-                ),
-                ElevatedButton(
-                  onPressed: doctorName != null ? () async {
-                    Navigator.pop(context);
-                    await _shareResult(result);
-                  } : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF3B82F6),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: Text('Partager', style: TextStyle(color: Colors.white)),
-                ),
-              ],
             );
           },
         );
@@ -231,18 +332,17 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
     );
   }
 
-  Future<void> _shareResult(Map<String, dynamic> result) async {
+  Future<void> _shareResult(Map<String, dynamic> result, Map<String, dynamic> doctorInfo) async {
     try {
       final authService = AuthService();
       final accessToken = StorageService.accessToken;
-      final doctorId = StorageService.doctorId;
       
-      if (accessToken == null || doctorId == null) {
-        throw Exception('Données d\'authentification manquantes');
+      if (accessToken == null) {
+        throw Exception('Token d\'accès manquant');
       }
       
-      await authService.shareResult(
-        doctorId: doctorId,
+      final response = await authService.sendResultToDoctor(
+        doctorId: doctorInfo['id'],
         examType: 'Laboratoire',
         examCode: result['name'] ?? '',
         accessToken: accessToken,
@@ -250,25 +350,150 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Résultat partagé avec succès'),
+          content: Text('Résultat envoyé avec succès au Dr. ${doctorInfo['DoctorName']} ${doctorInfo['DoctorLastname']}'),
           backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur lors du partage: $e'),
+          content: Text('Erreur lors de l\'envoi: $e'),
           backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
         ),
       );
     }
   }
 
+  bool _isExpired(Map<String, dynamic> result) {
+    final statutExpiration = result['statut_expiration'];
+    final expirationDate = result['expiration_date'];
+    
+    if (statutExpiration == true || (expirationDate != null && DateTime.now().isAfter(_parseDate(expirationDate)))) {
+      return true;
+    }
+    return false;
+  }
+  
+  int _getDaysUntilExpiration(Map<String, dynamic> result) {
+    final expirationDate = result['expiration_date'];
+    if (expirationDate == null) {
+      final dateAnalysis = result['date_analysis'];
+      if (dateAnalysis != null) {
+        final analysisDate = _parseDate(dateAnalysis);
+        final expiration = analysisDate.add(Duration(days: 7));
+        return expiration.difference(DateTime.now()).inDays;
+      }
+      return 7;
+    }
+    return _parseDate(expirationDate).difference(DateTime.now()).inDays;
+  }
+  
+  DateTime _parseDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return DateTime.now();
+    try {
+      if (dateString.contains('GMT')) {
+        final parts = dateString.split(' ');
+        if (parts.length >= 5) {
+          final day = int.parse(parts[1]);
+          final month = _getMonthNumber(parts[2]);
+          final year = int.parse(parts[3]);
+          final timeParts = parts[4].split(':');
+          final hour = int.parse(timeParts[0]);
+          final minute = int.parse(timeParts[1]);
+          return DateTime(year, month, day, hour, minute);
+        }
+      }
+      return DateTime.parse(dateString);
+    } catch (e) {
+      return DateTime.now();
+    }
+  }
+  
+  int _getMonthNumber(String monthName) {
+    const months = {
+      'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+      'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+    };
+    return months[monthName] ?? 1;
+  }
+
+  void _applyFilter() {
+    setState(() {
+      switch (_selectedFilter) {
+        case 'Tous':
+          _filteredResults = _laboratoryResults;
+          break;
+        case 'Terminé':
+          _filteredResults = _laboratoryResults.where((result) => result['state'] == 'validated').toList();
+          break;
+        case 'En cours':
+          _filteredResults = _laboratoryResults.where((result) => result['state'] != 'validated').toList();
+          break;
+        case 'Expiré':
+          _filteredResults = _laboratoryResults.where((result) => _isExpired(result)).toList();
+          break;
+        case 'Non expiré':
+          _filteredResults = _laboratoryResults.where((result) => !_isExpired(result)).toList();
+          break;
+      }
+    });
+  }
+
+  Widget _buildFilterChips() {
+    final filters = ['Tous', 'Terminé', 'En cours', 'Expiré', 'Non expiré'];
+    return Container(
+      height: 6.h,
+      margin: EdgeInsets.symmetric(vertical: 1.h),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 4.w),
+        itemCount: filters.length,
+        itemBuilder: (context, index) {
+          final filter = filters[index];
+          final isSelected = _selectedFilter == filter;
+          return Container(
+            margin: EdgeInsets.only(right: 2.w),
+            child: FilterChip(
+              label: Text(
+                filter,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Color(0xFF3B82F6),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12.sp,
+                ),
+              ),
+              selected: isSelected,
+              onSelected: (selected) {
+                setState(() {
+                  _selectedFilter = filter;
+                });
+                _applyFilter();
+              },
+              backgroundColor: Colors.white,
+              selectedColor: Color(0xFF3B82F6),
+              checkmarkColor: Colors.white,
+              side: BorderSide(
+                color: isSelected ? Color(0xFF3B82F6) : Color(0xFF3B82F6).withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildResultCard(Map<String, dynamic> result) {
+    final isExpired = _isExpired(result);
+    
     return Container(
       margin: EdgeInsets.only(bottom: 2.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isExpired 
+            ? (_themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[100])
+            : (_themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -281,7 +506,7 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
+          onTap: isExpired ? null : () {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -329,9 +554,9 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
                                     Text(
                                       result['test'] ?? result['name'] ?? 'Analyse de laboratoire',
                                       style: TextStyle(
-                                        fontSize: 16.sp,
+                                        fontSize: 15.sp,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
+                                        color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                                       ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -341,7 +566,7 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
                                       'Code: ${result['name'] ?? 'N/A'}',
                                       style: TextStyle(
                                         fontSize: 13.sp,
-                                        color: Colors.grey[600],
+                                        color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -351,42 +576,42 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
                               Row(
                                 children: [
                                   IconButton(
-                                    onPressed: () => _showShareDialog(result),
+                                    onPressed: isExpired ? null : () => _showShareDialog(result),
                                     icon: Icon(
                                       Icons.share_outlined,
-                                      color: Color(0xFF3B82F6),
+                                      color: isExpired ? Colors.grey : Color(0xFF3B82F6),
                                       size: 5.w,
                                     ),
                                   ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => LaboratoryResultDetail(),
-                                          settings: RouteSettings(arguments: result),
-                                        ),
-                                      );
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.arrow_forward_ios,
-                                          color: Color(0xFF3B82F6),
-                                          size: 4.w,
-                                        ),
-                                        SizedBox(width: 1.w),
-                                        Text(
-                                          'Détails',
-                                          style: TextStyle(
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w600,
-                                            color: Color(0xFF3B82F6),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  // GestureDetector(
+                                  //   onTap: isExpired ? null : () {
+                                  //     Navigator.push(
+                                  //       context,
+                                  //       MaterialPageRoute(
+                                  //         builder: (context) => LaboratoryResultDetail(),
+                                  //         settings: RouteSettings(arguments: result),
+                                  //       ),
+                                  //     );
+                                  //   },
+                                  //   child: Row(
+                                  //     children: [
+                                  //       Icon(
+                                  //         Icons.arrow_forward_ios,
+                                  //         color: Color(0xFF3B82F6),
+                                  //         size: 4.w,
+                                  //       ),
+                                  //       SizedBox(width: 1.w),
+                                  //       Text(
+                                  //         'Détails',
+                                  //         style: TextStyle(
+                                  //           fontSize: 12.sp,
+                                  //           fontWeight: FontWeight.w600,
+                                  //           color: Color(0xFF3B82F6),
+                                  //         ),
+                                  //       ),
+                                  //     ],
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                             ],
@@ -394,24 +619,47 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.8.h),
-                      decoration: BoxDecoration(
-                        color: result['state'] == 'validated' 
-                            ? Colors.green.withOpacity(0.1) 
-                            : Colors.orange.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        result['state'] == 'validated' ? 'Validé' : 'En cours',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                          color: result['state'] == 'validated' 
-                              ? Colors.green[700] 
-                              : Colors.orange[700],
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.8.h),
+                          decoration: BoxDecoration(
+                            color: result['state'] == 'validated' 
+                                ? Colors.green.withOpacity(0.1) 
+                                : Colors.orange.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            result['state'] == 'validated' ? 'Terminé' : 'En cours',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                              color: result['state'] == 'validated' 
+                                  ? Colors.green[700] 
+                                  : Colors.orange[700],
+                            ),
+                          ),
                         ),
-                      ),
+                        if (isExpired) ...[
+                          SizedBox(height: 0.5.h),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.8.h),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Expiré',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red[700],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
@@ -419,7 +667,7 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
                 Container(
                   padding: EdgeInsets.all(3.w),
                   decoration: BoxDecoration(
-                    color: Colors.grey[50],
+                    color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[50],
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -427,23 +675,25 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
                       Row(
                         children: [
                           _buildInfoColumn('Patient', result['patient'] ?? 'N/A'),
-                          _buildInfoColumn('Date', _formatDate(result['date_analysis'])),
+                          _buildInfoColumn('Date D\'analyse', _formatDate(result['date_analysis'])),
                         ],
                       ),
                       SizedBox(height: 1.5.h),
                       Row(
                         children: [
-                          _buildInfoColumn('Demandeur', result['requestor'] ?? 'N/A'),
-                          _buildInfoColumn('Heure', _calculateDuration(result['date_analysis'])),
-                        ],
-                      ),
-                      SizedBox(height: 1.5.h),
-                      Row(
-                        children: [
+                          _buildInfoColumn('Médecin Prescripteur', result['requestor'] ?? 'N/A'),
+                          //  _buildInfoColumn('Heure', _calculateDuration(result['date_analysis'])),
                           _buildInfoColumn('Validé par', result['validated_by'] ?? 'N/A'),
-                          Container(),
+
                         ],
                       ),
+                      // SizedBox(height: 1.5.h),
+                      // Row(
+                      //   children: [
+                      //     _buildInfoColumn('Validé par', result['validated_by'] ?? 'N/A'),
+                      //     Container(),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),
@@ -452,6 +702,74 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildExpirationWarning() {
+    if (_laboratoryResults.isEmpty) return SizedBox.shrink();
+    
+    int minDaysLeft = 8;
+    for (var result in _laboratoryResults) {
+      if (!_isExpired(result)) {
+        final daysLeft = _getDaysUntilExpiration(result);
+        if (daysLeft < minDaysLeft) minDaysLeft = daysLeft;
+      }
+    }
+    
+    if (minDaysLeft > 7) return SizedBox.shrink();
+    
+    String message;
+    if (minDaysLeft <= 0) {
+      message = 'Certains résultats ont expiré et ne sont plus accessibles.';
+    } else if (minDaysLeft == 1) {
+      message = 'Certains résultats expirent dans 1 jour.';
+    } else {
+      message = 'Certains résultats expirent dans $minDaysLeft jours.';
+    }
+    
+    return Container(
+      margin: EdgeInsets.all(4.w),
+      padding: EdgeInsets.all(3.w),
+      decoration: BoxDecoration(
+        color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[300]!,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.info_outline,
+            color: _themeService.isDarkMode ? Color(0xFF9CA3AF) : Colors.grey[700],
+            size: 5.w,
+          ),
+          SizedBox(width: 3.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Information importante',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: _themeService.isDarkMode ? Colors.white : Colors.grey[800],
+                  ),
+                ),
+                SizedBox(height: 0.5.h),
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -465,7 +783,7 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
             label,
             style: TextStyle(
               fontSize: 12.sp,
-              color: Colors.grey[500],
+              color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[500],
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -473,9 +791,9 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
           Text(
             value,
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: _themeService.isDarkMode ? Colors.white : Colors.black87,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -497,34 +815,20 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: _themeService.isDarkMode ? Color(0xFF0F172A) : Colors.grey[50],
       drawer: Drawer(
         child: PatientSidebar(
           currentRoute: '/laboratory-results-list',
           onLogout: _handleLogout,
         ),
       ),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.white,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: Color(0xFF3B82F6)),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        title: Text(
-          'Résultats de Laboratoire',
-          style: TextStyle(
-            color: Color(0xFF3B82F6),
-            fontWeight: FontWeight.bold,
-            fontSize: 18.sp,
-          ),
-        ),
+      appBar: ProfessionalAppBar(
+        title: 'Résultats de Laboratoire',
+        subtitle: 'Analyses biologiques',
+        showBackButton: false,
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh, color: Color(0xFF3B82F6)),
+            icon: Icon(Icons.refresh, color: Colors.white, size: 5.w),
             onPressed: _loadLaboratoryResults,
           ),
         ],
@@ -533,21 +837,33 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
         children: [
           Container(
             decoration: BoxDecoration(
-              image: DecorationImage(
+              color: _themeService.isDarkMode ? Color(0xFF0F172A) : Colors.white,
+              image: !_themeService.isDarkMode ? DecorationImage(
                 image: AssetImage("assets/images/overlay2.jpeg"),
                 fit: BoxFit.cover,
-              ),
+              ) : null,
             ),
           ),
+          if (_themeService.isDarkMode)
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF0F172A),
+                    Color(0xFF1E293B),
+                  ],
+                ),
+              ),
+            ),
           // Container(
           //   color: Colors.white.withOpacity(0.85),
           // ),
           _isLoading
-              ? Center(
-                  child: CircularProgressIndicator(
-                    color: Color(0xFF3B82F6),
-                  ),
-                )
+              ? ImagerySkeletonLoader(itemCount: 6)
               : _error != null
                   ? Center(
                       child: Column(
@@ -629,12 +945,20 @@ class _LaboratoryResultsListState extends State<LaboratoryResultsList> {
                                 ),
                               ],
                             )
-                          : ListView.builder(
-                              padding: EdgeInsets.all(4.w),
-                              itemCount: _laboratoryResults.length,
-                              itemBuilder: (context, index) {
-                                return _buildResultCard(_laboratoryResults[index]);
-                              },
+                          : Column(
+                              children: [
+                                _buildExpirationWarning(),
+                                _buildFilterChips(),
+                                Expanded(
+                                  child: ListView.builder(
+                                    padding: EdgeInsets.all(4.w),
+                                    itemCount: _filteredResults.length,
+                                    itemBuilder: (context, index) {
+                                      return _buildResultCard(_filteredResults[index]);
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
                     ),
         ],

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/storage_service.dart';
+import '../../../services/theme_service.dart';
 import '../../patient-widgets/widgets/patient_sidebar.dart';
 import 'widgets/request_card.dart';
 import 'widgets/new_request_dialog.dart';
+import '../imagery_results_list/widgets/imagery_skeleton_loader.dart';
+import '../../patient-widgets/widgets/professional_app_bar.dart';
 
 class PatientRequestsList extends StatefulWidget {
   const PatientRequestsList({super.key});
@@ -20,10 +23,12 @@ class _PatientRequestsListState extends State<PatientRequestsList> {
   String _searchQuery = '';
   String _selectedStatus = 'Tous les Statuts';
   String? _error;
+  late ThemeService _themeService;
 
   @override
   void initState() {
     super.initState();
+    _themeService = ThemeService();
     _loadRequests();
   }
 
@@ -116,37 +121,56 @@ class _PatientRequestsListState extends State<PatientRequestsList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: _themeService.isDarkMode ? Color(0xFF0F172A) : Colors.grey[50],
       drawer: Drawer(
         child: PatientSidebar(
           currentRoute: '/patient-requests',
           onLogout: _handleLogout,
         ),
       ),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.white,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: Color(0xFF3B82F6)),
-            onPressed: () => Scaffold.of(context).openDrawer(),
+      appBar: ProfessionalAppBar(
+        title: 'Mes Requêtes',
+        subtitle: 'Demandes médicales',
+        showBackButton: false,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: Colors.white, size: 5.w),
+            onPressed: _loadRequests,
           ),
-        ),
-        title: Text(
-          'Mes Requêtes Médicales',
-          style: TextStyle(
-            color: Color(0xFF3B82F6),
-            fontWeight: FontWeight.bold,
-            fontSize: 18.sp,
-          ),
-        ),
-
+        ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          _buildHeader(),
-          Expanded(child: _buildRequestsList()),
+          if (!_themeService.isDarkMode)
+            Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/overlay2.jpeg"),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          if (_themeService.isDarkMode)
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF0F172A),
+                    Color(0xFF1E293B),
+                  ],
+                ),
+              ),
+            ),
+          Column(
+            children: [
+              _buildHeader(),
+              Expanded(child: _buildRequestsList()),
+            ],
+          ),
         ],
       ),
     );
@@ -156,7 +180,7 @@ class _PatientRequestsListState extends State<PatientRequestsList> {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -169,15 +193,15 @@ class _PatientRequestsListState extends State<PatientRequestsList> {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[100],
               borderRadius: BorderRadius.circular(12),
             ),
             child: TextField(
               onChanged: _onSearchChanged,
               decoration: InputDecoration(
                 hintText: 'Rechercher des requêtes...',
-                hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14.sp),
-                prefixIcon: Icon(Icons.search, color: Colors.grey[500], size: 5.w),
+                hintStyle: TextStyle(color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[500], fontSize: 14.sp),
+                prefixIcon: Icon(Icons.search, color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[500], size: 5.w),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
               ),
@@ -190,11 +214,28 @@ class _PatientRequestsListState extends State<PatientRequestsList> {
                 child: DropdownButtonFormField<String>(
                   value: _selectedStatus,
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[300]!),
+                    ),
                     contentPadding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.h),
+                    fillColor: _themeService.isDarkMode ? Color(0xFF374151) : Colors.white,
+                    filled: true,
                   ),
+                  style: TextStyle(color: _themeService.isDarkMode ? Colors.white : Colors.black87),
+                  dropdownColor: _themeService.isDarkMode ? Color(0xFF374151) : Colors.white,
                   items: ['Tous les Statuts', 'En Attente', 'Validé']
-                      .map((status) => DropdownMenuItem(value: status, child: Text(status)))
+                      .map((status) => DropdownMenuItem(
+                        value: status, 
+                        child: Text(
+                          status,
+                          style: TextStyle(color: _themeService.isDarkMode ? Colors.white : Colors.black87),
+                        )
+                      ))
                       .toList(),
                   onChanged: _onStatusChanged,
                 ),
@@ -202,13 +243,13 @@ class _PatientRequestsListState extends State<PatientRequestsList> {
               SizedBox(width: 3.w),
               ElevatedButton.icon(
                 onPressed: _showNewRequestDialog,
-                icon: Icon(Icons.add, size: 4.w),
+                icon: Icon(Icons.add, size: 5.w),
                 label: Text(
                   'Nouvelle',
-                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF64748B),
+                  backgroundColor: Color.fromARGB(255, 59, 134, 240),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.h),
@@ -223,7 +264,7 @@ class _PatientRequestsListState extends State<PatientRequestsList> {
 
   Widget _buildRequestsList() {
     if (_isLoading) {
-      return Center(child: CircularProgressIndicator(color: Color(0xFF3B82F6)));
+      return ImagerySkeletonLoader(itemCount: 6);
     }
 
     if (_error != null) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import '../../../../services/theme_service.dart';
 
 /// Skeleton loader widget for imagery results loading state
 class ImagerySkeletonLoader extends StatefulWidget {
@@ -18,10 +19,12 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
+  final ThemeService _themeService = ThemeService();
 
   @override
   void initState() {
     super.initState();
+    _themeService.addListener(_onThemeChanged);
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
@@ -37,49 +40,55 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
 
   @override
   void dispose() {
+    _themeService.removeListener(_onThemeChanged);
     _animationController.dispose();
     super.dispose();
   }
 
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 2.h),
       itemCount: widget.itemCount,
       itemBuilder: (context, index) => AnimatedBuilder(
         animation: _animation,
-        builder: (context, child) => _buildSkeletonCard(colorScheme),
+        builder: (context, child) => _buildSkeletonCard(),
       ),
     );
   }
 
-  Widget _buildSkeletonCard(ColorScheme colorScheme) {
-    return Card(
+  Widget _buildSkeletonCard() {
+    return Container(
       margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
+      child: Material(
+        elevation: 2,
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
+        shadowColor: _themeService.isDarkMode ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: Container(
-        padding: EdgeInsets.all(4.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSkeletonHeader(colorScheme),
-            SizedBox(height: 2.h),
-            _buildSkeletonContent(colorScheme),
-            SizedBox(height: 2.h),
-            _buildSkeletonFooter(colorScheme),
-          ],
+        child: Container(
+          padding: EdgeInsets.all(4.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSkeletonHeader(),
+              SizedBox(height: 2.h),
+              _buildSkeletonContent(),
+              SizedBox(height: 2.h),
+              _buildSkeletonFooter(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildSkeletonHeader(ColorScheme colorScheme) {
+  Widget _buildSkeletonHeader() {
     return Row(
       children: [
         // Thumbnail skeleton
@@ -87,7 +96,6 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
           width: 15.w,
           height: 15.w,
           borderRadius: 8,
-          colorScheme: colorScheme,
         ),
         SizedBox(width: 3.w),
         Expanded(
@@ -101,7 +109,6 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
                       width: double.infinity,
                       height: 2.h,
                       borderRadius: 4,
-                      colorScheme: colorScheme,
                     ),
                   ),
                   SizedBox(width: 2.w),
@@ -109,7 +116,6 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
                     width: 15.w,
                     height: 2.h,
                     borderRadius: 12,
-                    colorScheme: colorScheme,
                   ),
                 ],
               ),
@@ -118,14 +124,12 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
                 width: 70.w,
                 height: 1.5.h,
                 borderRadius: 4,
-                colorScheme: colorScheme,
               ),
               SizedBox(height: 0.5.h),
               _buildSkeletonBox(
                 width: 50.w,
                 height: 1.5.h,
                 borderRadius: 4,
-                colorScheme: colorScheme,
               ),
             ],
           ),
@@ -134,7 +138,7 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
     );
   }
 
-  Widget _buildSkeletonContent(ColorScheme colorScheme) {
+  Widget _buildSkeletonContent() {
     return Column(
       children: List.generate(
           3,
@@ -147,7 +151,6 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
                       width: 25.w,
                       height: 1.5.h,
                       borderRadius: 4,
-                      colorScheme: colorScheme,
                     ),
                     SizedBox(width: 3.w),
                     Expanded(
@@ -155,7 +158,6 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
                         width: double.infinity,
                         height: 1.5.h,
                         borderRadius: 4,
-                        colorScheme: colorScheme,
                       ),
                     ),
                   ],
@@ -164,21 +166,19 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
     );
   }
 
-  Widget _buildSkeletonFooter(ColorScheme colorScheme) {
+  Widget _buildSkeletonFooter() {
     return Row(
       children: [
         _buildSkeletonBox(
           width: 20.w,
           height: 3.h,
           borderRadius: 8,
-          colorScheme: colorScheme,
         ),
         Spacer(),
         _buildSkeletonBox(
           width: 6.w,
           height: 6.w,
           borderRadius: 3.w,
-          colorScheme: colorScheme,
         ),
       ],
     );
@@ -188,7 +188,6 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
     required double width,
     required double height,
     required double borderRadius,
-    required ColorScheme colorScheme,
   }) {
     return Opacity(
       opacity: _animation.value,
@@ -196,7 +195,7 @@ class _ImagerySkeletonLoaderState extends State<ImagerySkeletonLoader>
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: colorScheme.onSurface.withValues(alpha: 0.1),
+          color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[300],
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),

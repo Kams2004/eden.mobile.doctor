@@ -3,6 +3,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../../patient-core/core/app_export.dart';
 import '../../../patient-widgets/widgets/custom_icon_widget.dart';
+import '../../../../services/theme_service.dart';
 
 class AnalysisCategoryWidget extends StatefulWidget {
   final String categoryName;
@@ -25,6 +26,7 @@ class _AnalysisCategoryWidgetState extends State<AnalysisCategoryWidget>
   late AnimationController _animationController;
   late Animation<double> _expandAnimation;
   bool _isExpanded = true;
+  final ThemeService _themeService = ThemeService();
 
   @override
   void initState() {
@@ -69,11 +71,11 @@ class _AnalysisCategoryWidgetState extends State<AnalysisCategoryWidget>
     return Container(
       margin: EdgeInsets.only(bottom: 2.h),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(3.w),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow,
+            color: _themeService.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.05),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -88,7 +90,7 @@ class _AnalysisCategoryWidgetState extends State<AnalysisCategoryWidget>
               width: double.infinity,
               padding: EdgeInsets.all(4.w),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.1),
+                color: _themeService.isDarkMode ? Color(0xFF374151) : Color(0xFF3B82F6).withOpacity(0.1),
                 borderRadius: _isExpanded
                     ? BorderRadius.vertical(top: Radius.circular(3.w))
                     : BorderRadius.circular(3.w),
@@ -100,7 +102,7 @@ class _AnalysisCategoryWidgetState extends State<AnalysisCategoryWidget>
                       widget.categoryName,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: colorScheme.primary,
+                        color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6),
                       ),
                     ),
                   ),
@@ -109,7 +111,7 @@ class _AnalysisCategoryWidgetState extends State<AnalysisCategoryWidget>
                     duration: const Duration(milliseconds: 300),
                     child: CustomIconWidget(
                       iconName: 'keyboard_arrow_down',
-                      color: colorScheme.primary,
+                      color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6),
                       size: 6.w,
                     ),
                   ),
@@ -165,7 +167,7 @@ class _AnalysisCategoryWidgetState extends State<AnalysisCategoryWidget>
                   testName,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurface,
+                    color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                   ),
                 ),
               ),
@@ -207,7 +209,7 @@ class _AnalysisCategoryWidgetState extends State<AnalysisCategoryWidget>
                     Text(
                       'Résultat',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                       ),
                     ),
                     Text(
@@ -228,13 +230,13 @@ class _AnalysisCategoryWidgetState extends State<AnalysisCategoryWidget>
                     Text(
                       'Valeurs de référence',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                       ),
                     ),
                     Text(
                       referenceRange,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurface,
+                        color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                       ),
                     ),
                   ],

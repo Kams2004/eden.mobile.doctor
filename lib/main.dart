@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
-
 import '../core/app_export.dart';
 import '../widgets/custom_error_widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,9 +41,11 @@ class MyApp extends StatelessWidget {
     return Sizer(builder: (context, orientation, screenType) {
       return MaterialApp(
         title: 'eden_medical',
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.light,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          textTheme: GoogleFonts.montserratTextTheme(),
+        ),
         // 🚨 CRITICAL: NEVER REMOVE OR MODIFY
         builder: (context, child) {
           return MediaQuery(
@@ -55,8 +57,8 @@ class MyApp extends StatelessWidget {
         },
         // 🚨 END CRITICAL SECTION
         debugShowCheckedModeBanner: false,
-        routes: AppRoutes.routes,
-        initialRoute: AppRoutes.initial,
+              routes: AppRoutes.routes,
+              initialRoute: AppRoutes.initial,
       );
     });
   }

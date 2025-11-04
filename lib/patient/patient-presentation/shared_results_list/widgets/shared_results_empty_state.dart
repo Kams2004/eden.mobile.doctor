@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import '../../../../services/theme_service.dart';
 
-class SharedResultsEmptyState extends StatelessWidget {
+class SharedResultsEmptyState extends StatefulWidget {
   final bool isSearchResult;
   final String searchQuery;
   final VoidCallback onRefresh;
@@ -14,25 +15,32 @@ class SharedResultsEmptyState extends StatelessWidget {
   });
 
   @override
+  State<SharedResultsEmptyState> createState() => _SharedResultsEmptyStateState();
+}
+
+class _SharedResultsEmptyStateState extends State<SharedResultsEmptyState> {
+  final ThemeService _themeService = ThemeService();
+
+  @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            isSearchResult ? Icons.search_off : Icons.share_outlined,
+            widget.isSearchResult ? Icons.search_off : Icons.share_outlined,
             size: 15.w,
-            color: Colors.grey[400],
+            color: _themeService.isDarkMode ? Color(0xFF6B7280) : Colors.grey[400],
           ),
           SizedBox(height: 2.h),
           Text(
-            isSearchResult 
-                ? 'Aucun résultat pour "$searchQuery"'
+            widget.isSearchResult 
+                ? 'Aucun résultat pour "${widget.searchQuery}"'
                 : 'Aucun résultat partagé',
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
+              color: _themeService.isDarkMode ? Colors.white : Colors.grey[600],
             ),
             textAlign: TextAlign.center,
           ),
@@ -40,19 +48,19 @@ class SharedResultsEmptyState extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.w),
             child: Text(
-              isSearchResult
+              widget.isSearchResult
                   ? 'Essayez de modifier votre recherche ou d\'ajuster les filtres'
                   : 'Vos résultats partagés avec les médecins apparaîtront ici',
               style: TextStyle(
                 fontSize: 14.sp,
-                color: Colors.grey[500],
+                color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[500],
               ),
               textAlign: TextAlign.center,
             ),
           ),
           SizedBox(height: 3.h),
           ElevatedButton.icon(
-            onPressed: onRefresh,
+            onPressed: widget.onRefresh,
             icon: Icon(Icons.refresh),
             label: Text('Actualiser'),
             style: ElevatedButton.styleFrom(

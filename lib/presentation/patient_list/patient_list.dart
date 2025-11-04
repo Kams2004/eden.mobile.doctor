@@ -231,11 +231,11 @@ class _PatientListState extends State<PatientList> {
     final exams = (patient['exams'] as List<dynamic>?) ?? [];
     
     String examDetails = exams.map((exam) => 
-      '${exam['type']}: ${exam['amount'].toStringAsFixed(0)} FCFA'
+      '${exam['type']}: ${exam['amount'].toStringAsFixed(0)} POINTS'
     ).join('\n');
     
     Fluttertoast.showToast(
-      msg: "Total: ${totalAmount.toStringAsFixed(0)} FCFA\n$examDetails",
+      msg: "Total: ${totalAmount.toStringAsFixed(0)} POINTS\n$examDetails",
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
     );
@@ -339,11 +339,7 @@ class _PatientListState extends State<PatientList> {
             ),
           ),
           // White overlay for readability
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            color: Colors.white.withOpacity(.70),
-          ),
+      
           Column(
             children: [
               // AppBar
@@ -400,12 +396,12 @@ class _PatientListState extends State<PatientList> {
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                // Text(
-            //   'Commission totale: ${_totalCommission.toStringAsFixed(2)} FCFA',
-            //   style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
-            //     color: AppTheme.lightTheme.colorScheme.primary,
-            //   ),
-            // ),
+                Text(
+              'Commission totale: ${_totalCommission.toStringAsFixed(2)} POINTS',
+              style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
+                color: AppTheme.lightTheme.colorScheme.primary,
+              ),
+            ),
                   ],
                 ),
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/storage_service.dart';
+import '../../../services/theme_service.dart';
 
 class ImageryResultDetail extends StatefulWidget {
   const ImageryResultDetail({super.key});
@@ -12,6 +13,9 @@ class ImageryResultDetail extends StatefulWidget {
 
 class _ImageryResultDetailState extends State<ImageryResultDetail> {
   Map<String, dynamic>? _resultData;
+  bool _isLoading = false;
+  String? _error;
+  final ThemeService _themeService = ThemeService();
 
   @override
   void didChangeDependencies() {
@@ -19,40 +23,221 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null && _resultData == null) {
       _resultData = args;
+      _loadImageryDetails();
     }
+  }
+
+  Future<void> _loadImageryDetails() async {
+    // Skip API call for now since endpoint returns 404
+    // Just simulate loading and show the data we already have
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    
+    await Future.delayed(Duration(milliseconds: 500));
+    
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Widget _buildErrorWidget() {
+    // Check if error contains unpaid bills message
+    bool isUnpaidBillsError = _error!.contains('factures impayées') || 
+                              _error!.contains('Vous avez des factures impayées');
+    
+    if (isUnpaidBillsError) {
+      return Center(
+        child: Container(
+          margin: EdgeInsets.all(6.w),
+          padding: EdgeInsets.all(6.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(4.w),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFEF3C7),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.receipt_long,
+                  size: 12.w,
+                  color: Color(0xFFF59E0B),
+                ),
+              ),
+              SizedBox(height: 3.h),
+              Text(
+                'Factures Impayées',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: _themeService.isDarkMode ? Colors.white : Color(0xFF1F2937),
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                'Vous avez des factures impayées. Veuillez les régler pour accéder à vos résultats.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Color(0xFF6B7280),
+                  height: 1.5,
+                ),
+              ),
+              SizedBox(height: 3.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Color(0xFF3B82F6)),
+                        padding: EdgeInsets.symmetric(vertical: 3.w),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Retour',
+                        style: TextStyle(
+                          color: Color(0xFF3B82F6),
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 4.w),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/patient-invoices');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF3B82F6),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 3.w),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Voir Factures',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    
+    // Default error widget
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 15.w,
+            color: Colors.red,
+          ),
+          SizedBox(height: 2.h),
+          Text(
+            'Erreur de chargement',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.red,
+            ),
+          ),
+          SizedBox(height: 1.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            child: Text(
+              _error!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          SizedBox(height: 3.h),
+          ElevatedButton(
+            onPressed: _loadImageryDetails,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF3B82F6),
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Réessayer'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     if (_resultData == null) {
       return Scaffold(
+        backgroundColor: _themeService.isDarkMode ? Color(0xFF0F172A) : Colors.grey[50],
         appBar: AppBar(
-          title: Text('Détail du Résultat'),
+          backgroundColor: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
+          elevation: 0,
+          surfaceTintColor: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
+          title: Text(
+            'Détail du Résultat',
+            style: TextStyle(color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6)),
+          ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back, color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6)),
             onPressed: () => Navigator.pop(context),
           ),
         ),
         body: Center(
-          child: Text('Aucune donnée disponible'),
+          child: Text(
+            'Aucune donnée disponible',
+            style: TextStyle(color: _themeService.isDarkMode ? Colors.white : Colors.black87),
+          ),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: _themeService.isDarkMode ? Color(0xFF0F172A) : Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         elevation: 0,
-        surfaceTintColor: Colors.white,
+        surfaceTintColor: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF3B82F6)),
+          icon: Icon(Icons.arrow_back, color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Détail de l\'Imagerie',
           style: TextStyle(
-            color: Color(0xFF3B82F6),
+            color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6),
             fontWeight: FontWeight.bold,
             fontSize: 18.sp,
           ),
@@ -68,21 +253,35 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
               ),
             ),
           ),
-          SingleChildScrollView(
-            padding: EdgeInsets.all(4.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildResultHeader(),
-                SizedBox(height: 3.h),
-                _buildResultDetails(),
-                SizedBox(height: 3.h),
-                _buildMedicalDisclaimer(),
-                SizedBox(height: 3.h),
-                _buildActionButtons(),
-              ],
+          Container(
+            decoration: BoxDecoration(
+              color: _themeService.isDarkMode ? Color(0xFF0F172A).withOpacity(0.85) : Colors.white.withOpacity(0.85),
             ),
           ),
+        
+          _isLoading
+              ? Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF3B82F6),
+                  ),
+                )
+              : _error != null
+                  ? _buildErrorWidget()
+                  : SingleChildScrollView(
+                      padding: EdgeInsets.all(4.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildResultHeader(),
+                          SizedBox(height: 3.h),
+                          _buildResultDetails(),
+                          SizedBox(height: 3.h),
+                          _buildMedicalDisclaimer(),
+                          SizedBox(height: 3.h),
+                          // _buildActionButtons(),
+                        ],
+                      ),
+                    ),
         ],
       ),
     );
@@ -143,7 +342,7 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
                       _resultData!['requested_test'] ?? _resultData!['test'] ?? 'Examen d\'imagerie',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20.sp,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 2,
@@ -169,44 +368,7 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
               ),
             ],
           ),
-          SizedBox(height: 3.h),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Code',
-                  _resultData!['number'] ?? 'N/A',
-                  Icons.qr_code,
-                ),
-              ),
-              Expanded(
-                child: _buildInfoItem(
-                  'Patient',
-                  _resultData!['patient'] ?? 'N/A',
-                  Icons.person_outline,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 2.h),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Date d\'analyse',
-                  _formatDate(_resultData!['date'] ?? _resultData!['done_date']),
-                  Icons.calendar_today_outlined,
-                ),
-              ),
-              Expanded(
-                child: _buildInfoItem(
-                  'Statut',
-                  _resultData!['state'] == 'validated' ? 'Validé' : 'En cours',
-                  Icons.verified_user_outlined,
-                ),
-              ),
-            ],
-          ),
+         
         ],
       ),
     );
@@ -253,9 +415,9 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!, width: 1),
+        border: Border.all(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[200]!, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,12 +427,12 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: _themeService.isDarkMode ? Colors.white : Colors.black87,
             ),
           ),
           SizedBox(height: 2.h),
           if (_resultData!['requestor'] != null) ...[
-            _buildDetailRow('Demandeur', _resultData!['requestor']),
+            _buildDetailRow('Médecin prescripteur', _resultData!['requestor']),
             SizedBox(height: 1.h),
           ],
           if (_resultData!['request_date'] != null) ...[
@@ -308,22 +470,22 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: _themeService.isDarkMode ? Colors.white : Colors.black87,
               ),
             ),
             SizedBox(height: 1.h),
             Container(
               padding: EdgeInsets.all(3.w),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.05),
+                color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.blue.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                border: Border.all(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.blue.withOpacity(0.2)),
               ),
               child: Text(
                 _resultData!['conclusion'].toString().trim(),
                 style: TextStyle(
                   fontSize: 15.sp,
-                  color: Colors.grey[700],
+                  color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[700],
                   height: 1.5,
                 ),
               ),
@@ -336,22 +498,22 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: _themeService.isDarkMode ? Colors.white : Colors.black87,
               ),
             ),
             SizedBox(height: 1.h),
             Container(
               padding: EdgeInsets.all(3.w),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.05),
+                color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.green.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green.withOpacity(0.2)),
+                border: Border.all(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.green.withOpacity(0.2)),
               ),
               child: Text(
                 _resultData!['resultat'].toString().trim(),
                 style: TextStyle(
                   fontSize: 15.sp,
-                  color: Colors.grey[700],
+                  color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[700],
                   height: 1.5,
                 ),
               ),
@@ -373,7 +535,7 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w500,
-              color: Colors.grey[600],
+              color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
             ),
           ),
         ),
@@ -383,7 +545,7 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
             style: TextStyle(
               fontSize: 13.sp,
               fontWeight: FontWeight.w400,
-              color: Colors.black87,
+              color: _themeService.isDarkMode ? Colors.white : Colors.black87,
             ),
           ),
         ),
@@ -395,9 +557,9 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[300]!, width: 1),
+        border: Border.all(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[300]!, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,7 +568,7 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
             children: [
               Icon(
                 Icons.info_outline,
-                color: Colors.grey[700],
+                color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[700],
                 size: 4.w,
               ),
               SizedBox(width: 2.w),
@@ -415,7 +577,7 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
                 style: TextStyle(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                 ),
               ),
             ],
@@ -425,7 +587,7 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
             'Ces résultats doivent être interprétés par un professionnel de santé qualifié. En cas de question ou de préoccupation concernant ces résultats, veuillez consulter votre médecin traitant.',
             style: TextStyle(
               fontSize: 13.sp,
-              color: Colors.grey[700],
+              color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[700],
               fontWeight: FontWeight.w400,
               height: 1.5,
             ),
@@ -435,83 +597,83 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
     );
   }
 
-  Widget _buildActionButtons() {
-    return Container(
-      padding: EdgeInsets.all(4.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Actions',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          SizedBox(height: 2.h),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _showShareDialog(),
-                  icon: Icon(
-                    Icons.share_outlined,
-                    size: 4.w,
-                  ),
-                  label: Text(
-                    'Partager',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF10B981),
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: 2.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 3.w),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _handleDownloadReport,
-                  icon: Icon(
-                    Icons.download_outlined,
-                    size: 4.w,
-                  ),
-                  label: Text(
-                    'Télécharger',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF3B82F6),
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: 2.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildActionButtons() {
+  //   return Container(
+  //     padding: EdgeInsets.all(4.w),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //       border: Border.all(color: Colors.grey[200]!, width: 1),
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Text(
+  //           'Actions',
+  //           style: TextStyle(
+  //             fontSize: 16.sp,
+  //             fontWeight: FontWeight.bold,
+  //             color: Colors.black87,
+  //           ),
+  //         ),
+  //         SizedBox(height: 2.h),
+  //         Row(
+  //           children: [
+  //             Expanded(
+  //               child: ElevatedButton.icon(
+  //                 onPressed: () => _showShareDialog(),
+  //                 icon: Icon(
+  //                   Icons.share_outlined,
+  //                   size: 4.w,
+  //                 ),
+  //                 label: Text(
+  //                   'Partager',
+  //                   style: TextStyle(
+  //                     fontSize: 14.sp,
+  //                     fontWeight: FontWeight.w600,
+  //                   ),
+  //                 ),
+  //                 style: ElevatedButton.styleFrom(
+  //                   backgroundColor: Color(0xFF10B981),
+  //                   foregroundColor: Colors.white,
+  //                   padding: EdgeInsets.symmetric(vertical: 2.h),
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(8),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //             SizedBox(width: 3.w),
+  //             Expanded(
+  //               child: ElevatedButton.icon(
+  //                 onPressed: _handleDownloadReport,
+  //                 icon: Icon(
+  //                   Icons.download_outlined,
+  //                   size: 4.w,
+  //                 ),
+  //                 label: Text(
+  //                   'Télécharger',
+  //                   style: TextStyle(
+  //                     fontSize: 14.sp,
+  //                     fontWeight: FontWeight.w600,
+  //                   ),
+  //                 ),
+  //                 style: ElevatedButton.styleFrom(
+  //                   backgroundColor: Color(0xFF3B82F6),
+  //                   foregroundColor: Colors.white,
+  //                   padding: EdgeInsets.symmetric(vertical: 2.h),
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(8),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   String _formatDate(String? dateString) {
     if (dateString == null || dateString.isEmpty) return 'Non disponible';
@@ -558,127 +720,127 @@ class _ImageryResultDetailState extends State<ImageryResultDetail> {
     }
   }
 
-  void _showShareDialog() {
-    final TextEditingController matriculeController = TextEditingController();
-    bool isSearching = false;
-    String? doctorName;
+  // void _showShareDialog() {
+  //   final TextEditingController matriculeController = TextEditingController();
+  //   bool isSearching = false;
+  //   String? doctorName;
     
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Row(
-                children: [
-                  Icon(Icons.share_outlined, color: Color(0xFF3B82F6), size: 6.w),
-                  SizedBox(width: 2.w),
-                  Text('Partager le résultat', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600)),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(3.w),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.blue.withOpacity(0.3)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Examen à partager:', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.blue[700])),
-                        SizedBox(height: 0.5.h),
-                        Text('Type: Imagerie', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600)),
-                        Text('Code: ${_resultData!['number'] ?? _resultData!['id'] ?? 'N/A'}', style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text('Matricule du médecin:', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500)),
-                  SizedBox(height: 1.h),
-                  TextField(
-                    controller: matriculeController,
-                    onChanged: (value) {
-                      setState(() {
-                        if (value.isNotEmpty && doctorName == null) {
-                          Future.delayed(Duration(milliseconds: 300), () {
-                            if (matriculeController.text.isNotEmpty) {
-                              setState(() {
-                                doctorName = 'Dr. ${matriculeController.text.toUpperCase()}';
-                              });
-                            }
-                          });
-                        } else if (value.isEmpty) {
-                          doctorName = null;
-                        }
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Entrez le matricule',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      suffixIcon: IconButton(
-                        icon: isSearching ? SizedBox(width: 4.w, height: 4.w, child: CircularProgressIndicator(strokeWidth: 2)) : Icon(Icons.search),
-                        onPressed: () async {
-                          if (matriculeController.text.isNotEmpty) {
-                            setState(() { isSearching = true; });
-                            await Future.delayed(Duration(milliseconds: 500));
-                            setState(() { 
-                              isSearching = false;
-                              doctorName = 'Dr. ${matriculeController.text.toUpperCase()}';
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                  if (doctorName != null) ...[
-                    SizedBox(height: 2.h),
-                    Container(
-                      padding: EdgeInsets.all(3.w),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green.withOpacity(0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.green, size: 5.w),
-                          SizedBox(width: 2.w),
-                          Text('Médecin trouvé: $doctorName', style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.w500)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Annuler', style: TextStyle(color: Colors.grey[600])),
-                ),
-                ElevatedButton(
-                  onPressed: (doctorName != null && matriculeController.text.isNotEmpty) ? () async {
-                    Navigator.pop(context);
-                    await _shareResult();
-                  } : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF3B82F6),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: Text('Partager', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           return AlertDialog(
+  //             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  //             title: Row(
+  //               children: [
+  //                 Icon(Icons.share_outlined, color: Color(0xFF3B82F6), size: 6.w),
+  //                 SizedBox(width: 2.w),
+  //                 Text('Partager le résultat', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600)),
+  //               ],
+  //             ),
+  //             content: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Container(
+  //                   padding: EdgeInsets.all(3.w),
+  //                   decoration: BoxDecoration(
+  //                     color: Colors.blue.withOpacity(0.1),
+  //                     borderRadius: BorderRadius.circular(8),
+  //                     border: Border.all(color: Colors.blue.withOpacity(0.3)),
+  //                   ),
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       Text('Examen à partager:', style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500, color: Colors.blue[700])),
+  //                       SizedBox(height: 0.5.h),
+  //                       Text('Type: Imagerie', style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600)),
+  //                       Text('Code: ${_resultData!['number'] ?? _resultData!['id'] ?? 'N/A'}', style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600)),
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 SizedBox(height: 2.h),
+  //                 Text('Matricule du médecin:', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500)),
+  //                 SizedBox(height: 1.h),
+  //                 TextField(
+  //                   controller: matriculeController,
+  //                   onChanged: (value) {
+  //                     setState(() {
+  //                       if (value.isNotEmpty && doctorName == null) {
+  //                         Future.delayed(Duration(milliseconds: 300), () {
+  //                           if (matriculeController.text.isNotEmpty) {
+  //                             setState(() {
+  //                               doctorName = 'Dr. ${matriculeController.text.toUpperCase()}';
+  //                             });
+  //                           }
+  //                         });
+  //                       } else if (value.isEmpty) {
+  //                         doctorName = null;
+  //                       }
+  //                     });
+  //                   },
+  //                   decoration: InputDecoration(
+  //                     hintText: 'Entrez le matricule',
+  //                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+  //                     suffixIcon: IconButton(
+  //                       icon: isSearching ? SizedBox(width: 4.w, height: 4.w, child: CircularProgressIndicator(strokeWidth: 2)) : Icon(Icons.search),
+  //                       onPressed: () async {
+  //                         if (matriculeController.text.isNotEmpty) {
+  //                           setState(() { isSearching = true; });
+  //                           await Future.delayed(Duration(milliseconds: 500));
+  //                           setState(() { 
+  //                             isSearching = false;
+  //                             doctorName = 'Dr. ${matriculeController.text.toUpperCase()}';
+  //                           });
+  //                         }
+  //                       },
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 if (doctorName != null) ...[
+  //                   SizedBox(height: 2.h),
+  //                   Container(
+  //                     padding: EdgeInsets.all(3.w),
+  //                     decoration: BoxDecoration(
+  //                       color: Colors.green.withOpacity(0.1),
+  //                       borderRadius: BorderRadius.circular(8),
+  //                       border: Border.all(color: Colors.green.withOpacity(0.3)),
+  //                     ),
+  //                     child: Row(
+  //                       children: [
+  //                         Icon(Icons.check_circle, color: Colors.green, size: 5.w),
+  //                         SizedBox(width: 2.w),
+  //                         Text('Médecin trouvé: $doctorName', style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.w500)),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ],
+  //             ),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () => Navigator.pop(context),
+  //                 child: Text('Annuler', style: TextStyle(color: Colors.grey[600])),
+  //               ),
+  //               ElevatedButton(
+  //                 onPressed: (doctorName != null && matriculeController.text.isNotEmpty) ? () async {
+  //                   Navigator.pop(context);
+  //                   await _shareResult();
+  //                 } : null,
+  //                 style: ElevatedButton.styleFrom(
+  //                   backgroundColor: Color(0xFF3B82F6),
+  //                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+  //                 ),
+  //                 child: Text('Partager', style: TextStyle(color: Colors.white)),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   Future<void> _shareResult() async {
     try {

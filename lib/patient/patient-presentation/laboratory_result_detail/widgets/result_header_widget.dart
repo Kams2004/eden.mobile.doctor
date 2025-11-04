@@ -149,7 +149,7 @@ class ResultHeaderWidget extends StatelessWidget {
                       resultData['test'] ?? resultData['name'] ?? 'Test de laboratoire',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18.sp,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 2,
@@ -176,37 +176,19 @@ class ResultHeaderWidget extends StatelessWidget {
             ],
           ),
           SizedBox(height: 3.h),
+         
           Row(
             children: [
               Expanded(
                 child: _buildInfoItem(
-                  'Code',
-                  resultData['name'] ?? 'N/A',
-                  Icons.qr_code,
-                ),
-              ),
-              Expanded(
-                child: _buildInfoItem(
-                  'Patient',
-                  resultData['patient'] ?? 'N/A',
-                  Icons.person_outline,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 2.h),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Date demandée',
+                  'Date/Heure demandée',
                   _formatDate(resultData['date_requested']),
                   Icons.schedule_outlined,
                 ),
               ),
               Expanded(
                 child: _buildInfoItem(
-                  'Date d\'analyse',
+                  'Date/Heure d\'analyse',
                   _formatDate(resultData['date_analysis']),
                   Icons.calendar_today_outlined,
                 ),
@@ -233,24 +215,7 @@ class ResultHeaderWidget extends StatelessWidget {
             ],
           ),
           SizedBox(height: 2.h),
-          Row(
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Demandeur',
-                  resultData['requestor'] ?? 'N/A',
-                  Icons.person_outline,
-                ),
-              ),
-              Expanded(
-                child: _buildInfoItem(
-                  'Validé par',
-                  resultData['validated_by'] ?? 'N/A',
-                  Icons.verified_user_outlined,
-                ),
-              ),
-            ],
-          ),
+      
         ],
       ),
     );

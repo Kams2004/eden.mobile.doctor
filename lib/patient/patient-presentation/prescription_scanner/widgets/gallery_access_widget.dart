@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../patient-widgets/widgets/custom_icon_widget.dart';
+import '../../../../services/theme_service.dart';
 
-class GalleryAccessWidget extends StatelessWidget {
+class GalleryAccessWidget extends StatefulWidget {
   final VoidCallback onTap;
 
   const GalleryAccessWidget({
@@ -12,9 +13,16 @@ class GalleryAccessWidget extends StatelessWidget {
   });
 
   @override
+  State<GalleryAccessWidget> createState() => _GalleryAccessWidgetState();
+}
+
+class _GalleryAccessWidgetState extends State<GalleryAccessWidget> {
+  final ThemeService _themeService = ThemeService();
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Container(
         width: 15.w,
         height: 15.w,

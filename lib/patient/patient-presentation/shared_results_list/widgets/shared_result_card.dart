@@ -1,15 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import '../../../../services/theme_service.dart';
 
-class SharedResultCard extends StatelessWidget {
+class SharedResultCard extends StatefulWidget {
   final Map<String, dynamic> result;
   final Function(Map<String, dynamic>) onDelete;
-
+  
   const SharedResultCard({
     super.key,
     required this.result,
     required this.onDelete,
   });
+
+  @override
+  State<SharedResultCard> createState() => _SharedResultCardState();
+}
+
+class _SharedResultCardState extends State<SharedResultCard> {
+  final ThemeService _themeService = ThemeService();
+
+  @override
+  void initState() {
+    super.initState();
+    _themeService.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    _themeService.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   String _formatDate(String? dateString) {
     if (dateString == null || dateString.isEmpty) return 'Non disponible';
@@ -77,7 +103,7 @@ class SharedResultCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
-                  color: Colors.orange[700],
+                  color: const Color.fromARGB(255, 20, 20, 20),
                 ),
               ),
               SizedBox(height: 2.h),
@@ -91,7 +117,7 @@ class SharedResultCard extends StatelessWidget {
                   children: [
                     TextSpan(text: 'Êtes-vous sûr de vouloir supprimer le partage de '),
                     TextSpan(
-                      text: result['exam_code'] ?? 'N/A',
+                      text: widget.result['exam_code'] ?? 'N/A',
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                     TextSpan(text: ' avec '),
@@ -136,7 +162,7 @@ class SharedResultCard extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                onDelete(result);
+                widget.onDelete(widget.result);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -159,11 +185,11 @@ class SharedResultCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 2.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: _themeService.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: Offset(0, 2),
           ),
@@ -194,11 +220,11 @@ class SharedResultCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        result['exam_code'] ?? 'N/A',
+                        widget.result['exam_code'] ?? 'N/A',
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                         ),
                       ),
                       Container(
@@ -208,7 +234,7 @@ class SharedResultCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          result['exam_type'] ?? 'N/A',
+                          widget.result['exam_type'] ?? 'N/A',
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w500,
@@ -235,20 +261,20 @@ class SharedResultCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: _themeService.isDarkMode ? Colors.white : Colors.black87,
               ),
             ),
             SizedBox(height: 1.h),
-            if (result['doctor_info'] != null) ...[
+            if (widget.result['doctor_info'] != null) ...[
               Row(
                 children: [
-                  Icon(Icons.person_outline, color: Colors.grey[500], size: 4.w),
+                  Icon(Icons.person_outline, color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[500], size: 4.w),
                   SizedBox(width: 1.w),
                   Text(
-                    'Spécialité: ${result['doctor_info']['Speciality'] ?? 'Non spécifiée'}',
+                    'Spécialité: ${widget.result['doctor_info']['Speciality'] ?? 'Non spécifiée'}',
                     style: TextStyle(
                       fontSize: 13.sp,
-                      color: Colors.grey[600],
+                      color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                     ),
                   ),
                 ],
@@ -256,13 +282,13 @@ class SharedResultCard extends StatelessWidget {
               SizedBox(height: 0.5.h),
               Row(
                 children: [
-                  Icon(Icons.flag_outlined, color: Colors.grey[500], size: 4.w),
+                  Icon(Icons.flag_outlined, color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[500], size: 4.w),
                   SizedBox(width: 1.w),
                   Text(
-                    'Pays: ${result['doctor_info']['DoctorNat'] ?? 'Non spécifié'}',
+                    'Pays: ${widget.result['doctor_info']['DoctorNat'] ?? 'Non spécifié'}',
                     style: TextStyle(
                       fontSize: 13.sp,
-                      color: Colors.grey[600],
+                      color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                     ),
                   ),
                 ],
@@ -270,14 +296,14 @@ class SharedResultCard extends StatelessWidget {
               SizedBox(height: 0.5.h),
               Row(
                 children: [
-                  Icon(Icons.email_outlined, color: Colors.grey[500], size: 4.w),
+                  Icon(Icons.email_outlined, color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[500], size: 4.w),
                   SizedBox(width: 1.w),
                   Expanded(
                     child: Text(
-                      'Email: ${result['doctor_info']['DoctorEmail'] ?? 'Non disponible'}',
+                      'Email: ${widget.result['doctor_info']['DoctorEmail'] ?? 'Non disponible'}',
                       style: TextStyle(
                         fontSize: 13.sp,
-                        color: Colors.grey[600],
+                        color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -288,13 +314,13 @@ class SharedResultCard extends StatelessWidget {
             ],
             Row(
               children: [
-                Icon(Icons.access_time, color: Colors.grey[500], size: 4.w),
+                Icon(Icons.access_time, color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[500], size: 4.w),
                 SizedBox(width: 1.w),
                 Text(
-                  'Envoyé le: ${_formatDate(result['sended_at'])}',
+                  'Envoyé le: ${_formatDate(widget.result['sended_at'])}',
                   style: TextStyle(
                     fontSize: 13.sp,
-                    color: Colors.grey[600],
+                    color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                   ),
                 ),
               ],
@@ -303,16 +329,16 @@ class SharedResultCard extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  result['envoi_email'] == true ? Icons.email : Icons.email_outlined,
-                  color: result['envoi_email'] == true ? Colors.green : Colors.grey[500],
+                  widget.result['envoi_email'] == true ? Icons.email : Icons.email_outlined,
+                  color: widget.result['envoi_email'] == true ? Colors.green : (_themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[500]),
                   size: 4.w,
                 ),
                 SizedBox(width: 1.w),
                 Text(
-                  result['envoi_email'] == true ? 'Email envoyé' : 'Email non envoyé',
+                  widget.result['envoi_email'] == true ? 'Email envoyé' : 'Email non envoyé',
                   style: TextStyle(
                     fontSize: 13.sp,
-                    color: result['envoi_email'] == true ? Colors.green[700] : Colors.grey[600],
+                    color: widget.result['envoi_email'] == true ? Colors.green[700] : (_themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600]),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -322,14 +348,14 @@ class SharedResultCard extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.5.h),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[100],
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                'ID: ${result['patient_federation_id'] ?? 'N/A'}',
+                'ID: ${widget.result['patient_federation_id'] ?? 'N/A'}',
                 style: TextStyle(
                   fontSize: 11.sp,
-                  color: Colors.grey[600],
+                  color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                   fontFamily: 'monospace',
                 ),
               ),
@@ -341,7 +367,7 @@ class SharedResultCard extends StatelessWidget {
   }
 
   Color _getTypeColor() {
-    switch (result['exam_type']) {
+    switch (widget.result['exam_type']) {
       case 'Laboratoire':
         return Color(0xFF3B82F6);
       case 'Imagerie':
@@ -354,11 +380,11 @@ class SharedResultCard extends StatelessWidget {
   }
 
   String _getDoctorName() {
-    if (result['doctor_info'] != null) {
-      final firstName = result['doctor_info']['DoctorName'] ?? '';
-      final lastName = result['doctor_info']['DoctorLastname'] ?? '';
+    if (widget.result['doctor_info'] != null) {
+      final firstName = widget.result['doctor_info']['DoctorName'] ?? '';
+      final lastName = widget.result['doctor_info']['DoctorLastname'] ?? '';
       if (firstName.isNotEmpty || lastName.isNotEmpty) {
-        return 'Dr. $firstName $lastName'.trim();
+        return '$firstName $lastName'.trim();
       }
     }
     return 'Dr. MÉDECIN';

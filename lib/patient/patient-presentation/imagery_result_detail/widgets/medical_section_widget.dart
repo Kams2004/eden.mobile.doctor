@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/app_export.dart';
+import '../../../../services/theme_service.dart';
 
 class MedicalSectionWidget extends StatefulWidget {
   final String title;
@@ -25,6 +26,7 @@ class MedicalSectionWidget extends StatefulWidget {
 
 class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
   bool _isExpanded = false;
+  final ThemeService _themeService = ThemeService();
 
   @override
   Widget build(BuildContext context) {
@@ -32,16 +34,15 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
       margin: EdgeInsets.only(bottom: 2.h),
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: AppTheme.lightTheme.colorScheme.surface,
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
-          color: AppTheme.lightTheme.colorScheme.outline.withValues(alpha: 0.2),
+          color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[200]!,
           width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color:
-                AppTheme.lightTheme.colorScheme.shadow.withValues(alpha: 0.05),
+            color: _themeService.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.05),
             blurRadius: 4.0,
             offset: const Offset(0, 2),
           ),
@@ -58,7 +59,7 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.lightTheme.colorScheme.primary,
+                    color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6),
                   ),
                 ),
               ),
@@ -72,13 +73,12 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
                   child: Container(
                     padding: EdgeInsets.all(1.w),
                     decoration: BoxDecoration(
-                      color: AppTheme.lightTheme.colorScheme.primary
-                          .withValues(alpha: 0.1),
+                      color: _themeService.isDarkMode ? Color(0xFF374151) : Color(0xFF3B82F6).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                     child: CustomIconWidget(
                       iconName: _isExpanded ? 'expand_less' : 'expand_more',
-                      color: AppTheme.lightTheme.colorScheme.primary,
+                      color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6),
                       size: 20,
                     ),
                   ),
@@ -91,7 +91,7 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w400,
-              color: AppTheme.lightTheme.colorScheme.onSurface,
+              color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.black87,
               height: 1.5,
             ),
           ),
@@ -101,12 +101,10 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
             Container(
               padding: EdgeInsets.all(3.w),
               decoration: BoxDecoration(
-                color: AppTheme.lightTheme.colorScheme.primary
-                    .withValues(alpha: 0.05),
+                color: _themeService.isDarkMode ? Color(0xFF374151) : Color(0xFF3B82F6).withOpacity(0.05),
                 borderRadius: BorderRadius.circular(12.0),
                 border: Border.all(
-                  color: AppTheme.lightTheme.colorScheme.primary
-                      .withValues(alpha: 0.2),
+                  color: _themeService.isDarkMode ? Color(0xFF4B5563) : Color(0xFF3B82F6).withOpacity(0.2),
                   width: 1.0,
                 ),
               ),
@@ -117,7 +115,7 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
                     children: [
                       CustomIconWidget(
                         iconName: 'star',
-                        color: AppTheme.lightTheme.colorScheme.primary,
+                        color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6),
                         size: 16,
                       ),
                       SizedBox(width: 2.w),
@@ -126,7 +124,7 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
                         style: TextStyle(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.lightTheme.colorScheme.primary,
+                          color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6),
                         ),
                       ),
                     ],
@@ -142,7 +140,7 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
                               width: 1.w,
                               height: 1.w,
                               decoration: BoxDecoration(
-                                color: AppTheme.lightTheme.colorScheme.primary,
+                                color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -152,8 +150,7 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
                                 style: TextStyle(
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w400,
-                                  color:
-                                      AppTheme.lightTheme.colorScheme.onSurface,
+                                  color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.black87,
                                   height: 1.4,
                                 ),
                               ),
@@ -172,11 +169,10 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
                 margin: EdgeInsets.only(top: 2.h),
                 padding: EdgeInsets.all(3.w),
                 decoration: BoxDecoration(
-                  color: AppTheme.lightTheme.colorScheme.surface,
+                  color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.white,
                   borderRadius: BorderRadius.circular(12.0),
                   border: Border.all(
-                    color: AppTheme.lightTheme.colorScheme.outline
-                        .withValues(alpha: 0.3),
+                    color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[300]!,
                     width: 1.0,
                   ),
                 ),
@@ -187,7 +183,7 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
                       children: [
                         CustomIconWidget(
                           iconName: 'science',
-                          color: AppTheme.lightTheme.colorScheme.secondary,
+                          color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Color(0xFF6B7280),
                           size: 16,
                         ),
                         SizedBox(width: 2.w),
@@ -196,7 +192,7 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
                           style: TextStyle(
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.lightTheme.colorScheme.secondary,
+                            color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Color(0xFF6B7280),
                           ),
                         ),
                       ],
@@ -207,8 +203,7 @@ class _MedicalSectionWidgetState extends State<MedicalSectionWidget> {
                       style: TextStyle(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w400,
-                        color: AppTheme.lightTheme.colorScheme.onSurface
-                            .withValues(alpha: 0.8),
+                        color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                         height: 1.4,
                       ),
                     ),

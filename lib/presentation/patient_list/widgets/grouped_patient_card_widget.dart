@@ -143,7 +143,7 @@ class _GroupedPatientCardWidgetState extends State<GroupedPatientCardWidget> {
                         ),
                         SizedBox(height: 0.5.h),
                         Text(
-                          '${totalAmount.toStringAsFixed(0)} FCFA',
+                          '${totalAmount.toStringAsFixed(0)} POINTS',
                           style: AppTheme.lightTheme.textTheme.titleSmall?.copyWith(
                             color: AppTheme.lightTheme.colorScheme.primary,
                             fontWeight: FontWeight.w600,
@@ -213,7 +213,7 @@ class _GroupedPatientCardWidgetState extends State<GroupedPatientCardWidget> {
                               ),
                             ),
                             Text(
-                              '${exam['amount'].toStringAsFixed(0)} FCFA',
+                              '${exam['amount'].toStringAsFixed(0)} POINTS',
                               style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: AppTheme.lightTheme.colorScheme.primary,

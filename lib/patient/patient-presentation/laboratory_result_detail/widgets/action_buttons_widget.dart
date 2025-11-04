@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../services/storage_service.dart';
+import '../../../../services/theme_service.dart';
 
 class ActionButtonsWidget extends StatelessWidget {
   final Map<String, dynamic> resultData;
@@ -147,12 +148,13 @@ class ActionButtonsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeService = ThemeService();
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!, width: 1),
+        border: Border.all(color: themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[200]!, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,7 +164,7 @@ class ActionButtonsWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: themeService.isDarkMode ? Colors.white : Colors.black87,
             ),
           ),
           SizedBox(height: 2.h),

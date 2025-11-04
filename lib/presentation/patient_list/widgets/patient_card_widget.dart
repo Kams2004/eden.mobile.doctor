@@ -136,7 +136,7 @@ class PatientCardWidget extends StatelessWidget {
                       ),
                       SizedBox(height: 0.5.h),
                       Text(
-                        '${commissionAmount.toStringAsFixed(0)} FCFA',
+                        '${commissionAmount.toStringAsFixed(0)} POINTS',
                         style: AppTheme.lightTheme.textTheme.titleSmall?.copyWith(
                           color: AppTheme.lightTheme.colorScheme.primary,
                           fontWeight: FontWeight.w600,

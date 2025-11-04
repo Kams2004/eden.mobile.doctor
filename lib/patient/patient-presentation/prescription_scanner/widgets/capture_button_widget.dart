@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../patient-widgets/widgets/custom_icon_widget.dart';
+import '../../../../services/theme_service.dart';
 
-class CaptureButtonWidget extends StatelessWidget {
+class CaptureButtonWidget extends StatefulWidget {
   final VoidCallback onTap;
   final bool isEnabled;
 
@@ -15,12 +16,19 @@ class CaptureButtonWidget extends StatelessWidget {
   });
 
   @override
+  State<CaptureButtonWidget> createState() => _CaptureButtonWidgetState();
+}
+
+class _CaptureButtonWidgetState extends State<CaptureButtonWidget> {
+  final ThemeService _themeService = ThemeService();
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: isEnabled
+      onTap: widget.isEnabled
           ? () {
               HapticFeedback.mediumImpact();
-              onTap();
+              widget.onTap();
             }
           : null,
       child: Container(
@@ -28,9 +36,9 @@ class CaptureButtonWidget extends StatelessWidget {
         height: 20.w,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: isEnabled ? Colors.white : Colors.white38,
+          color: widget.isEnabled ? Colors.white : Colors.white38,
           border: Border.all(
-            color: isEnabled ? Colors.white : Colors.white38,
+            color: widget.isEnabled ? Colors.white : Colors.white38,
             width: 4.0,
           ),
           boxShadow: [
@@ -47,11 +55,11 @@ class CaptureButtonWidget extends StatelessWidget {
             height: 15.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isEnabled ? Colors.grey[300] : Colors.grey[500],
+              color: widget.isEnabled ? Colors.grey[300] : Colors.grey[500],
             ),
             child: CustomIconWidget(
               iconName: 'camera_alt',
-              color: isEnabled ? Colors.grey[700]! : Colors.grey[600]!,
+              color: widget.isEnabled ? Colors.grey[700]! : Colors.grey[600]!,
               size: 8.w,
             ),
           ),

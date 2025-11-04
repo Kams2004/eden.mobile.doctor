@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import '../../../../services/theme_service.dart';
 
-class TestResultsWidget extends StatelessWidget {
+class TestResultsWidget extends StatefulWidget {
   final List<Map<String, dynamic>> testDetails;
 
   const TestResultsWidget({
@@ -10,15 +11,40 @@ class TestResultsWidget extends StatelessWidget {
   });
 
   @override
+  State<TestResultsWidget> createState() => _TestResultsWidgetState();
+}
+
+class _TestResultsWidgetState extends State<TestResultsWidget> {
+  final ThemeService _themeService = ThemeService();
+
+  @override
+  void initState() {
+    super.initState();
+    _themeService.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    _themeService.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: _themeService.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: Offset(0, 2),
           ),
@@ -34,35 +60,36 @@ class TestResultsWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Color(0xFF3B82F6).withOpacity(0.1),
-                      Color(0xFF3B82F6).withOpacity(0.05),
+                      (_themeService.isDarkMode ? Color(0xFF374151) : Color(0xFF3B82F6)).withOpacity(0.1),
+                      (_themeService.isDarkMode ? Color(0xFF374151) : Color(0xFF3B82F6)).withOpacity(0.05),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.assignment_outlined,
-                  color: Color(0xFF3B82F6),
+                  color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6),
                   size: 5.w,
                 ),
+
               ),
               SizedBox(width: 2.w),
               Text(
                 'Résultats des Tests',
                 style: TextStyle(
-                  fontSize: 18.sp,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 3.h),
-          if (testDetails.isEmpty)
+          SizedBox(height: 1.h),
+          if (widget.testDetails.isEmpty)
             Container(
               padding: EdgeInsets.all(6.w),
               decoration: BoxDecoration(
-                color: Colors.grey[50],
+                color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[50],
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(
@@ -70,15 +97,15 @@ class TestResultsWidget extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.science_outlined,
-                      size: 12.w,
-                      color: Colors.grey[400],
+                      size: 8.w,
+                      color: _themeService.isDarkMode ? Color(0xFF6B7280) : Colors.grey[400],
                     ),
-                    SizedBox(height: 2.h),
+                    SizedBox(height: 1.h),
                     Text(
                       'Aucun détail disponible',
                       style: TextStyle(
                         fontSize: 16.sp,
-                        color: Colors.grey[600],
+                        color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -87,7 +114,7 @@ class TestResultsWidget extends StatelessWidget {
                       'Les détails des tests apparaîtront ici une fois disponibles.',
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: Colors.grey[500],
+                        color: _themeService.isDarkMode ? Color(0xFF6B7280) : Colors.grey[500],
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -99,10 +126,10 @@ class TestResultsWidget extends StatelessWidget {
             ListView.separated(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              itemCount: testDetails.length,
+              itemCount: widget.testDetails.length,
               separatorBuilder: (context, index) => SizedBox(height: 2.h),
               itemBuilder: (context, index) {
-                final test = testDetails[index];
+                final test = widget.testDetails[index];
                 return _buildTestItem(test);
               },
             ),
@@ -112,23 +139,25 @@ class TestResultsWidget extends StatelessWidget {
   }
 
   Widget _buildTestItem(Map<String, dynamic> test) {
-    final hasResult = test['result'] != null || test['result_text'] != null;
-    final hasRange = test['normal_range'] != null && test['normal_range'].toString().isNotEmpty;
-    final isWarning = test['warning'] == true;
-    
-    return Container(
-      padding: EdgeInsets.all(3.w),
-      decoration: BoxDecoration(
-        color: isWarning ? Colors.orange.withOpacity(0.05) : Colors.grey[50],
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: isWarning ? Colors.orange.withOpacity(0.2) : Colors.grey[200]!,
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return Builder(
+      builder: (context) {
+        final hasResult = test['result'] != null || test['result_text'] != null;
+        final hasRange = test['normal_range'] != null && test['normal_range'].toString().isNotEmpty;
+        final isWarning = test['warning'] == true;
+        
+        return Container(
+          padding: EdgeInsets.all(3.w),
+          decoration: BoxDecoration(
+            color: isWarning ? Colors.orange.withOpacity(0.05) : (_themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[50]),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isWarning ? Colors.orange.withOpacity(0.2) : (_themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[200]!),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           Row(
             children: [
               Expanded(
@@ -137,7 +166,7 @@ class TestResultsWidget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                   ),
                 ),
               ),
@@ -175,15 +204,15 @@ class TestResultsWidget extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(2.5.w),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[200]!, width: 1),
+                border: Border.all(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[200]!, width: 1),
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.analytics_outlined,
-                    color: Color(0xFF3B82F6),
+                    color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6),
                     size: 4.w,
                   ),
                   SizedBox(width: 2.w),
@@ -191,7 +220,7 @@ class TestResultsWidget extends StatelessWidget {
                     'Résultat: ',
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: Colors.grey[600],
+                      color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -201,7 +230,7 @@ class TestResultsWidget extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                       ),
                     ),
                   ),
@@ -209,14 +238,14 @@ class TestResultsWidget extends StatelessWidget {
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 1.5.w, vertical: 0.3.h),
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[100],
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         test['units'].toString(),
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: Colors.grey[600],
+                          color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -310,8 +339,10 @@ class TestResultsWidget extends StatelessWidget {
               ),
             ),
           ],
-        ],
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

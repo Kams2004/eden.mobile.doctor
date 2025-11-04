@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/storage_service.dart';
+import '../../../services/theme_service.dart';
 import '../../patient-widgets/widgets/patient_sidebar.dart';
+import '../../patient-widgets/widgets/professional_app_bar.dart';
 
 class PatientProfileScreen extends StatefulWidget {
   const PatientProfileScreen({Key? key}) : super(key: key);
@@ -17,6 +19,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
   bool _isSaving = false;
   Map<String, dynamic>? _patientData;
   String? _error;
+  final ThemeService _themeService = ThemeService();
   
   final _formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> _controllers = {};
@@ -89,47 +92,35 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: _themeService.isDarkMode ? Color(0xFF0F172A) : Colors.grey[50],
       drawer: Drawer(
         child: PatientSidebar(
           currentRoute: '/patient-profile',
           onLogout: _handleLogout,
         ),
       ),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: Color(0xFF3B82F6)),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        title: Text(
-          'Mon Profil',
-          style: TextStyle(
-            color: Color(0xFF3B82F6),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      appBar: ProfessionalAppBar(
+        title: 'Mon Profil',
+        subtitle: 'Informations personnelles',
+        showBackButton: false,
         actions: [
           if (!_isEditing)
             IconButton(
-              icon: Icon(Icons.edit, color: Color(0xFF3B82F6)),
+              icon: Icon(Icons.edit, color: Colors.white, size: 5.w),
               onPressed: () => setState(() => _isEditing = true),
             ),
           if (_isEditing) ...[
             IconButton(
-              icon: Icon(Icons.close, color: Colors.red),
+              icon: Icon(Icons.close, color: Colors.white, size: 5.w),
               onPressed: () => setState(() => _isEditing = false),
             ),
             IconButton(
-              icon: Icon(Icons.save, color: Colors.green),
+              icon: Icon(Icons.save, color: Colors.white, size: 5.w),
               onPressed: _saveProfile,
             ),
           ],
           IconButton(
-            icon: Icon(Icons.refresh, color: Color(0xFF3B82F6)),
+            icon: Icon(Icons.refresh, color: Colors.white, size: 5.w),
             onPressed: _loadPatientProfile,
           ),
         ],
@@ -145,7 +136,9 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
             ),
           ),
           Container(
-            color: Colors.white.withOpacity(0.7),
+            decoration: BoxDecoration(
+              color: _themeService.isDarkMode ? Color(0xFF0F172A).withOpacity(0.85) : Colors.white.withOpacity(0.85),
+            ),
           ),
           _buildBody(),
         ],
@@ -234,13 +227,13 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     return Container(
       padding: EdgeInsets.all(6.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, 2),
+            color: _themeService.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.1),
+            blurRadius: 5,
+            offset: Offset(0, 1),
           ),
         ],
       ),
@@ -259,9 +252,9 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
           Text(
             '${_patientData?['PatientName'] ?? ''} ${_patientData?['PatientLastname'] ?? ''}',
             style: TextStyle(
-              fontSize: 20.sp,
+              fontSize: 17.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: _themeService.isDarkMode ? Colors.white : Colors.black87,
             ),
             textAlign: TextAlign.center,
           ),
@@ -334,11 +327,11 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: _themeService.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.1),
             blurRadius: 10,
             offset: Offset(0, 2),
           ),
@@ -367,7 +360,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                 ),
               ),
             ],
@@ -392,7 +385,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[600],
+                color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
               ),
             ),
           ),
@@ -402,7 +395,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
               value.isNotEmpty ? value : 'Non renseigné',
               style: TextStyle(
                 fontSize: 14.sp,
-                color: value.isNotEmpty ? Colors.black87 : Colors.grey[400],
+                color: value.isNotEmpty ? (_themeService.isDarkMode ? Colors.white : Colors.black87) : (_themeService.isDarkMode ? Color(0xFF6B7280) : Colors.grey[400]),
               ),
             ),
           ),
@@ -428,7 +421,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[600],
+                color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
               ),
             ),
           ),
@@ -441,7 +434,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                 contentPadding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
+                  borderSide: BorderSide(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[300]!),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -450,7 +443,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
               ),
               style: TextStyle(
                 fontSize: 14.sp,
-                color: Colors.black87,
+                color: _themeService.isDarkMode ? Colors.white : Colors.black87,
               ),
             ),
           ),

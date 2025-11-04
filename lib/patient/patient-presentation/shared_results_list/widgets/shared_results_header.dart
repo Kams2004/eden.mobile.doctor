@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import '../../../../services/theme_service.dart';
 
-class SharedResultsHeader extends StatelessWidget {
+class SharedResultsHeader extends StatefulWidget {
   final String searchQuery;
   final String selectedFilter;
   final Function(String) onSearchChanged;
@@ -16,11 +17,18 @@ class SharedResultsHeader extends StatelessWidget {
   });
 
   @override
+  State<SharedResultsHeader> createState() => _SharedResultsHeaderState();
+}
+
+class _SharedResultsHeaderState extends State<SharedResultsHeader> {
+  final ThemeService _themeService = ThemeService();
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -34,20 +42,20 @@ class SharedResultsHeader extends StatelessWidget {
           // Search bar
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[100],
               borderRadius: BorderRadius.circular(12),
             ),
             child: TextField(
-              onChanged: onSearchChanged,
+              onChanged: widget.onSearchChanged,
               decoration: InputDecoration(
                 hintText: 'Rechercher résultats partagés...',
                 hintStyle: TextStyle(
-                  color: Colors.grey[500],
+                  color: _themeService.isDarkMode ? Color(0xFF6B7280) : Colors.grey[500],
                   fontSize: 14.sp,
                 ),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: Colors.grey[500],
+                  color: _themeService.isDarkMode ? Color(0xFF6B7280) : Colors.grey[500],
                   size: 5.w,
                 ),
                 border: InputBorder.none,
@@ -80,20 +88,20 @@ class SharedResultsHeader extends StatelessWidget {
   }
 
   Widget _buildFilterChip(String label) {
-    final isSelected = selectedFilter == label;
+    final isSelected = widget.selectedFilter == label;
     
     return GestureDetector(
-      onTap: () => onFilterChanged(label),
+      onTap: () => widget.onFilterChanged(label),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
         decoration: BoxDecoration(
-          color: isSelected ? Color(0xFF3B82F6) : Colors.grey[200],
+          color: isSelected ? Color(0xFF3B82F6) : (_themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[200]),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey[700],
+            color: isSelected ? Colors.white : (_themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[700]),
             fontSize: 13.sp,
             fontWeight: FontWeight.w500,
           ),

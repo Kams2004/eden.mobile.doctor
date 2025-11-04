@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/app_export.dart';
 import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
+import '../../base_url/api_config.dart';
 import '../../model/request_model.dart';
 import './widgets/activity_statistics_grid.dart';
 import './widgets/commission_summary_card.dart';
@@ -28,6 +29,8 @@ class _DashboardState extends State<Dashboard> {
   DateTime _lastSyncTime = DateTime.now();
   List<Map<String, dynamic>> _recentPatients = [];
   bool _isLoadingPatients = true;
+  List<Map<String, dynamic>> _blogPosts = [];
+  bool _isLoadingBlog = true;
   Map<String, int> _statistics = {
     'todayPatients': 0,
     'todayExams': 0,
@@ -62,6 +65,7 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     _loadRecentPatients();
     _loadStatistics();
+    _loadBlogPosts();
   }
 
   Future<void> _loadRecentPatients() async {
@@ -128,6 +132,37 @@ class _DashboardState extends State<Dashboard> {
       setState(() {
         _recentPatients = [];
         _isLoadingPatients = false;
+      });
+    }
+  }
+
+  Future<void> _loadBlogPosts() async {
+    try {
+      setState(() {
+        _isLoadingBlog = true;
+      });
+      
+      final accessToken = StorageService.accessToken;
+      
+      if (accessToken != null) {
+        final authService = AuthService();
+        final blogPosts = await authService.getBlogPosts(accessToken);
+        
+        setState(() {
+          _blogPosts = blogPosts.where((post) => post['is_visible'] == true).toList();
+          _isLoadingBlog = false;
+        });
+      } else {
+        setState(() {
+          _blogPosts = [];
+          _isLoadingBlog = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading blog posts: $e');
+      setState(() {
+        _blogPosts = [];
+        _isLoadingBlog = false;
       });
     }
   }
@@ -335,9 +370,26 @@ class _DashboardState extends State<Dashboard> {
                       ),
                     ),
 
-                    NewsCarousel(
-                      newsItems: ((_dashboardData["newsItems"] as List?)?.cast<Map<String, dynamic>>()) ?? [],
-                    ),
+                    _isLoadingBlog
+                        ? Container(
+                            height: 40.h,
+                            margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppTheme.lightTheme.colorScheme.primary,
+                              ),
+                            ),
+                          )
+                        : NewsCarousel(
+                            newsItems: _blogPosts.map((blog) => {
+                              'id': blog['id'],
+                              'title': blog['titre'] ?? 'Sans titre',
+                              'description': blog['description'] ?? 'Aucune description disponible',
+                              'category': 'actualité',
+                              'fullContent': blog['description'] ?? 'Aucune description disponible',
+                              'imageUrl': blog['id'] != null ? '${ApiConfig.baseUrl}/blog/image/${blog['id']}' : '',
+                            }).toList(),
+                          ),
 
                     SizedBox(height: 2.h),
 
@@ -531,6 +583,7 @@ Widget _buildNavItem(IconData icon, String label, int index, bool isSelected) {
     await Future.wait([
       _loadRecentPatients(),
       _loadStatistics(),
+      _loadBlogPosts(),
     ]);
 
     setState(() {

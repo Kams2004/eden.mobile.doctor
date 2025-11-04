@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../widgets/new_request_dialog.dart';
+import '../../../../services/auth_service.dart';
+import '../../../../services/storage_service.dart';
+import '../../../../services/theme_service.dart';
 
 class RequestCard extends StatelessWidget {
   final Map<String, dynamic> request;
   final VoidCallback? onRequestUpdated;
 
   const RequestCard({super.key, required this.request, this.onRequestUpdated});
+  
+  static final ThemeService _themeService = ThemeService();
 
   String _formatDate(String? dateString) {
     if (dateString == null || dateString.isEmpty) return 'Non disponible';
@@ -88,6 +93,105 @@ class RequestCard extends StatelessWidget {
     );
   }
 
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Supprimer la requête',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: Text(
+            'Êtes-vous sûr de vouloir supprimer cette requête ? Cette action est irréversible.',
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey[600],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Annuler',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteRequest(context);
+              },
+              child: Text(
+                'Supprimer',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteRequest(BuildContext context) async {
+    try {
+      final accessToken = StorageService.accessToken;
+      final requestId = request['id'];
+      
+      if (accessToken == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: Token d\'accès manquant'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+      
+      if (requestId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: ID de requête manquant'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+      
+      await AuthService().deletePatientRequest(requestId, accessToken);
+      
+      if (onRequestUpdated != null) {
+        onRequestUpdated!();
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Requête supprimée avec succès'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors de la suppression: $e'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isValid = request['valide'] == true;
@@ -95,7 +199,7 @@ class RequestCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 1.5.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
@@ -134,7 +238,7 @@ class RequestCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                         ),
                       ),
                       SizedBox(height: 0.3.h),
@@ -142,7 +246,7 @@ class RequestCard extends StatelessWidget {
                         request['message'] ?? 'Aucun message',
                         style: TextStyle(
                           fontSize: 13.sp,
-                          color: Colors.grey[600],
+                          color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -175,7 +279,7 @@ class RequestCard extends StatelessWidget {
                     'Créée: ${_formatDate(request['CreatedAt'])}',
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: Colors.grey[500],
+                      color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[500],
                     ),
                   ),
                 ),
@@ -190,7 +294,7 @@ class RequestCard extends StatelessWidget {
                     ),
                     SizedBox(width: 2.w),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () => _showDeleteDialog(context),
                       child: Container(
                         padding: EdgeInsets.all(1.w),
                         child: Icon(Icons.delete_outline, color: Colors.red, size: 4.5.w),

@@ -13,6 +13,12 @@ import '../presentation/results_page/results_page.dart';
 import '../presentation/request_page/request_page.dart';
 import '../patient/patient-presentation/patient_notifications/patient_notifications.dart';
 import '../patient/patient-presentation/exploration_results_list/exploration_results_list.dart';
+import '../patient/patient-presentation/prescription/prescription_page.dart';
+import '../patient/patient-presentation/laboratory_results_list/laboratory_results_list.dart';
+import '../patient/patient-presentation/imagery_results_list/imagery_results_list.dart';
+import '../patient/patient-presentation/patient_requests/patient_requests_list.dart';
+import '../patient/patient-presentation/shared_results_list/shared_results_list.dart';
+import '../patient/patient-presentation/invoices/invoices_page.dart';
 
 class AppRoutes {
   // TODO: Add your routes here
@@ -32,6 +38,12 @@ class AppRoutes {
   static const String requestPage = '/request-page';
   static const String patientNotifications = '/patient-notifications-settings';
   static const String explorationResults = '/exploration-results';
+  static const String prescription = '/prescription';
+  static const String laboratoryResults = '/laboratory-results-list';
+  static const String imageryResults = '/imagery-results-list';
+  static const String patientRequests = '/patient-requests';
+  static const String sharedResults = '/patient-resultats-partages';
+  static const String patientInvoices = '/patient-invoices';
 
   static Map<String, WidgetBuilder> routes = {
     initial: (context) => const SplashScreen(),
@@ -47,8 +59,14 @@ class AppRoutes {
     doctorProfile: (context) => const DoctorProfileScreen(),
     results: (context) => const ResultsPage(),
     requestPage: (context) => const RequestPage(),
-    patientNotifications: (context) => const PatientNotifications(),
-    explorationResults: (context) => const ExplorationResultsList(),
+    patientNotifications: (context) => PatientNotifications(),
+    explorationResults: (context) => ExplorationResultsList(),
+    prescription: (context) => PrescriptionPage(),
+    laboratoryResults: (context) => LaboratoryResultsList(),
+    imageryResults: (context) => ImageryResultsList(),
+    patientRequests: (context) => PatientRequestsList(),
+    sharedResults: (context) => SharedResultsList(),
+    patientInvoices: (context) => InvoicesPage(),
     // TODO: Add your other routes here
   };
 }

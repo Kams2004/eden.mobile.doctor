@@ -185,9 +185,7 @@ class _ImagerySearchHeaderState extends State<ImagerySearchHeader> {
     final quickFilters = [
       {'label': 'Aujourd\'hui', 'value': 'date:today'},
       {'label': 'Cette semaine', 'value': 'date:week'},
-      {'label': 'Radiographie', 'value': 'type:xray'},
-      {'label': 'IRM', 'value': 'type:mri'},
-      {'label': 'Scanner', 'value': 'type:ct'},
+      {'label': 'Ce mois-ci', 'value': 'date:month'},
     ];
 
     return SingleChildScrollView(

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import '../../../../services/theme_service.dart';
 
-class CameraPreviewWidget extends StatelessWidget {
+class CameraPreviewWidget extends StatefulWidget {
   final CameraController cameraController;
 
   const CameraPreviewWidget({
@@ -10,10 +11,17 @@ class CameraPreviewWidget extends StatelessWidget {
   });
 
   @override
+  State<CameraPreviewWidget> createState() => _CameraPreviewWidgetState();
+}
+
+class _CameraPreviewWidgetState extends State<CameraPreviewWidget> {
+  final ThemeService _themeService = ThemeService();
+
+  @override
   Widget build(BuildContext context) {
-    if (!cameraController.value.isInitialized) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+    if (!widget.cameraController.value.isInitialized) {
+      return Center(
+        child: CircularProgressIndicator(color: _themeService.isDarkMode ? Colors.white : Color(0xFF3B82F6)),
       );
     }
 
@@ -25,8 +33,8 @@ class CameraPreviewWidget extends StatelessWidget {
           child: SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.width /
-                cameraController.value.aspectRatio,
-            child: CameraPreview(cameraController),
+                widget.cameraController.value.aspectRatio,
+            child: CameraPreview(widget.cameraController),
           ),
         ),
       ),

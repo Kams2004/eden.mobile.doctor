@@ -23,6 +23,85 @@ class ImageryResultCard extends StatelessWidget {
     this.onDownloadReport,
   });
 
+  void _showUnpaidBillsDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(4.w),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFEF3C7),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.receipt_long,
+                  size: 12.w,
+                  color: Color(0xFFF59E0B),
+                ),
+              ),
+              SizedBox(height: 3.h),
+              Text(
+                'Factures Impayées',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1F2937),
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: Color(0xFF6B7280),
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Retour',
+                style: TextStyle(
+                  color: Color(0xFF6B7280),
+                  fontSize: 14.sp,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/patient-invoices');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF3B82F6),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Voir Factures',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -46,7 +125,14 @@ class ImageryResultCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         child: InkWell(
-          onTap: onTap,
+          onTap: () {
+            final errorMessage = imageryResult['error'];
+            if (errorMessage != null && errorMessage.toString().contains('Factures Impayées')) {
+              _showUnpaidBillsDialog(context, errorMessage.toString());
+              return;
+            }
+            onTap?.call();
+          },
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: EdgeInsets.all(4.w),
@@ -197,6 +283,22 @@ class ImageryResultCard extends StatelessWidget {
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w500,
                           color: colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  if (imageryResult['error'] != null && imageryResult['error'].toString().contains('Factures Impayées'))
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.5.h),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF59E0B),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        'FACTURE IMPAYÉE',
+                        style: GoogleFonts.inter(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
                     ),

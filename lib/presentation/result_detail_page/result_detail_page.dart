@@ -4,6 +4,7 @@ import 'package:sizer/sizer.dart';
 import '../../core/app_export.dart';
 import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
+import '../../services/theme_service.dart';
 import '../../model/result_model.dart';
 
 class ResultDetailPage extends StatefulWidget {
@@ -26,11 +27,25 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
   bool isLoading = true;
   ResultDetail? resultDetail;
   String? errorMessage;
+  final ThemeService _themeService = ThemeService();
 
   @override
   void initState() {
     super.initState();
+    _themeService.addListener(_onThemeChanged);
     _loadResultDetail();
+  }
+
+  @override
+  void dispose() {
+    _themeService.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> _loadResultDetail() async {
@@ -68,22 +83,21 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _themeService.isDarkMode ? Color(0xFF0F172A) : Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         elevation: 0,
         leading: Container(
           margin: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Color(0xFFF1F5F9),
-                               borderRadius: BorderRadius.circular(10),
-
+            color: _themeService.isDarkMode ? Color(0xFF374151) : Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: IconButton(
             onPressed: () => Navigator.pop(context),
             icon: Icon(
               Icons.arrow_back_ios_new,
-              color: Color(0xFF334155),
+              color: _themeService.isDarkMode ? Colors.white : Color(0xFF334155),
               size: 20,
             ),
           ),
@@ -115,14 +129,14 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1E293B),
+                    color: _themeService.isDarkMode ? Colors.white : Color(0xFF1E293B),
                   ),
                 ),
                 Text(
                   'Laboratoire',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: Color(0xFF64748B),
+                    color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Color(0xFF64748B),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -141,7 +155,7 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
                   Text(
                     'Chargement des détails...',
                     style: TextStyle(
-                      color: Color(0xFF64748B),
+                      color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Color(0xFF64748B),
                       fontSize: 14.sp,
                     ),
                   ),
@@ -164,7 +178,7 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF475569),
+                          color: _themeService.isDarkMode ? Colors.white : Color(0xFF475569),
                         ),
                       ),
                       SizedBox(height: 1.w),
@@ -172,7 +186,7 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
                         errorMessage!,
                         style: TextStyle(
                           fontSize: 14.sp,
-                          color: Color(0xFF94A3B8),
+                          color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Color(0xFF94A3B8),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -209,8 +223,7 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
       width: double.infinity,
       padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
-        color: Color(0xFFF8F9FA),
-        // border: Border.all(color: Color(0xFFE9ECEF)),
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Color(0xFFF8F9FA),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +232,7 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
             children: [
               Icon(
                 Icons.person,
-                color: Color(0xFF495057),
+                color: _themeService.isDarkMode ? Colors.white : Color(0xFF495057),
                 size: 18,
               ),
               SizedBox(width: 2.w),
@@ -228,7 +241,7 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF495057),
+                  color: _themeService.isDarkMode ? Colors.white : Color(0xFF495057),
                 ),
               ),
             ],
@@ -248,8 +261,7 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
       width: double.infinity,
       padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
-        color: Color(0xFFFAFAFA),
-        // border: Border.all(color: Color(0xFFE2E8F0)),
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Color(0xFFFAFAFA),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +279,7 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
+                  color: _themeService.isDarkMode ? Colors.white : Color(0xFF1E293B),
                 ),
               ),
             ],
@@ -280,7 +292,7 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
                 'Date réception:',
                 style: TextStyle(
                   fontSize: 12.sp,
-                  color: Color(0xFF64748B),
+                  color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Color(0xFF64748B),
                 ),
               ),
               Text(
@@ -288,7 +300,7 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
+                  color: _themeService.isDarkMode ? Colors.white : Color(0xFF1E293B),
                 ),
               ),
             ],
@@ -365,8 +377,7 @@ class _ResultDetailPageState extends State<ResultDetailPage> {
       width: double.infinity,
       padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
-        color: Color(0xFFEFF6FF),
-        // border: Border.all(color: Color(0xFF3B82F6).withOpacity(0.3)),
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Color(0xFFEFF6FF),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,7 +396,7 @@ children: [
         style: TextStyle(
           fontSize: 16.sp,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF1E40AF),
+          color: _themeService.isDarkMode ? Colors.white : Color(0xFF1E40AF),
         ),
       ),
     ],
@@ -406,9 +417,8 @@ children: [
       width: double.infinity,
       padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
-        color: Color(0xFFF8F9FA),
-        
-        border: Border.all(color:Color(0xFFF8F9FA).withOpacity(0.3)),
+        color: _themeService.isDarkMode ? Color(0xFF1E293B) : Color(0xFFF8F9FA),
+        border: Border.all(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Color(0xFFF8F9FA).withOpacity(0.3)),
       ),
 
 
@@ -419,7 +429,7 @@ child: Column(
       children: [
         Icon(
           Icons.person,
-          color: Color(0xFF495057),
+          color: _themeService.isDarkMode ? Colors.white : Color(0xFF495057),
           size: 18,
         ),
         SizedBox(width: 2.w),
@@ -428,7 +438,7 @@ child: Column(
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF495057),
+            color: _themeService.isDarkMode ? Colors.white : Color(0xFF495057),
           ),
         ),
       ],
@@ -438,8 +448,8 @@ child: Column(
       width: double.infinity,
       padding: EdgeInsets.all(2.5.w),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Color(0xFFE2E8F0)),
+        color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.white,
+        border: Border.all(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Color(0xFFE2E8F0)),
       ),
       child: _buildAnalytesTable(),
     ),
@@ -454,7 +464,7 @@ child: Column(
         'Aucun résultat disponible',
         style: TextStyle(
           fontSize: 12.sp,
-          color: Color(0xFF6B7280),
+          color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Color(0xFF6B7280),
           fontStyle: FontStyle.italic,
         ),
       );
@@ -480,7 +490,7 @@ child: Column(
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF374151),
+                      color: _themeService.isDarkMode ? Colors.white : Color(0xFF374151),
                     ),
                   ),
                 ),
@@ -490,7 +500,7 @@ child: Column(
                     parts.sublist(1).join('  ').trim(),
                     style: TextStyle(
                       fontSize: 13.sp,
-                      color: Color(0xFF6B7280),
+                      color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Color(0xFF6B7280),
                     ),
                   ),
                 ),
@@ -506,7 +516,9 @@ child: Column(
             style: TextStyle(
               fontSize: 11.sp,
               fontWeight: line.contains(':') ? FontWeight.w600 : FontWeight.normal,
-              color: line.contains(':') ? Color(0xFF374151) : Color(0xFF6B7280),
+              color: line.contains(':') 
+                  ? (_themeService.isDarkMode ? Colors.white : Color(0xFF374151))
+                  : (_themeService.isDarkMode ? Color(0xFF94A3B8) : Color(0xFF6B7280)),
             ),
           ),
         );
@@ -526,7 +538,7 @@ child: Column(
               label,
               style: TextStyle(
                 fontSize: 13.sp,
-                color: Color(0xFF64748B),
+                color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Color(0xFF64748B),
               ),
             ),
           ),
@@ -536,7 +548,7 @@ child: Column(
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF1E293B),
+                color: _themeService.isDarkMode ? Colors.white : Color(0xFF1E293B),
               ),
             ),
           ),

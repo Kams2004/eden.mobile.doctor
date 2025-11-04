@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../services/theme_service.dart';
 
 class ScanningOverlayWidget extends StatefulWidget {
   const ScanningOverlayWidget({super.key});
@@ -11,6 +12,7 @@ class _ScanningOverlayWidgetState extends State<ScanningOverlayWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scanLineAnimation;
+  final ThemeService _themeService = ThemeService();
 
   @override
   void initState() {
@@ -40,7 +42,7 @@ class _ScanningOverlayWidgetState extends State<ScanningOverlayWidget>
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: ScanningOverlayPainter(_scanLineAnimation),
+      painter: ScanningOverlayPainter(_scanLineAnimation, _themeService.isDarkMode),
       size: Size.infinite,
     );
   }
@@ -48,8 +50,9 @@ class _ScanningOverlayWidgetState extends State<ScanningOverlayWidget>
 
 class ScanningOverlayPainter extends CustomPainter {
   final Animation<double> animation;
+  final bool isDarkMode;
 
-  ScanningOverlayPainter(this.animation) : super(repaint: animation);
+  ScanningOverlayPainter(this.animation, this.isDarkMode) : super(repaint: animation);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -59,7 +62,7 @@ class ScanningOverlayPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final scanLinePaint = Paint()
-      ..color = Colors.green
+      ..color = isDarkMode ? Colors.green : Color(0xFF3B82F6)
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
@@ -86,7 +89,7 @@ class ScanningOverlayPainter extends CustomPainter {
     // Draw corner brackets
     final cornerLength = 30.0;
     final cornerPaint = Paint()
-      ..color = Colors.white
+      ..color = isDarkMode ? Colors.white : Color(0xFF3B82F6)
       ..strokeWidth = 4.0
       ..strokeCap = StrokeCap.round;
 

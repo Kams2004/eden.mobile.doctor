@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import '../../../../services/auth_service.dart';
+import '../../../../services/storage_service.dart';
+import '../../../../services/theme_service.dart';
 
 class NotificationCard extends StatefulWidget {
   final Map<String, dynamic> notification;
+  final VoidCallback? onMarkRead;
 
   const NotificationCard({
     Key? key,
     required this.notification,
+    this.onMarkRead,
   }) : super(key: key);
 
   @override
@@ -18,10 +23,13 @@ class _NotificationCardState extends State<NotificationCard>
   bool _isExpanded = false;
   late AnimationController _animationController;
   late Animation<double> _expandAnimation;
+  bool _isMarkingRead = false;
+  final ThemeService _themeService = ThemeService();
 
   @override
   void initState() {
     super.initState();
+    _themeService.addListener(_onThemeChanged);
     _animationController = AnimationController(
       duration: Duration(milliseconds: 300),
       vsync: this,
@@ -34,8 +42,15 @@ class _NotificationCardState extends State<NotificationCard>
 
   @override
   void dispose() {
+    _themeService.removeListener(_onThemeChanged);
     _animationController.dispose();
     super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _toggleExpanded() {
@@ -43,10 +58,47 @@ class _NotificationCardState extends State<NotificationCard>
       _isExpanded = !_isExpanded;
       if (_isExpanded) {
         _animationController.forward();
+        // Only mark as read when tapped to expand
+        _markAsReadIfNeeded();
       } else {
         _animationController.reverse();
       }
     });
+  }
+
+  Future<void> _markAsReadIfNeeded() async {
+    final isRead = widget.notification['is_read'] ?? false;
+    if (!isRead && !_isMarkingRead) {
+      await _markAsRead();
+    }
+  }
+
+  Future<void> _markAsRead() async {
+    if (_isMarkingRead) return;
+    
+    setState(() {
+      _isMarkingRead = true;
+    });
+    
+    try {
+      final authService = AuthService();
+      final accessToken = StorageService.accessToken;
+      final notificationId = widget.notification['id'];
+      
+      if (accessToken != null && notificationId != null) {
+        await authService.markNotificationRead(notificationId, accessToken);
+        widget.notification['is_read'] = true;
+        widget.onMarkRead?.call();
+      }
+    } catch (e) {
+      print('Error marking notification as read: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isMarkingRead = false;
+        });
+      }
+    }
   }
 
   IconData _getNotificationIcon() {
@@ -130,15 +182,15 @@ class _NotificationCardState extends State<NotificationCard>
           child: AnimatedContainer(
             duration: Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isRead ? Colors.grey[200]! : _getNotificationColor().withOpacity(0.3),
+                color: isRead ? (_themeService.isDarkMode ? Color(0xFF6B7280) : Colors.grey[200]!) : _getNotificationColor().withOpacity(0.3),
                 width: isRead ? 1 : 2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: _themeService.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.05),
                   blurRadius: 8,
                   offset: Offset(0, 2),
                 ),
@@ -171,6 +223,7 @@ class _NotificationCardState extends State<NotificationCard>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Title and time on same row
                             Row(
                               children: [
                                 Expanded(
@@ -179,12 +232,20 @@ class _NotificationCardState extends State<NotificationCard>
                                     style: TextStyle(
                                       fontSize: 16.sp,
                                       fontWeight: isRead ? FontWeight.w500 : FontWeight.bold,
-                                      color: Colors.black87,
+                                      color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                                     ),
+                                  ),
+                                ),
+                                Text(
+                                  _formatDate(createdAt),
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[500],
                                   ),
                                 ),
                                 if (!isRead)
                                   Container(
+                                    margin: EdgeInsets.only(left: 2.w),
                                     width: 2.w,
                                     height: 2.w,
                                     decoration: BoxDecoration(
@@ -212,38 +273,62 @@ class _NotificationCardState extends State<NotificationCard>
                                 ),
                               ),
                             ),
-                            SizedBox(height: 1.h),
                             
-                            // Message preview
-                            Text(
-                              message,
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                color: Colors.grey[600],
-                                height: 1.4,
+                            // Message preview (only when expanded)
+                            if (_isExpanded) ...[
+                              SizedBox(height: 1.h),
+                              Text(
+                                message,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
+                                  height: 1.4,
+                                ),
                               ),
-                              maxLines: _isExpanded ? null : 2,
-                              overflow: _isExpanded ? null : TextOverflow.ellipsis,
-                            ),
+                            ],
                             SizedBox(height: 1.h),
                             
-                            // Time and expand indicator
+                            // Expand indicator and mark read button
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  _formatDate(createdAt),
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: Colors.grey[500],
-                                  ),
-                                ),
+                                if (!isRead && _isExpanded)
+                                  ElevatedButton(
+                                    onPressed: _isMarkingRead ? null : _markAsRead,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: _getNotificationColor(),
+                                      foregroundColor: Colors.white,
+                                      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.5.h),
+                                      minimumSize: Size(0, 0),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                    child: _isMarkingRead
+                                        ? SizedBox(
+                                            width: 3.w,
+                                            height: 3.w,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                            ),
+                                          )
+                                        : Text(
+                                            'Marquer lu',
+                                            style: TextStyle(
+                                              fontSize: 10.sp,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                  )
+                                else
+                                  SizedBox.shrink(),
                                 AnimatedRotation(
                                   turns: _isExpanded ? 0.5 : 0,
                                   duration: Duration(milliseconds: 300),
                                   child: Icon(
                                     Icons.keyboard_arrow_down,
-                                    color: Colors.grey[400],
+                                    color: _themeService.isDarkMode ? Color(0xFF6B7280) : Colors.grey[400],
                                     size: 5.w,
                                   ),
                                 ),
@@ -263,7 +348,7 @@ class _NotificationCardState extends State<NotificationCard>
                     width: double.infinity,
                     padding: EdgeInsets.fromLTRB(4.w, 0, 4.w, 4.w),
                     decoration: BoxDecoration(
-                      color: Colors.grey[50],
+                      color: _themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[50],
                       borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(12),
                         bottomRight: Radius.circular(12),
@@ -272,44 +357,24 @@ class _NotificationCardState extends State<NotificationCard>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (typeDescription.isNotEmpty) ...[
-                          Text(
-                            'Type de notification:',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                          SizedBox(height: 0.5.h),
-                          Text(
-                            typeDescription,
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          SizedBox(height: 2.h),
-                        ],
+
                         
-                        if (createdAt != null) ...[
-                          Text(
-                            'Date de création:',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[700],
-                            ),
+                        Text(
+                          'Date et Heure:',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: _themeService.isDarkMode ? Colors.white : Colors.grey[700],
                           ),
-                          SizedBox(height: 0.5.h),
-                          Text(
-                            _formatFullDate(createdAt),
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Colors.grey[600],
-                            ),
+                        ),
+                        SizedBox(height: 0.5.h),
+                        Text(
+                          _formatFullDate(createdAt),
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                           ),
-                        ],
+                        ),
                       ],
                     ),
                   ),
@@ -322,7 +387,8 @@ class _NotificationCardState extends State<NotificationCard>
     );
   }
 
-  String _formatFullDate(String dateString) {
+  String _formatFullDate(String? dateString) {
+    if (dateString == null) return '';
     try {
       final date = DateTime.parse(dateString);
       return '${date.day}/${date.month}/${date.year} à ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';

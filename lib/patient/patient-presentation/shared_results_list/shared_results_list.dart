@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/storage_service.dart';
+import '../../../services/theme_service.dart';
 import '../../patient-widgets/widgets/patient_sidebar.dart';
+import '../imagery_results_list/widgets/imagery_skeleton_loader.dart';
 import 'widgets/shared_results_header.dart';
 import 'widgets/shared_result_card.dart';
 import 'widgets/shared_results_empty_state.dart';
+import '../../patient-widgets/widgets/professional_app_bar.dart';
 
 class SharedResultsList extends StatefulWidget {
   const SharedResultsList({super.key});
@@ -21,11 +24,25 @@ class _SharedResultsListState extends State<SharedResultsList> {
   String _searchQuery = '';
   String _selectedFilter = 'Tous';
   String? _error;
+  final ThemeService _themeService = ThemeService();
 
   @override
   void initState() {
     super.initState();
+    _themeService.addListener(_onThemeChanged);
     _loadSharedResults();
+  }
+
+  @override
+  void dispose() {
+    _themeService.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> _loadSharedResults() async {
@@ -148,48 +165,64 @@ class _SharedResultsListState extends State<SharedResultsList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: _themeService.isDarkMode ? Color(0xFF0F172A) : Colors.grey[50],
       drawer: Drawer(
         child: PatientSidebar(
           currentRoute: '/patient-resultats-partages',
           onLogout: _handleLogout,
         ),
       ),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        surfaceTintColor: Colors.white,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: Color(0xFF3B82F6)),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        title: Text(
-          'Résultats Partagés',
-          style: TextStyle(
-            color: Color(0xFF3B82F6),
-            fontWeight: FontWeight.bold,
-            fontSize: 18.sp,
-          ),
-        ),
+      appBar: ProfessionalAppBar(
+        title: 'Résultats Partagés',
+        subtitle: 'Partages avec médecins',
+        showBackButton: false,
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh, color: Color(0xFF3B82F6)),
+            icon: Icon(Icons.refresh, color: Colors.white, size: 5.w),
             onPressed: _loadSharedResults,
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          SharedResultsHeader(
-            searchQuery: _searchQuery,
-            selectedFilter: _selectedFilter,
-            onSearchChanged: _onSearchChanged,
-            onFilterChanged: _onFilterChanged,
-          ),
-          Expanded(
-            child: _buildResultsList(),
+          if (!_themeService.isDarkMode)
+            Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/overlay2.jpeg"),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          if (_themeService.isDarkMode)
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF0F172A),
+                    Color(0xFF1E293B),
+                  ],
+                ),
+              ),
+            ),
+          if (!_themeService.isDarkMode)
+            Container(
+              color: Colors.white.withOpacity(0.85),
+            ),
+          Column(
+            children: [
+              SharedResultsHeader(
+                searchQuery: _searchQuery,
+                selectedFilter: _selectedFilter,
+                onSearchChanged: _onSearchChanged,
+                onFilterChanged: _onFilterChanged,
+              ),
+              Expanded(
+                child: _buildResultsList(),
+              ),
+            ],
           ),
         ],
       ),
@@ -198,11 +231,7 @@ class _SharedResultsListState extends State<SharedResultsList> {
 
   Widget _buildResultsList() {
     if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(
-          color: Color(0xFF3B82F6),
-        ),
-      );
+      return ImagerySkeletonLoader(itemCount: 6);
     }
 
     if (_error != null) {
@@ -221,7 +250,7 @@ class _SharedResultsListState extends State<SharedResultsList> {
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.bold,
-                color: Colors.red,
+                color: _themeService.isDarkMode ? Colors.white : Colors.red,
               ),
             ),
             SizedBox(height: 3.h),

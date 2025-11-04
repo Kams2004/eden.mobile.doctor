@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../../../services/theme_service.dart';
 
 class QRCodeWidget extends StatelessWidget {
   final Map<String, dynamic> resultData;
@@ -13,13 +14,14 @@ class QRCodeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final qrData = 'EDEN_LAB_${resultData['name'] ?? 'UNKNOWN'}_${resultData['patient'] ?? 'PATIENT'}';
+    final themeService = ThemeService();
     
     return Container(
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!, width: 1),
+        border: Border.all(color: themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[200]!, width: 1),
       ),
       child: Column(
         children: [
@@ -36,7 +38,7 @@ class QRCodeWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: themeService.isDarkMode ? Colors.white : Colors.black87,
                 ),
               ),
             ],
@@ -47,7 +49,7 @@ class QRCodeWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey[300]!, width: 1),
+              border: Border.all(color: themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[300]!, width: 1),
             ),
             child: QrImageView(
               data: qrData,
@@ -62,7 +64,7 @@ class QRCodeWidget extends StatelessWidget {
             'Scannez pour accéder au résultat',
             style: TextStyle(
               fontSize: 10.sp,
-              color: Colors.grey[600],
+              color: themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
             ),
             textAlign: TextAlign.center,
           ),

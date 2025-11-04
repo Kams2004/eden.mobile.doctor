@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../services/storage_service.dart';
+import '../../../../services/theme_service.dart';
 
 class NewRequestDialog extends StatefulWidget {
   final VoidCallback onRequestSubmitted;
@@ -18,14 +19,31 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
   String _selectedUrgency = 'Faible';
   final _messageController = TextEditingController();
   bool _isSubmitting = false;
+  final ThemeService _themeService = ThemeService();
 
   @override
   void initState() {
     super.initState();
+    _themeService.addListener(_onThemeChanged);
     if (widget.existingRequest != null) {
       _loadExistingData();
     }
   }
+
+  @override
+  void dispose() {
+    _themeService.removeListener(_onThemeChanged);
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+
 
   void _loadExistingData() {
     final request = widget.existingRequest!;
@@ -61,11 +79,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
     },
   };
 
-  @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
-  }
+
 
   Future<void> _submitRequest() async {
     if (_selectedRequestType == null || _messageController.text.trim().isEmpty) {
@@ -154,7 +168,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
       child: Container(
         height: 90.h,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _themeService.isDarkMode ? Color(0xFF1E293B) : Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -163,7 +177,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
           Container(
             padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey[200]!, width: 1)),
+              border: Border(bottom: BorderSide(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[200]!, width: 1)),
             ),
             child: Row(
               children: [
@@ -172,13 +186,13 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                   ),
                 ),
                 Spacer(),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.close, color: Colors.grey[600]),
+                  icon: Icon(Icons.close, color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600]),
                 ),
               ],
             ),
@@ -197,7 +211,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                     ),
                   ),
                   SizedBox(height: 2.h),
@@ -221,13 +235,13 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                             border: Border.all(
                               color: _selectedRequestType == entry.key 
                                   ? Color(0xFF3B82F6) 
-                                  : Colors.grey[300]!,
+                                  : (_themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[300]!),
                               width: _selectedRequestType == entry.key ? 2 : 1,
                             ),
                             borderRadius: BorderRadius.circular(12),
                             color: _selectedRequestType == entry.key 
                                 ? Color(0xFF3B82F6).withOpacity(0.05) 
-                                : Colors.white,
+                                : (_themeService.isDarkMode ? Color(0xFF374151) : Colors.white),
                           ),
                           child: Row(
                             children: [
@@ -239,7 +253,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                                   border: Border.all(
                                     color: _selectedRequestType == entry.key 
                                         ? Color(0xFF3B82F6) 
-                                        : Colors.grey[400]!,
+                                        : (_themeService.isDarkMode ? Color(0xFF6B7280) : Colors.grey[400]!),
                                     width: 2,
                                   ),
                                   color: _selectedRequestType == entry.key 
@@ -260,7 +274,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                                       style: TextStyle(
                                         fontSize: 14.sp,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
+                                        color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                                       ),
                                     ),
                                     Text(
@@ -288,7 +302,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                     ),
                   ),
                   SizedBox(height: 2.h),
@@ -308,7 +322,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                             decoration: BoxDecoration(
                               color: _selectedUrgency == urgency 
                                   ? Color(0xFF64748B) 
-                                  : Colors.grey[200],
+                                  : (_themeService.isDarkMode ? Color(0xFF374151) : Colors.grey[200]),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -336,7 +350,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: _themeService.isDarkMode ? Colors.white : Colors.black87,
                     ),
                   ),
                   SizedBox(height: 2.h),
@@ -346,7 +360,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                     maxLines: 6,
                     decoration: InputDecoration(
                       hintText: 'Veuillez fournir des détails supplémentaires sur votre requête...',
-                      hintStyle: TextStyle(color: Colors.grey[500]),
+                      hintStyle: TextStyle(color: _themeService.isDarkMode ? Color(0xFF6B7280) : Colors.grey[500]),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: Colors.grey[300]!),
@@ -367,7 +381,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
           Container(
             padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: Colors.grey[200]!, width: 1)),
+              border: Border(top: BorderSide(color: _themeService.isDarkMode ? Color(0xFF4B5563) : Colors.grey[200]!, width: 1)),
             ),
             child: Row(
               children: [
@@ -377,7 +391,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                     child: Text(
                       'Annuler',
                       style: TextStyle(
-                        color: Colors.grey[600],
+                        color: _themeService.isDarkMode ? Color(0xFF94A3B8) : Colors.grey[600],
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                       ),

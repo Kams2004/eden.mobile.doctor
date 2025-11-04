@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../services/theme_service.dart';
 
 import '../../../patient-core/core/app_export.dart';
 import '../../../patient-theme/theme/app_theme.dart';
@@ -17,10 +18,12 @@ class _LoadingIndicatorWidgetState extends State<LoadingIndicatorWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _rotationAnimation;
+  final ThemeService _themeService = ThemeService();
 
   @override
   void initState() {
     super.initState();
+    _themeService.addListener(_onThemeChanged);
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -39,8 +42,15 @@ class _LoadingIndicatorWidgetState extends State<LoadingIndicatorWidget>
 
   @override
   void dispose() {
+    _themeService.removeListener(_onThemeChanged);
     _animationController.dispose();
     super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -58,10 +68,9 @@ class _LoadingIndicatorWidgetState extends State<LoadingIndicatorWidget>
                 child: CircularProgressIndicator(
                   strokeWidth: 3.0,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    AppTheme.lightTheme.colorScheme.primary,
+                    Color(0xFF3B82F6),
                   ),
-                  backgroundColor: AppTheme.lightTheme.colorScheme.primary
-                      .withValues(alpha: 0.2),
+                  backgroundColor: Color(0xFF3B82F6).withValues(alpha: 0.2),
                 ),
               );
             },
@@ -73,8 +82,7 @@ class _LoadingIndicatorWidgetState extends State<LoadingIndicatorWidget>
           style: GoogleFonts.inter(
             fontSize: 12.sp,
             fontWeight: FontWeight.w400,
-            color: AppTheme.lightTheme.colorScheme.onSurface
-                .withValues(alpha: 0.8),
+            color: _themeService.isDarkMode ? Colors.white.withValues(alpha: 0.8) : Colors.black.withValues(alpha: 0.8),
             letterSpacing: 0.5,
           ),
           textAlign: TextAlign.center,

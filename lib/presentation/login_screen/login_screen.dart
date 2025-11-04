@@ -352,33 +352,36 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                             ),
                             child: Column(
                               children: [
-                                Container(
-                                  width: 20.w,
-                                  height: 20.w,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        Colors.white.withOpacity(0.3),
-                                        Colors.white.withOpacity(0.1),
-                                      ],
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.white.withOpacity(0.2),
-                                        blurRadius: 20,
-                                        spreadRadius: 5,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Icon(
-                                    Icons.medical_services_rounded,
-                                    size: 10.w,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                             Container(
+  width: 20.w,
+  height: 20.w,
+  decoration: BoxDecoration(
+    shape: BoxShape.circle,
+    gradient: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        Colors.white.withOpacity(0.3),
+        Colors.white.withOpacity(0.1),
+      ],
+    ),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.white.withOpacity(0.2),
+        blurRadius: 5,
+        spreadRadius: 5,
+      ),
+    ],
+  ),
+  child: Center(
+    child: Image.asset(
+      'assets/images/pdmd.png',
+      width: 18.w, // Same size as the original icon
+      height: 18.w,
+      fit: BoxFit.contain,
+    ),
+  ),
+),
                                 SizedBox(height: 3.h),
                                 Text(
                                   'EDEN',

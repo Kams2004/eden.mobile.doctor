@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import '../base_url/api_config.dart';
 import '../model/login_model.dart';
@@ -887,6 +888,14 @@ class AuthService {
     } on DioException catch (e) {
       print('LaboratoryDetail DioException: ${e.message}');
       print('LaboratoryDetail Response Data: ${e.response?.data}');
+      
+      if (e.response?.statusCode == 403 && e.response?.data != null) {
+        final responseData = e.response!.data;
+        if (responseData is Map<String, dynamic> && responseData.containsKey('message')) {
+          throw Exception(responseData['message']);
+        }
+      }
+      
       throw Exception('Laboratory detail error: ${e.response?.data ?? e.message}');
     } catch (e) {
       print('LaboratoryDetail General Exception: $e');
@@ -1118,7 +1127,7 @@ class AuthService {
 
   Future<List<Map<String, dynamic>>> getUserNotifications(int userId, String accessToken) async {
     try {
-      final endpoint = 'http://65.21.73.170:1000/notifications/user/$userId';
+      final endpoint = '${ApiConfig.baseUrl}/notifications/user/$userId';
       print('UserNotifications Request URL: $endpoint');
       
       final response = await _dio.get(
@@ -1154,7 +1163,7 @@ class AuthService {
 
   Future<Map<String, dynamic>> getNotificationTypeById(int typeId, String accessToken) async {
     try {
-      final endpoint = 'http://65.21.73.170:1000/notifications/types/$typeId';
+      final endpoint = '${ApiConfig.baseUrl}/notifications/types/$typeId';
       print('NotificationTypeById Request URL: $endpoint');
       
       final response = await _dio.get(
@@ -1184,4 +1193,506 @@ class AuthService {
       throw Exception('Notification type error: $e');
     }
   }
+
+  Future<List<Map<String, dynamic>>> getBlogPosts(String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/blog/';
+      print('BlogPosts Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('BlogPosts Response Status: ${response.statusCode}');
+      print('BlogPosts Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get blog posts failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('BlogPosts DioException: ${e.message}');
+      print('BlogPosts Response Data: ${e.response?.data}');
+      throw Exception('Blog posts error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('BlogPosts General Exception: $e');
+      throw Exception('Blog posts error: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPatientInvoices(int patientId, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/patient/factures/$patientId';
+      print('PatientInvoices Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('PatientInvoices Response Status: ${response.statusCode}');
+      print('PatientInvoices Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get patient invoices failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('PatientInvoices DioException: ${e.message}');
+      print('PatientInvoices Response Data: ${e.response?.data}');
+      throw Exception('Patient invoices error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('PatientInvoices General Exception: $e');
+      throw Exception('Patient invoices error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getDoctorByMatricule(String matricule, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/doctors/informations/matricule/$matricule';
+      print('DoctorByMatricule Request URL: $endpoint');
+      print('DoctorByMatricule Matricule: $matricule');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('DoctorByMatricule Response Status: ${response.statusCode}');
+      print('DoctorByMatricule Response Body: ${response.data}');
+      print('DoctorByMatricule Response Headers: ${response.headers}');
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('Médecin non trouvé');
+      }
+    } on DioException catch (e) {
+      print('DoctorByMatricule DioException Type: ${e.type}');
+      print('DoctorByMatricule DioException Message: ${e.message}');
+      print('DoctorByMatricule Response Status: ${e.response?.statusCode}');
+      print('DoctorByMatricule Response Data: ${e.response?.data}');
+      
+      if (e.response?.statusCode == 404) {
+        throw Exception('Matricule non trouvé');
+      } else if (e.response?.statusCode == 400) {
+        throw Exception('Format de matricule invalide');
+      } else {
+        throw Exception('Erreur de recherche: ${e.response?.statusCode ?? 'Connexion'}');
+      }
+    } catch (e) {
+      print('DoctorByMatricule General Exception: $e');
+      throw Exception('Erreur de recherche: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> sendResultToDoctor({
+    required int doctorId,
+    required String examType,
+    required String examCode,
+    required String accessToken,
+  }) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/send_result/';
+      print('SendResult Request URL: $endpoint');
+      
+      final requestData = {
+        'doctor_id': doctorId,
+        'exam_type': examType,
+        'exam_code': examCode,
+      };
+      
+      final response = await _dio.post(
+        endpoint,
+        data: requestData,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('SendResult Response Status: ${response.statusCode}');
+      print('SendResult Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('Send result failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('SendResult DioException: ${e.message}');
+      print('SendResult Response Data: ${e.response?.data}');
+      throw Exception('Send result error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('SendResult General Exception: $e');
+      throw Exception('Send result error: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getImageryDetail(String testCode, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/imagery/$testCode/result';
+      print('ImageryDetail Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('ImageryDetail Response Status: ${response.statusCode}');
+      print('ImageryDetail Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get imagery detail failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('ImageryDetail DioException: ${e.message}');
+      print('ImageryDetail Response Data: ${e.response?.data}');
+      
+      if (e.response?.statusCode == 403 && e.response?.data != null) {
+        final responseData = e.response!.data;
+        if (responseData is Map<String, dynamic> && responseData.containsKey('message')) {
+          throw Exception(responseData['message']);
+        }
+      }
+      
+      throw Exception('Imagery detail error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('ImageryDetail General Exception: $e');
+      throw Exception('Imagery detail error: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getExplorationDetail(String testCode, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/exploration/$testCode/result';
+      print('ExplorationDetail Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('ExplorationDetail Response Status: ${response.statusCode}');
+      print('ExplorationDetail Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get exploration detail failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('ExplorationDetail DioException: ${e.message}');
+      print('ExplorationDetail Response Data: ${e.response?.data}');
+      
+      if (e.response?.statusCode == 403 && e.response?.data != null) {
+        final responseData = e.response!.data;
+        if (responseData is Map<String, dynamic> && responseData.containsKey('message')) {
+          throw Exception(responseData['message']);
+        }
+      }
+      
+      throw Exception('Exploration detail error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('ExplorationDetail General Exception: $e');
+      throw Exception('Exploration detail error: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAllPrescriptions(String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/prescription/all_prescriptions/';
+      print('GetAllPrescriptions Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('GetAllPrescriptions Response Status: ${response.statusCode}');
+      print('GetAllPrescriptions Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get prescriptions failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('GetAllPrescriptions DioException: ${e.message}');
+      print('GetAllPrescriptions Response Data: ${e.response?.data}');
+      throw Exception('Get prescriptions error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('GetAllPrescriptions General Exception: $e');
+      throw Exception('Get prescriptions error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> addPrescription({
+    required String nameDoctor,
+    required String ordreDoctor,
+    required String description,
+    required bool demandeDevis,
+    required File imageFile,
+    required String accessToken,
+  }) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/prescription/add/';
+      print('AddPrescription Request URL: $endpoint');
+      
+      FormData formData = FormData.fromMap({
+        'NameDoctor': nameDoctor,
+        'OrdreDoctor': ordreDoctor,
+        'Description': description,
+        'demande_devis': demandeDevis,
+        'file': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: 'prescription_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        ),
+      });
+      
+      final response = await _dio.post(
+        endpoint,
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('AddPrescription Response Status: ${response.statusCode}');
+      print('AddPrescription Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('Add prescription failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('AddPrescription DioException: ${e.message}');
+      print('AddPrescription Response Data: ${e.response?.data}');
+      throw Exception('Add prescription error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('AddPrescription General Exception: $e');
+      throw Exception('Add prescription error: $e');
+    }
+  }
+
+  Future<void> deletePrescription(int prescriptionId, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/prescription/del/$prescriptionId';
+      print('DeletePrescription Request URL: $endpoint');
+      
+      final response = await _dio.delete(
+        endpoint,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('DeletePrescription Response Status: ${response.statusCode}');
+      print('DeletePrescription Response Body: ${response.data}');
+
+      if (response.statusCode != 200) {
+        throw Exception('Delete prescription failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('DeletePrescription DioException: ${e.message}');
+      print('DeletePrescription Response Data: ${e.response?.data}');
+      throw Exception('Delete prescription error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('DeletePrescription General Exception: $e');
+      throw Exception('Delete prescription error: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPrescriptionDevis(String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/prescription/devis/';
+      print('GetPrescriptionDevis Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('GetPrescriptionDevis Response Status: ${response.statusCode}');
+      print('GetPrescriptionDevis Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get prescription devis failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('GetPrescriptionDevis DioException: ${e.message}');
+      print('GetPrescriptionDevis Response Data: ${e.response?.data}');
+      throw Exception('Get prescription devis error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('GetPrescriptionDevis General Exception: $e');
+      throw Exception('Get prescription devis error: $e');
+    }
+  }
+
+  Future<void> markNotificationRead(int notificationId, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/notifications/mark_read/';
+      print('MarkNotificationRead Request URL: $endpoint');
+      
+      final response = await _dio.post(
+        endpoint,
+        data: {'notification_id': notificationId},
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('MarkNotificationRead Response Status: ${response.statusCode}');
+      print('MarkNotificationRead Response Body: ${response.data}');
+
+      if (response.statusCode != 200) {
+        throw Exception('Mark notification read failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('MarkNotificationRead DioException: ${e.message}');
+      print('MarkNotificationRead Response Data: ${e.response?.data}');
+      throw Exception('Mark notification read error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('MarkNotificationRead General Exception: $e');
+      throw Exception('Mark notification read error: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getInvoiceProducts(String invoiceNumber, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/patient/factures/products/$invoiceNumber';
+      print('InvoiceProducts Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('InvoiceProducts Response Status: ${response.statusCode}');
+      print('InvoiceProducts Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        if (response.data is List) {
+          return List<Map<String, dynamic>>.from(response.data);
+        }
+        return [];
+      } else {
+        throw Exception('Get invoice products failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('InvoiceProducts DioException: ${e.message}');
+      print('InvoiceProducts Response Data: ${e.response?.data}');
+      throw Exception('Invoice products error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('InvoiceProducts General Exception: $e');
+      throw Exception('Invoice products error: $e');
+    }
+  }
+
+  Future<void> deletePatientRequest(int requestId, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/requete/del/$requestId';
+      print('DeletePatientRequest Request URL: $endpoint');
+      
+      final response = await _dio.delete(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('DeletePatientRequest Response Status: ${response.statusCode}');
+      print('DeletePatientRequest Response Body: ${response.data}');
+
+      if (response.statusCode != 200) {
+        throw Exception('Delete patient request failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('DeletePatientRequest DioException: ${e.message}');
+      print('DeletePatientRequest Response Data: ${e.response?.data}');
+      throw Exception('Delete patient request error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('DeletePatientRequest General Exception: $e');
+      throw Exception('Delete patient request error: $e');
+    }
+  }
+
 }

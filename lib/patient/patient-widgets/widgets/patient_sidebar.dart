@@ -6,6 +6,9 @@ import '../../patient-presentation/shared_results_list/shared_results_list.dart'
 import '../../patient-presentation/patient_requests/patient_requests_list.dart';
 import '../../patient-presentation/patient_notifications/patient_notifications.dart';
 import '../../patient-presentation/exploration_results_list/exploration_results_list.dart';
+import '../../patient-presentation/prescription/prescription_page.dart';
+import '../../patient-presentation/patient_profile/patient_profile_screen.dart';
+import '../../patient-presentation/invoices/invoices_page.dart';
 
 class PatientSidebar extends StatelessWidget {
   final String currentRoute;
@@ -34,47 +37,41 @@ class PatientSidebar extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Professional Header
+          // Compact Header
           Container(
-            padding: EdgeInsets.only(top: 8.h, bottom: 3.h, left: 6.w, right: 6.w),
+            padding: EdgeInsets.only(top: 6.h, bottom: 2.h, left: 6.w, right: 6.w),
             decoration: BoxDecoration(
               color: Color(0xFF0F172A),
               border: Border(
                 bottom: BorderSide(color: Color(0xFF334155), width: 1),
               ),
             ),
-            child: Column(
+            child: Row(
               children: [
                 // PDMD Logo
                 Container(
-                  width: 18.w,
-                  height: 18.w,
+                  width: 12.w,
+                  height: 12.w,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: ClipOval(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
                     child: Image.asset(
-                      'images/assets/pdmd_logo.png',
+                      'assets/images/pdmd.png',
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(
                             child: Text(
                               'PDMD',
                               style: TextStyle(
-                                fontSize: 14.sp,
+                                fontSize: 10.sp,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF1E293B),
                               ),
@@ -85,22 +82,26 @@ class PatientSidebar extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 2.h),
-                Text(
-                  'Espace Patient',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(height: 0.5.h),
-                Text(
-                  'Plateforme Médicale',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Color(0xFF94A3B8),
-                  ),
+                SizedBox(width: 3.w),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'EDEN - PDMD',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      'Espace Patient',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -121,6 +122,15 @@ class PatientSidebar extends StatelessWidget {
                   ),
                   
                   SizedBox(height: 1.h),
+
+                      _buildMenuItem(
+                    context,
+                    icon: Icons.receipt,
+                    title: 'Factures',
+                    route: '/patient-invoices',
+                  ),
+                  SizedBox(height: 1.h),
+
                   _buildSectionHeader('RÉSULTATS MÉDICAUX'),
                   _buildMenuItem(
                     context,
@@ -140,6 +150,13 @@ class PatientSidebar extends StatelessWidget {
                     title: 'Exploration',
                     route: '/exploration-results',
                   ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.receipt_long,
+                    title: 'Prescriptions',
+                    route: '/prescription',
+                  ),
+              
                   
                   SizedBox(height: 1.h),
                   _buildSectionHeader('COMMUNICATION'),
@@ -160,7 +177,7 @@ class PatientSidebar extends StatelessWidget {
                     icon: Icons.notifications,
                     title: 'Notifications',
                     route: '/patient-notifications-settings',
-                    hasNotification: true,
+                    hasNotification: _hasUnreadNotifications(),
                   ),
                   
                   SizedBox(height: 1.h),
@@ -171,12 +188,7 @@ class PatientSidebar extends StatelessWidget {
                     title: 'Profil',
                     route: '/patient-profile',
                   ),
-                  _buildMenuItem(
-                    context,
-                    icon: Icons.settings,
-                    title: 'Paramètres',
-                    route: '/patient-settings',
-                  ),
+        
                 ],
               ),
             ),
@@ -241,11 +253,17 @@ class PatientSidebar extends StatelessWidget {
         style: TextStyle(
           fontSize: 10.sp,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF64748B),
+          color: Color.fromARGB(255, 142, 155, 173),
           letterSpacing: 1.2,
         ),
       ),
     );
+  }
+
+  bool _hasUnreadNotifications() {
+    // This would need to be passed from parent or fetched from storage
+    // For now, return false - will be updated when notifications are loaded
+    return false;
   }
 
   Widget _buildMenuItem(
@@ -279,7 +297,7 @@ class PatientSidebar extends StatelessWidget {
               children: [
                 Container(
                   width: 10.w,
-                  height: 10.w,
+                  height: 6.w,
                   decoration: BoxDecoration(
                     color: isSelected 
                         ? Colors.white.withOpacity(0.2)
@@ -296,14 +314,15 @@ class PatientSidebar extends StatelessWidget {
                       ),
                       if (hasNotification)
                         Positioned(
-                          right: 1,
-                          top: 1,
+                          right: 0.5.w,
+                          top: 0.5.w,
                           child: Container(
                             width: 2.w,
                             height: 2.w,
                             decoration: BoxDecoration(
                               color: Color(0xFFEF4444),
                               shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 1),
                             ),
                           ),
                         ),
@@ -385,6 +404,30 @@ class PatientSidebar extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => ExplorationResultsList(),
+          ),
+        );
+        break;
+      case '/prescription':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PrescriptionPage(),
+          ),
+        );
+        break;
+      case '/patient-invoices':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => InvoicesPage(),
+          ),
+        );
+        break;
+      case '/patient-profile':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PatientProfileScreen(),
           ),
         );
         break;
