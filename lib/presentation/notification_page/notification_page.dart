@@ -5,6 +5,7 @@ import '../../core/app_export.dart';
 import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
 import '../../model/notification_model.dart';
+import '../widgets/doctor_professional_app_bar.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({Key? key}) : super(key: key);
@@ -180,66 +181,10 @@ class _NotificationPageState extends State<NotificationPage> with TickerProvider
     
     return Scaffold(
       backgroundColor: Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: Container(
-          margin: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: Color(0xFF334155),
-              size: 20,
-            ),
-          ),
-        ),
-        title: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF3B82F6), Color(0xFF1E40AF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                Icons.notifications_active,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-            SizedBox(width: 3.w),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Toutes les notifications',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                Text(
-                  '${allNotifications.length} notifications au total',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Color(0xFF64748B),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+      appBar: DoctorProfessionalAppBar(
+        title: 'Toutes les notifications',
+        subtitle: '${allNotifications.length} notifications au total',
+        icon: Icons.notifications_active,
       ),
       body: FadeTransition(
         opacity: _fadeAnimation,

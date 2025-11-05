@@ -99,7 +99,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
 
   Widget _buildInvoiceCard(Map<String, dynamic> invoice) {
     final isPaid = invoice['state'] == 'paid';
-    final amount = double.tryParse(invoice['amount_to_pay']?.toString() ?? '0') ?? 0.0;
+    final amount = double.tryParse(invoice['total_amount2']?.toString() ?? '0') ?? 0.0;
     
     return Container(
       margin: EdgeInsets.only(bottom: 3.w),
@@ -170,7 +170,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '${amount.toStringAsFixed(0)} FCFA',
+                          '${amount.toString()} FCFA',
                           style: TextStyle(
                             fontSize: 15.sp,
                             fontWeight: FontWeight.bold,
@@ -349,9 +349,9 @@ class _InvoicesPageState extends State<InvoicesPage> {
                             ),
                           ),
                           SizedBox(height: 1.h),
-                          _buildDetailRow('Montant HT', '${(invoice['untaxed_amount'] ?? 0).toStringAsFixed(0)} FCFA'),
+                          _buildDetailRow('Montant HT', '${(invoice['untaxed_amount'] ?? 0).toString()} FCFA'),
                           _buildDetailRow('Montant assurance', '${invoice['montant_assurance'] ?? '0'} FCFA'),
-                          _buildDetailRow('Montant patient', '${(invoice['montant_patient'] ?? 0).toStringAsFixed(0)} FCFA'),
+                          _buildDetailRow('Montant patient', '${(invoice['montant_patient'] ?? 0).toString()} FCFA'),
                           Divider(height: 2.h),
                           Container(
                             padding: EdgeInsets.all(3.w),
@@ -363,7 +363,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Montant à payer',
+                                  'Total Montant',
                                   style: TextStyle(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.bold,
@@ -371,7 +371,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                   ),
                                 ),
                                 Text(
-                                  '${(double.tryParse(invoice['amount_to_pay']?.toString() ?? '0') ?? 0).toStringAsFixed(0)} FCFA',
+                                  '${(double.tryParse(invoice['total_amount2']?.toString() ?? '0') ?? 0).toString()} FCFA',
                                   style: TextStyle(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.bold,

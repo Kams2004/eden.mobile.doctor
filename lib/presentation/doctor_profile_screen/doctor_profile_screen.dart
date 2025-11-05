@@ -6,6 +6,7 @@ import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
 import '../../model/doctor_profile_model.dart';
 import '../../model/doctor_update_model.dart';
+import '../widgets/doctor_professional_app_bar.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
   const DoctorProfileScreen({super.key});
@@ -123,20 +124,9 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF3B82F6)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Mon Profil',
-          style: TextStyle(
-            color: Color(0xFF3B82F6),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      appBar: DoctorProfessionalAppBar(
+        title: 'Mon Profil',
+        icon: Icons.person,
         actions: [
           if (!_isEditing)
             IconButton(

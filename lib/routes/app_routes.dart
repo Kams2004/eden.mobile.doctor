@@ -11,6 +11,8 @@ import '../presentation/patient_list/patient_list.dart';
 import '../presentation/doctor_profile_screen/doctor_profile_screen.dart';
 import '../presentation/results_page/results_page.dart';
 import '../presentation/request_page/request_page.dart';
+import '../presentation/points_page/points_page.dart';
+import '../presentation/analyse_points_page/analyse_points_page.dart';
 import '../patient/patient-presentation/patient_notifications/patient_notifications.dart';
 import '../patient/patient-presentation/exploration_results_list/exploration_results_list.dart';
 import '../patient/patient-presentation/prescription/prescription_page.dart';
@@ -19,6 +21,7 @@ import '../patient/patient-presentation/imagery_results_list/imagery_results_lis
 import '../patient/patient-presentation/patient_requests/patient_requests_list.dart';
 import '../patient/patient-presentation/shared_results_list/shared_results_list.dart';
 import '../patient/patient-presentation/invoices/invoices_page.dart';
+import '../patient/patient-presentation/help_service/help_service_page.dart';
 
 class AppRoutes {
   // TODO: Add your routes here
@@ -44,6 +47,9 @@ class AppRoutes {
   static const String patientRequests = '/patient-requests';
   static const String sharedResults = '/patient-resultats-partages';
   static const String patientInvoices = '/patient-invoices';
+  static const String helpService = '/help-service';
+  static const String points = '/points';
+  static const String analysePoints = '/analyse-points';
 
   static Map<String, WidgetBuilder> routes = {
     initial: (context) => const SplashScreen(),
@@ -58,7 +64,7 @@ class AppRoutes {
     patientProfile: (context) => const PatientProfileScreen(),
     doctorProfile: (context) => const DoctorProfileScreen(),
     results: (context) => const ResultsPage(),
-    requestPage: (context) => const RequestPage(),
+    requestPage: (context) => PatientRequestsList(),
     patientNotifications: (context) => PatientNotifications(),
     explorationResults: (context) => ExplorationResultsList(),
     prescription: (context) => PrescriptionPage(),
@@ -67,6 +73,9 @@ class AppRoutes {
     patientRequests: (context) => PatientRequestsList(),
     sharedResults: (context) => SharedResultsList(),
     patientInvoices: (context) => InvoicesPage(),
+    helpService: (context) => HelpServicePage(),
+    points: (context) => const PointsPage(),
+    analysePoints: (context) => const AnalysePointsPage(),
     // TODO: Add your other routes here
   };
 }

@@ -6,6 +6,7 @@ import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
 import '../../model/request_model.dart';
 import '../../model/request_response_model.dart';
+import '../widgets/doctor_professional_app_bar.dart';
 
 class RequestPage extends StatefulWidget {
   const RequestPage({Key? key}) : super(key: key);
@@ -99,70 +100,11 @@ class _RequestPageState extends State<RequestPage> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF8FAFC),
-      appBar:
-       AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        shadowColor: Colors.black.withOpacity(0.1),
-        leading: Container(
-          margin: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(12),
-          ),
-       child: IconButton(
-  onPressed: () {
-    Navigator.popAndPushNamed(context, '/dashboard');
-  },
-  icon: Icon(
-    Icons.arrow_back_ios_new,
-    color: Color(0xFF334155),
-    size: 20,
-  ),
-),
-        ),
-        title: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF3B82F6), Color(0xFF1E40AF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                Icons.support_agent,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-            SizedBox(width: 3.w),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Centre de Requêtes',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                Text(
-                  'Gestion des demandes',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Color(0xFF64748B),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+      appBar: DoctorProfessionalAppBar(
+        title: 'Centre de Requêtes',
+        subtitle: 'Gestion des demandes',
+        icon: Icons.support_agent,
+        onBackPressed: () => Navigator.popAndPushNamed(context, '/dashboard'),
       ),
       body: FadeTransition(
         opacity: _fadeAnimation,

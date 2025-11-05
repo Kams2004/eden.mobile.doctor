@@ -120,15 +120,35 @@ class _PatientRequestsListState extends State<PatientRequestsList> {
 
   @override
   Widget build(BuildContext context) {
+    final userRole = StorageService.userRole;
+    final isDoctor = userRole != 'Patient';
+    
     return Scaffold(
       backgroundColor: _themeService.isDarkMode ? Color(0xFF0F172A) : Colors.grey[50],
-      drawer: Drawer(
+      drawer: isDoctor ? null : Drawer(
         child: PatientSidebar(
           currentRoute: '/patient-requests',
           onLogout: _handleLogout,
         ),
       ),
-      appBar: ProfessionalAppBar(
+      appBar: isDoctor ? AppBar(
+        title: Text(
+          'Requêtes',
+          style: TextStyle(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Color(0xFF3B82F6),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: Colors.white),
+            onPressed: _loadRequests,
+          ),
+        ],
+      ) : ProfessionalAppBar(
         title: 'Mes Requêtes',
         subtitle: 'Demandes médicales',
         showBackButton: false,

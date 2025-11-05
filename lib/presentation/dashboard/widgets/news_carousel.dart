@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
+import '../../../services/storage_service.dart';
 
 class NewsCarousel extends StatefulWidget {
   final List<Map<String, dynamic>> newsItems;
@@ -145,6 +146,9 @@ class _NewsCarouselState extends State<NewsCarousel> {
                 child: Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
+                  headers: {
+                    'Authorization': 'Bearer ${StorageService.accessToken ?? ''}',
+                  },
                   errorBuilder: (context, error, stackTrace) => Container(
                     decoration: BoxDecoration(
                       color: backgroundColor.withOpacity(0.1),

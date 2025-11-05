@@ -1572,7 +1572,7 @@ class _PatientDashboardState extends State<PatientDashboard> with TickerProvider
     
     Navigator.pushNamedAndRemoveUntil(
       context,
-      '/login-screen',
+      '/role-selection',
       (route) => false,
     );
   }

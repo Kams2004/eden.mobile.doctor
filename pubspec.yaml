@@ -52,6 +52,8 @@ flutter:
     - assets/lotties/login.json
     - assets/lotties/splash.json
     - assets/lotties/roles.json
+    - assets/lotties/aide service.json
+    - assets/lotties/feedback.json
 
 
   # CRITICAL ASSET MANAGEMENT RULES:

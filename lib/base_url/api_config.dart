@@ -25,4 +25,5 @@ class ApiConfig {
   static const String shareResultEndpoint = '$baseUrl/send_result/';
   static const String sharedResultsEndpoint = '$baseUrl/send_result/patient';
   static const String deleteSharedResultEndpoint = '$baseUrl/send_result/del';
+  static const String suggestionsEndpoint = '$baseUrl/suggestions/add';
 }

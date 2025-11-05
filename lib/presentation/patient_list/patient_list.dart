@@ -7,6 +7,7 @@ import '../../core/app_export.dart';
 import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
 import '../../model/patients_model.dart';
+import '../widgets/doctor_professional_app_bar.dart';
 import './widgets/empty_state_widget.dart';
 import './widgets/filter_bottom_sheet_widget.dart';
 import './widgets/filter_chip_widget.dart';
@@ -344,84 +345,24 @@ class _PatientListState extends State<PatientList> {
             children: [
               // AppBar
               SafeArea(
-                child:
-                 AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Container(
-          margin: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: Color(0xFF334155),
-              size: 20,
-            ),
-          ),
-        ),
-        title: Flexible(
-          child: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(2.w),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF3B82F6), Color(0xFF1E40AF)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                   borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.assignment_outlined,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-              SizedBox(width: 2.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Patients',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1E293B),
+                child: DoctorProfessionalAppBar(
+                  title: 'Patients',
+                  subtitle: 'Commission totale: ${_totalCommission.toStringAsFixed(2)} POINTS',
+                  icon: Icons.people,
+                  actions: [
+                    TextButton(
+                      onPressed: _refreshPatients,
+                      child: Text(
+                        'Actualiser',
+                        style: TextStyle(
+                          color: Color(0xFF3B82F6),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12.sp,
+                        ),
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
-                Text(
-              'Commission totale: ${_totalCommission.toStringAsFixed(2)} POINTS',
-              style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
-                color: AppTheme.lightTheme.colorScheme.primary,
-              ),
-            ),
                   ],
                 ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: _refreshPatients,
-            child: Text(
-              'Actualiser',
-              style: TextStyle(
-                color: Color(0xFF3B82F6),
-                fontWeight: FontWeight.w600,
-                fontSize: 12.sp,
-              ),
-            ),
-          ),
-        ],
-              ),
               ),
               // Body content
               Expanded(

@@ -1695,4 +1695,142 @@ class AuthService {
     }
   }
 
+  Future<Map<String, dynamic>> submitSuggestion(String content, int note, String accessToken) async {
+    try {
+      final endpoint = ApiConfig.suggestionsEndpoint;
+      print('SubmitSuggestion Request URL: $endpoint');
+      
+      final requestData = {
+        'content': content,
+        'note': note,
+      };
+      
+      final response = await _dio.post(
+        endpoint,
+        data: requestData,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('SubmitSuggestion Response Status: ${response.statusCode}');
+      print('SubmitSuggestion Response Body: ${response.data}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('Submit suggestion failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('SubmitSuggestion DioException: ${e.message}');
+      print('SubmitSuggestion Response Data: ${e.response?.data}');
+      throw Exception('Submit suggestion error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('SubmitSuggestion General Exception: $e');
+      throw Exception('Submit suggestion error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getDoctorCommissions(int doctorId, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/gnu_doctor/$doctorId/commissions/';
+      print('DoctorCommissions Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('DoctorCommissions Response Status: ${response.statusCode}');
+      print('DoctorCommissions Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('Get doctor commissions failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('DoctorCommissions DioException: ${e.message}');
+      print('DoctorCommissions Response Data: ${e.response?.data}');
+      throw Exception('Doctor commissions error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('DoctorCommissions General Exception: $e');
+      throw Exception('Doctor commissions error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getMonthlyAnalysis(int doctorId, int month, String invoiceStatus, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/doctor_com/invoiced_by_mounth/$doctorId/$month/$invoiceStatus';
+      print('MonthlyAnalysis Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('MonthlyAnalysis Response Status: ${response.statusCode}');
+      print('MonthlyAnalysis Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('Get monthly analysis failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('MonthlyAnalysis DioException: ${e.message}');
+      print('MonthlyAnalysis Response Data: ${e.response?.data}');
+      throw Exception('Monthly analysis error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('MonthlyAnalysis General Exception: $e');
+      throw Exception('Monthly analysis error: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getYearlyAnalysis(int doctorId, int year, String invoiceStatus, String accessToken) async {
+    try {
+      final endpoint = '${ApiConfig.baseUrl}/doctor_com/invoiced_by_year/$doctorId/$year/$invoiceStatus';
+      print('YearlyAnalysis Request URL: $endpoint');
+      
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+
+      print('YearlyAnalysis Response Status: ${response.statusCode}');
+      print('YearlyAnalysis Response Body: ${response.data}');
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('Get yearly analysis failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('YearlyAnalysis DioException: ${e.message}');
+      print('YearlyAnalysis Response Data: ${e.response?.data}');
+      throw Exception('Yearly analysis error: ${e.response?.data ?? e.message}');
+    } catch (e) {
+      print('YearlyAnalysis General Exception: $e');
+      throw Exception('Yearly analysis error: $e');
+    }
+  }
+
 }

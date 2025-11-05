@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
-import '../core/app_export.dart';
-import '../widgets/custom_error_widget.dart';
+import 'core/app_export.dart';
+import 'routes/app_routes.dart';
+import 'widgets/custom_error_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
@@ -57,8 +58,15 @@ class MyApp extends StatelessWidget {
         },
         // 🚨 END CRITICAL SECTION
         debugShowCheckedModeBanner: false,
-              routes: AppRoutes.routes,
-              initialRoute: AppRoutes.initial,
+        onGenerateRoute: (settings) {
+          final routes = AppRoutes.routes;
+          final builder = routes[settings.name];
+          if (builder != null) {
+            return MaterialPageRoute(builder: builder, settings: settings);
+          }
+          return null;
+        },
+        initialRoute: AppRoutes.initial,
       );
     });
   }

@@ -526,16 +526,27 @@ class _DashboardState extends State<Dashboard> {
       ),
       child: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 2.w,vertical: 1.w),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(Icons.dashboard, 'Accueil', 0, true),
-              _buildNavItem(Icons.people, 'Patients', 1, false),
-              _buildNavItem(Icons.assignment, 'Résultats', 2, false),
-              _buildNavItem(Icons.request_page, 'Requête', 3, false),
-              _buildNavItem(Icons.person, 'Profil', 4, false),
-            ],
+          padding: EdgeInsets.symmetric(vertical: 1.w),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 2.w),
+            child: Row(
+              children: [
+                _buildNavItem(Icons.dashboard, 'Accueil', 0, true),
+                SizedBox(width: 1.w),
+                _buildNavItem(Icons.people, 'Patients', 1, false),
+                SizedBox(width: 1.w),
+                _buildNavItem(Icons.account_balance_wallet, 'Points', 2, false),
+                SizedBox(width: 1.w),
+                _buildNavItem(Icons.analytics, 'Analyse', 3, false),
+                SizedBox(width: 1.w),
+                _buildNavItem(Icons.request_page, 'Requête', 4, false),
+                SizedBox(width: 1.w),
+                _buildNavItem(Icons.assignment, 'Résultats', 5, false),
+                SizedBox(width: 1.w),
+                _buildNavItem(Icons.person, 'Profil', 6, false),
+              ],
+            ),
           ),
         ),
       ),
@@ -543,33 +554,39 @@ class _DashboardState extends State<Dashboard> {
   }
 
 Widget _buildNavItem(IconData icon, String label, int index, bool isSelected) {
-  return Flexible( // Use Flexible instead of Expanded
-    child: GestureDetector(
-      onTap: () => _handleBottomNavTap(index),
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 1.w),
-        padding: EdgeInsets.symmetric(vertical: 2.w, horizontal: 2.w),
-        decoration: BoxDecoration(
-          color: isSelected ? Color(0xFF3B82F6).withOpacity(0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: EdgeInsets.all(2.w),
-              decoration: BoxDecoration(
-                color: isSelected ? Color(0xFF3B82F6) : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                color: isSelected ? Colors.white : Color(0xFF64748B),
-                size: 20,
-              ),
+  return GestureDetector(
+    onTap: () => _handleBottomNavTap(index),
+    child: Container(
+      padding: EdgeInsets.symmetric(vertical: 2.w, horizontal: 3.w),
+      decoration: BoxDecoration(
+        color: isSelected ? Color(0xFF3B82F6).withOpacity(0.1) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: EdgeInsets.all(2.w),
+            decoration: BoxDecoration(
+              color: isSelected ? Color(0xFF3B82F6) : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
             ),
-          ],
-        ),
+            child: Icon(
+              icon,
+              color: isSelected ? Colors.white : Color(0xFF64748B),
+              size: 18,
+            ),
+          ),
+          SizedBox(height: 0.5.w),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 9.sp,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Color(0xFF3B82F6) : Color(0xFF64748B),
+            ),
+          ),
+        ],
       ),
     ),
   );
@@ -620,17 +637,24 @@ Widget _buildNavItem(IconData icon, String label, int index, bool isSelected) {
   void _handleBottomNavTap(int index) {
     switch (index) {
       case 0:
+        // Already on dashboard
         break;
       case 1:
         Navigator.pushNamed(context, '/patient-list');
         break;
       case 2:
-        Navigator.pushNamed(context, '/results');
+        Navigator.pushNamed(context, '/points');
         break;
       case 3:
-        Navigator.pushNamed(context, '/request-page');
+        Navigator.pushNamed(context, '/analyse-points');
         break;
       case 4:
+        Navigator.pushNamed(context, '/request-page');
+        break;
+      case 5:
+        Navigator.pushNamed(context, '/results');
+        break;
+      case 6:
         Navigator.pushNamed(context, '/doctor-profile');
         break;
     }
@@ -986,18 +1010,13 @@ Widget _buildNavItem(IconData icon, String label, int index, bool isSelected) {
     
     Navigator.pushNamedAndRemoveUntil(
       context,
-      '/login-screen',
+      '/role-selection',
       (route) => false,
     );
   }
 
 void _showRequestForm() {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => RequestPage(), // Your destination screen widget
-    ),
-  );
+  Navigator.pushNamed(context, '/request-page');
 }
 
   void _showUserGuide() {
